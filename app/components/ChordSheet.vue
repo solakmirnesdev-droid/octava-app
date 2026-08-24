@@ -1,0 +1,37 @@
+<script setup>
+import { parseSong, transposeContent } from '~/utils/chordpro';
+
+const props = defineProps({
+  content: { type: String, default: '' },
+  semitones: { type: Number, default: 0 },
+  // Passed so transposition can spell the result to match the destination key
+  // instead of falling back to sharps for everything.
+  originalKey: { type: String, default: '' }
+});
+
+const lines = computed(() =>
+  parseSong(transposeContent(props.content, props.semitones, props.originalKey))
+);
+</script>
+
+<template>
+  <div class="font-mono text-[15px] leading-tight">
+    <template v-for="(line, i) in lines" :key="i">
+      <h2
+        v-if="line.type === 'section'"
+        class="mt-6 mb-2 font-sans text-xs font-semibold tracking-widest uppercase text-accent"
+      >
+        {{ line.label }}
+      </h2>
+
+      <!-- Chord and lyric share one inline-block so they stay aligned no matter
+           what the font metrics do or where the line wraps. -->
+      <div v-else class="flex flex-wrap min-h-[2.6em]">
+        <span v-for="(seg, j) in line.segments" :key="j" class="inline-block">
+          <span class="block h-[1.3em] font-semibold text-accent">{{ seg.chord || '' }}</span>
+          <span class="block whitespace-pre">{{ seg.text }}</span>
+        </span>
+      </div>
+    </template>
+  </div>
+</template>
