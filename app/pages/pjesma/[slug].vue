@@ -32,6 +32,7 @@ const song = computed(() => data.value?.song);
 const semitones = ref(0);
 const { fontSize } = useSheetFontSize();
 const showChords = ref(false);
+const { columns, wideEnough, active: splitColumns, toggle: toggleColumns } = useSheetColumns();
 
 const title = computed(() =>
   song.value ? `${song.value.title} — ${song.value.artist?.name} | Akordi za gitaru` : 'Octava'
@@ -81,6 +82,20 @@ useHead({
       <AutoScrollControl />
 
       <button
+        v-if="wideEnough"
+        class="rounded border px-2.5 py-1.5 transition"
+        :class="columns
+          ? 'border-accent bg-accent text-white'
+          : 'border-black/15 bg-white text-black/60 hover:border-accent hover:text-accent'"
+        :aria-pressed="columns"
+        title="Podijeli pjesmu u dvije kolone"
+        @click="toggleColumns"
+      >
+        <Icon name="material-symbols:vertical-split-rounded" />
+        <span class="sr-only">Dvije kolone</span>
+      </button>
+
+      <button
         class="rounded border px-2.5 py-1.5 transition"
         :class="showChords
           ? 'border-accent bg-accent text-white'
@@ -89,13 +104,7 @@ useHead({
         title="Prikaži sve akorde iz pjesme"
         @click="showChords = !showChords"
       >
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true">
-          <rect x="4" y="4" width="16" height="16" rx="2" />
-          <line x1="9" y1="4" x2="9" y2="20" />
-          <line x1="15" y1="4" x2="15" y2="20" />
-          <line x1="4" y1="10" x2="20" y2="10" />
-          <line x1="4" y1="15" x2="20" y2="15" />
-        </svg>
+        <Icon name="material-symbols:grid-view-rounded" />
         <span class="sr-only">Prikaži sve akorde</span>
       </button>
 
@@ -105,13 +114,15 @@ useHead({
 
       <button
         v-if="auth.isAuthenticated"
-        class="ml-auto text-sm hover:text-accent"
+        class="ml-auto flex items-center gap-1 text-sm hover:text-accent"
         @click="favorites.toggle(song._id)"
       >
-        {{ favorites.has(song._id) ? '♥ Sačuvano' : '♡ Sačuvaj' }}
+        <Icon :name="favorites.has(song._id) ? 'material-symbols:favorite-rounded' : 'material-symbols:favorite-outline-rounded'" />
+        {{ favorites.has(song._id) ? 'Sačuvano' : 'Sačuvaj' }}
       </button>
-      <NuxtLink v-else to="/prijava" class="ml-auto text-sm text-black/40 hover:text-accent">
-        ♡ Sačuvaj
+      <NuxtLink v-else to="/prijava" class="ml-auto flex items-center gap-1 text-sm text-black/40 hover:text-accent">
+        <Icon name="material-symbols:favorite-outline-rounded" />
+        Sačuvaj
       </NuxtLink>
     </div>
 
@@ -128,6 +139,7 @@ useHead({
       :semitones="semitones"
       :original-key="song.originalKey"
       :font-size="fontSize"
+      :columns="splitColumns"
     />
   </article>
 </template>

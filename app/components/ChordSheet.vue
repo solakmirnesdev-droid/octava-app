@@ -6,7 +6,8 @@ const props = defineProps({
   semitones: { type: Number, default: 0 },
   // Passed so transposition can resolve the destination key.
   originalKey: { type: String, default: '' },
-  fontSize: { type: Number, default: 15 }
+  fontSize: { type: Number, default: 15 },
+  columns: { type: Boolean, default: false }
 });
 
 const lines = computed(() =>
@@ -36,18 +37,23 @@ onBeforeUnmount(() => clearTimeout(closeTimer));
 
 <template>
   <!-- Chords and lyrics scale together, so column alignment survives any size. -->
-  <div class="font-mono leading-tight" :style="{ fontSize: fontSize + 'px' }">
+  <div
+    class="font-mono leading-tight"
+    :class="columns ? 'columns-2 gap-10 [column-rule:1px_solid_rgb(0_0_0/0.08)]' : ''"
+    :style="{ fontSize: fontSize + 'px' }"
+  >
     <template v-for="(line, i) in lines" :key="i">
       <h2
         v-if="line.type === 'section'"
-        class="mt-6 mb-2 font-sans text-xs font-semibold tracking-widest uppercase text-accent"
+        class="mt-6 mb-2 font-sans text-xs font-semibold tracking-widest uppercase text-accent
+               break-after-avoid break-inside-avoid"
       >
         {{ line.label }}
       </h2>
 
       <!-- Instrumental run: spaced evenly, since there are no words to sit over
            and column positions would collide the chords. -->
-      <div v-else-if="line.instrumental" class="flex flex-wrap gap-4 min-h-[1.6em]">
+      <div v-else-if="line.instrumental" class="flex flex-wrap gap-4 min-h-[1.6em] break-inside-avoid">
         <span
           v-for="(seg, j) in line.segments.filter((s) => s.chord)" :key="j"
           class="relative"
@@ -64,7 +70,7 @@ onBeforeUnmount(() => clearTimeout(closeTimer));
 
       <!-- Chord and lyric share one inline-block so they stay aligned no matter
            what the font metrics do or where the line wraps. -->
-      <div v-else class="flex flex-wrap min-h-[2.6em]">
+      <div v-else class="flex flex-wrap min-h-[2.6em] break-inside-avoid">
         <span v-for="(seg, j) in line.segments" :key="j" class="relative inline-block">
           <span class="block h-[1.3em]">
             <button

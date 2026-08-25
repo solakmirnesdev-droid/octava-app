@@ -4,7 +4,32 @@ export default defineNuxtConfig({
   compatibilityDate: '2025-01-01',
   devtools: { enabled: false },
 
-  modules: ['@pinia/nuxt'],
+  modules: ['@pinia/nuxt', '@nuxt/icon'],
+
+  /**
+   * Icons are inlined as SVG from the locally installed Material Symbols
+   * collection, not loaded as a webfont.
+   *
+   * A webfont would mean one blocking request to a third party, the whole
+   * alphabet shipped for the handful of glyphs actually used, and icons
+   * arriving after first paint — which is a layout shift on every page that
+   * has one. Bundling from the local collection ships only the icons that
+   * appear in the source, with no request at all.
+   */
+  icon: {
+    mode: 'svg',
+    // 'local' reads the @iconify-json packages already installed here.
+    // Naming collections explicitly instead makes the module try to fetch them
+    // from the Iconify service at build time, which silently produced empty
+    // icons: correct size, correct colour, no paths inside.
+    serverBundle: 'local',
+    // Scanned from source so client-side navigation has them too, without
+    // a request.
+    clientBundle: { scan: true },
+    // Matches the surrounding text by default; override per use with a class.
+    size: '1.25em',
+    class: 'align-[-0.15em] shrink-0'
+  },
   css: ['~/assets/css/main.css'],
   vite: { plugins: [tailwindcss()] },
 

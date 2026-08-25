@@ -14,8 +14,7 @@ const { running, speed, toggle, faster, slower, canGoFaster, canGoSlower } = use
         :aria-pressed="running"
         @click="toggle"
       >
-        <span v-if="running" aria-hidden="true">❚❚</span>
-        <span v-else aria-hidden="true">▶</span>
+        <Icon :name="running ? 'material-symbols:pause-rounded' : 'material-symbols:play-arrow-rounded'" />
         <span class="sr-only">{{ running ? 'Zaustavi klizanje' : 'Pokreni klizanje' }}</span>
       </button>
 

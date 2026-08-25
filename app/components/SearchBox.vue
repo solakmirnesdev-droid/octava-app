@@ -115,20 +115,39 @@ onBeforeUnmount(() => {
 
 <template>
   <div ref="root" class="relative flex-1">
-    <form role="search" @submit.prevent="submit">
+    <form role="search" class="relative" @submit.prevent="submit">
+      <!-- Decorative: the input already has an accessible name, so announcing
+           the icon as well would just repeat it. -->
+      <Icon
+        name="material-symbols:search-rounded"
+        aria-hidden="true"
+        class="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-black/35"
+      />
+
       <input
         v-model="query"
         type="search"
         aria-label="Pretraga"
         autocomplete="off"
         placeholder="Traži pjesmu, izvođača ili rubriku…"
-        class="w-full rounded-full border border-black/15 bg-white px-4 py-1.5 text-sm outline-none focus:border-accent"
+        class="w-full rounded-full border border-black/15 bg-white py-1.5 pl-9 pr-9 text-sm outline-none focus:border-accent"
         :aria-expanded="open"
         @focus="query.trim().length >= MIN_QUERY && (open = true)"
         @keydown.down.prevent="move(1)"
         @keydown.up.prevent="move(-1)"
         @keydown.esc.prevent="close"
       />
+
+      <button
+        v-if="query"
+        type="button"
+        class="absolute right-3 top-1/2 -translate-y-1/2 text-black/30 hover:text-accent"
+        title="Očisti"
+        @click="query = ''; close()"
+      >
+        <Icon name="material-symbols:close-rounded" />
+        <span class="sr-only">Očisti pretragu</span>
+      </button>
     </form>
 
     <div
