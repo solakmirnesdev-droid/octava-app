@@ -14,7 +14,9 @@
     "logout": "Odjava",
     "search": "Traži pjesmu, izvođača ili rubriku…",
     "searchLabel": "Pretraga",
-    "clearSearch": "Očisti pretragu"
+    "clearSearch": "Očisti pretragu",
+    "openMenu": "Otvori meni",
+    "closeMenu": "Zatvori meni"
   },
   "song": {
     "key": "Tonalitet",

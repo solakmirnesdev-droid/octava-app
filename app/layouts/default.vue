@@ -1,6 +1,26 @@
 <script setup>
 const auth = useAuthStore();
 const { $api } = useNuxtApp();
+const localePath = useLocalePath();
+const route = useRoute();
+
+/**
+ * Below the sm breakpoint the six nav items collapse behind this. The button
+ * itself is rendered at every width and hidden with CSS rather than v-if, so
+ * the header measures the same on the server as it does after hydration and
+ * nothing shifts.
+ */
+const menuOpen = ref(false);
+
+// Closing on navigation matters more than it looks: every drawer item is a
+// link, so without this the panel stays open over the page you just opened.
+watch(() => route.fullPath, () => { menuOpen.value = false; });
+
+onMounted(() => {
+  const onKey = (e) => { if (e.key === 'Escape') menuOpen.value = false; };
+  window.addEventListener('keydown', onKey);
+  onBeforeUnmount(() => window.removeEventListener('keydown', onKey));
+});
 
 // Fetched once for the whole layout; the rubric row is on every page.
 const { data: genreData } = await useAsyncData('layout-genres', () =>
@@ -48,12 +68,20 @@ useHead({
   }]
 });
 
+/**
+ * Labels are keys, not text: the English site renders this same array. Paths go
+ * through localePath because the routes are translated, not merely prefixed —
+ * a raw '/akordi' here drops an English visitor back onto the Bosnian site.
+ */
 const browse = [
-  { to: '/izvodjaci', label: 'Izvođači', icon: 'material-symbols:artist-rounded' },
-  { to: '/akordi',    label: 'Akordi',   icon: 'material-symbols:music-note-rounded' },
-  { to: '/stimer',    label: 'Štimer',   icon: 'material-symbols:tune-rounded' },
-  { to: '/zatrazi',   label: 'Zatraži',  icon: 'material-symbols:add-circle-outline-rounded' }
+  { to: '/izvodjaci', key: 'nav.artists', icon: 'material-symbols:artist-rounded' },
+  { to: '/akordi',    key: 'nav.chords',  icon: 'material-symbols:music-note-rounded' },
+  { to: '/stimer',    key: 'nav.tuner',   icon: 'material-symbols:tune-rounded' },
+  { to: '/zatrazi',   key: 'nav.request', icon: 'material-symbols:add-circle-outline-rounded' }
 ];
+
+const itemClass =
+  'flex shrink-0 items-center gap-1.5 rounded px-2 py-1.5 text-black/70 hover:bg-black/5 hover:text-accent';
 </script>
 
 <template>
@@ -61,29 +89,38 @@ const browse = [
     <LanguageSuggestion />
 
     <header class="sticky top-0 z-10 border-b border-black/10 bg-surface/90 backdrop-blur">
-      <div class="mx-auto flex max-w-5xl flex-wrap items-center gap-x-4 gap-y-2 px-5 py-3">
-        <NuxtLink to="/" class="text-lg font-semibold tracking-tight">Octava</NuxtLink>
+      <div class="mx-auto flex max-w-5xl items-center gap-x-3 px-5 py-2.5 sm:gap-x-4 sm:py-3">
+        <NuxtLink :to="localePath('/')" class="shrink-0 text-lg font-semibold tracking-tight">Octava</NuxtLink>
 
-        <!-- Second in the source so it reads first, but ordered last on a
-             phone, where it takes the full width of its own row. -->
-        <div class="order-last w-full sm:order-none sm:w-auto sm:flex-1">
-          <SearchBox />
-        </div>
+        <SearchBox />
 
-        <nav
-          class="ml-auto flex items-center gap-1 overflow-x-auto text-sm
-                 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+        <!-- Everything below sm lives behind this one control. Hidden with CSS
+             at sm and up, never with v-if, so the header height is identical
+             before and after hydration. -->
+        <button
+          type="button"
+          class="-mr-2 flex size-11 shrink-0 items-center justify-center rounded text-black/70 hover:bg-black/5 hover:text-accent sm:hidden"
+          :aria-label="menuOpen ? $t('nav.closeMenu') : $t('nav.openMenu')"
+          :aria-expanded="menuOpen"
+          aria-controls="mobile-menu"
+          @click="menuOpen = !menuOpen"
         >
-          <!-- Browsing. Labels collapse on narrow screens; the icons carry the
-               meaning there, which is also what stops this row wrapping. -->
+          <!-- AI-TRAP: both names are written out as literals and toggled, never
+               bound as one dynamic expression. @nuxt/icon builds its client
+               bundle by scanning source for literal names; a computed name is
+               invisible to that scan and renders a correctly sized SVG with no
+               paths in it - a blank button that looks like a styling bug. -->
+          <Icon v-show="!menuOpen" name="material-symbols:menu-rounded" class="text-2xl" />
+          <Icon v-show="menuOpen" name="material-symbols:close-rounded" class="text-2xl" />
+        </button>
+
+        <nav class="ml-auto hidden items-center gap-1 text-sm sm:flex">
           <NuxtLink
-            v-for="item in browse" :key="item.to" :to="item.to"
-            class="flex shrink-0 items-center gap-1.5 rounded px-2 py-1.5 text-black/70 hover:bg-black/5 hover:text-accent"
-            active-class="text-accent"
-            :title="item.label"
+            v-for="item in browse" :key="item.to" :to="localePath(item.to)"
+            :class="itemClass" active-class="text-accent" :title="$t(item.key)"
           >
             <Icon :name="item.icon" />
-            <span>{{ item.label }}</span>
+            <span>{{ $t(item.key) }}</span>
           </NuxtLink>
 
           <span class="mx-1 h-5 w-px shrink-0 bg-black/10" aria-hidden="true" />
@@ -93,34 +130,74 @@ const browse = [
           <!-- Account. Separated deliberately: these act on you, the others
                only move you around the catalogue. -->
           <NuxtLink
-            v-if="auth.isAuthenticated" to="/sacuvano"
-            class="flex shrink-0 items-center gap-1.5 rounded px-2 py-1.5 text-black/70 hover:bg-black/5 hover:text-accent"
-            active-class="text-accent" title="Sačuvano"
+            v-if="auth.isAuthenticated" :to="localePath('/sacuvano')"
+            :class="itemClass" active-class="text-accent" :title="$t('nav.saved')"
           >
             <!-- Same heart as the save action on a song page: one concept,
                  one symbol. -->
             <Icon name="material-symbols:favorite-outline-rounded" />
-            <span>Sačuvano</span>
+            <span>{{ $t('nav.saved') }}</span>
           </NuxtLink>
 
           <NuxtLink
-            v-if="!auth.isAuthenticated" to="/prijava"
-            class="flex shrink-0 items-center gap-1.5 rounded px-2 py-1.5 text-black/70 hover:bg-black/5 hover:text-accent"
-            title="Prijava"
+            v-if="!auth.isAuthenticated" :to="localePath('/prijava')"
+            :class="itemClass" :title="$t('nav.login')"
           >
             <Icon name="material-symbols:login-rounded" />
-            <span>Prijava</span>
+            <span>{{ $t('nav.login') }}</span>
+          </NuxtLink>
+
+          <button v-else type="button" :class="itemClass" :title="$t('nav.logout')" @click="auth.logout()">
+            <Icon name="material-symbols:logout-rounded" />
+            <span>{{ $t('nav.logout') }}</span>
+          </button>
+        </nav>
+      </div>
+
+      <!-- The drawer. In flow rather than overlaid, so it pushes the page down
+           instead of covering it and needs no scroll lock or focus trap. -->
+      <div v-show="menuOpen" id="mobile-menu" class="border-t border-black/5 sm:hidden">
+        <nav class="mx-auto grid max-w-5xl gap-0.5 px-3 py-2 text-sm">
+          <NuxtLink
+            v-for="item in browse" :key="item.to" :to="localePath(item.to)"
+            class="flex items-center gap-3 rounded px-2 py-2.5 text-black/70 hover:bg-black/5 hover:text-accent"
+            active-class="text-accent"
+          >
+            <Icon :name="item.icon" class="text-lg" />
+            <span>{{ $t(item.key) }}</span>
+          </NuxtLink>
+
+          <span class="my-1 h-px bg-black/10" aria-hidden="true" />
+
+          <NuxtLink
+            v-if="auth.isAuthenticated" :to="localePath('/sacuvano')"
+            class="flex items-center gap-3 rounded px-2 py-2.5 text-black/70 hover:bg-black/5 hover:text-accent"
+            active-class="text-accent"
+          >
+            <Icon name="material-symbols:favorite-outline-rounded" class="text-lg" />
+            <span>{{ $t('nav.saved') }}</span>
+          </NuxtLink>
+
+          <NuxtLink
+            v-if="!auth.isAuthenticated" :to="localePath('/prijava')"
+            class="flex items-center gap-3 rounded px-2 py-2.5 text-black/70 hover:bg-black/5 hover:text-accent"
+          >
+            <Icon name="material-symbols:login-rounded" class="text-lg" />
+            <span>{{ $t('nav.login') }}</span>
           </NuxtLink>
 
           <button
-            v-else
-            class="flex shrink-0 items-center gap-1.5 rounded px-2 py-1.5 text-black/70 hover:bg-black/5 hover:text-accent"
-            title="Odjava"
+            v-else type="button"
+            class="flex items-center gap-3 rounded px-2 py-2.5 text-left text-black/70 hover:bg-black/5 hover:text-accent"
             @click="auth.logout()"
           >
-            <Icon name="material-symbols:logout-rounded" />
-            <span>Odjava</span>
+            <Icon name="material-symbols:logout-rounded" class="text-lg" />
+            <span>{{ $t('nav.logout') }}</span>
           </button>
+
+          <div class="mt-1 border-t border-black/10 px-2 pt-2">
+            <LanguageSwitcher />
+          </div>
         </nav>
       </div>
 
@@ -129,13 +206,13 @@ const browse = [
            reachable at a fraction of the height. -->
       <div class="border-t border-black/5">
         <div
-          class="mx-auto flex max-w-5xl items-center gap-x-4 gap-y-1 overflow-x-auto px-5 py-2 text-sm
-                 [-ms-overflow-style:none] [scrollbar-width:none] sm:flex-wrap sm:overflow-visible
+          class="mx-auto flex max-w-5xl items-center gap-x-4 gap-y-1 overflow-x-auto px-5 py-1.5 text-sm
+                 [-ms-overflow-style:none] [scrollbar-width:none] sm:flex-wrap sm:overflow-visible sm:py-2
                  [&::-webkit-scrollbar]:hidden"
         >
           <NuxtLink
             v-for="g in genreData?.grouped?.region || []" :key="g._id"
-            :to="`/zanr/${g.slug}`"
+            :to="localePath(`/zanr/${g.slug}`)"
             class="shrink-0 font-medium text-black/70 hover:text-accent"
             active-class="text-accent"
           >{{ g.name }}</NuxtLink>
@@ -144,7 +221,7 @@ const browse = [
 
           <NuxtLink
             v-for="g in genreData?.grouped?.style || []" :key="g._id"
-            :to="`/zanr/${g.slug}`"
+            :to="localePath(`/zanr/${g.slug}`)"
             class="shrink-0 text-black/50 hover:text-accent"
             active-class="text-accent"
           >{{ g.name }}</NuxtLink>

@@ -14,7 +14,9 @@
     "logout": "Sign out",
     "search": "Search songs, artists or genres…",
     "searchLabel": "Search",
-    "clearSearch": "Clear search"
+    "clearSearch": "Clear search",
+    "openMenu": "Open menu",
+    "closeMenu": "Close menu"
   },
   "song": {
     "key": "Key",
