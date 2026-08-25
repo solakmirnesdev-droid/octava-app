@@ -18,6 +18,7 @@ export const useAuthStore = defineStore('auth', () => {
       user.value = data.user;
       return true;
     } catch (err) {
+      // A 429 carries its own wait-and-retry message; anything else falls back.
       error.value = err.data?.message || fallbackMessage;
       return false;
     } finally {

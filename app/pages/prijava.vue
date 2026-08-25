@@ -21,23 +21,22 @@ useSeoMeta({ title: 'Prijava | Octava', robots: 'noindex, nofollow' });
       <NuxtLink to="/" class="text-2xl font-semibold tracking-tight">Octava</NuxtLink>
       <p class="mt-1 mb-8 text-sm text-black/50">Prijavi se da sačuvaš pjesme.</p>
 
-      <label class="block text-sm font-medium" for="email">Email</label>
+      <label for="email" class="mb-1 block text-sm font-medium">Email</label>
       <input
         id="email" v-model="email" type="email" required autocomplete="username"
-        class="mt-1 mb-4 w-full rounded border border-black/15 bg-white px-3 py-2 outline-none focus:border-accent"
+        autofocus inputmode="email"
+        class="mb-4 w-full rounded border border-black/15 bg-white px-3 py-2 outline-none focus:border-accent"
       />
 
-      <label class="block text-sm font-medium" for="password">Lozinka</label>
-      <input
-        id="password" v-model="password" type="password" required autocomplete="current-password"
-        class="mt-1 mb-6 w-full rounded border border-black/15 bg-white px-3 py-2 outline-none focus:border-accent"
-      />
+      <PasswordField id="password" v-model="password" />
 
-      <p v-if="auth.error" class="mb-4 text-sm text-accent">{{ auth.error }}</p>
+      <p v-if="auth.error" role="alert" class="mt-4 rounded bg-accent/10 px-3 py-2 text-sm text-accent">
+        {{ auth.error }}
+      </p>
 
       <button
         type="submit" :disabled="auth.loading"
-        class="w-full rounded bg-ink py-2.5 font-medium text-white hover:bg-accent disabled:opacity-50"
+        class="mt-6 w-full rounded bg-ink py-2.5 font-medium text-white hover:bg-accent disabled:opacity-50"
       >
         {{ auth.loading ? 'Prijava…' : 'Prijavi se' }}
       </button>

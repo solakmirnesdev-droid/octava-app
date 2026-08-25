@@ -74,7 +74,7 @@ function pick(offset) {
 <template>
   <div class="flex flex-col gap-1.5">
     <div class="flex flex-wrap items-center gap-2">
-      <span class="text-xs font-medium uppercase tracking-wide text-black/40">Tonalitet</span>
+      <span class="hidden text-xs font-medium uppercase tracking-wide text-black/40 sm:inline">Tonalitet</span>
 
       <div class="flex items-center overflow-hidden rounded border border-black/15 bg-white">
         <button class="px-2.5 py-1.5 text-sm font-medium hover:bg-black/5 hover:text-accent"

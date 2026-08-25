@@ -18,27 +18,37 @@ const { data: genreData } = await useAsyncData('layout-genres', () =>
 
         <nav class="flex items-center gap-4 text-sm">
           <NuxtLink to="/izvodjaci" class="hover:text-accent">Izvođači</NuxtLink>
+          <NuxtLink to="/akordi" class="hidden hover:text-accent sm:inline">Akordi</NuxtLink>
+          <NuxtLink to="/stimer" class="hidden hover:text-accent sm:inline">Štimer</NuxtLink>
+          <NuxtLink to="/zatrazi" class="hidden hover:text-accent lg:inline">Zatraži</NuxtLink>
           <NuxtLink v-if="auth.isAuthenticated" to="/sacuvano" class="hover:text-accent">Sačuvano</NuxtLink>
           <NuxtLink v-if="!auth.isAuthenticated" to="/prijava" class="hover:text-accent">Prijava</NuxtLink>
           <button v-else class="hover:text-accent" @click="auth.logout()">Odjava</button>
         </nav>
       </div>
 
+      <!-- Wrapping this list costs three rows on a phone, which is most of what
+           is left after the header. One scrollable row keeps every rubric
+           reachable at a fraction of the height. -->
       <div class="border-t border-black/5">
-        <div class="mx-auto flex max-w-5xl flex-wrap items-center gap-x-4 gap-y-1 px-5 py-2 text-sm">
+        <div
+          class="mx-auto flex max-w-5xl items-center gap-x-4 gap-y-1 overflow-x-auto px-5 py-2 text-sm
+                 [-ms-overflow-style:none] [scrollbar-width:none] sm:flex-wrap sm:overflow-visible
+                 [&::-webkit-scrollbar]:hidden"
+        >
           <NuxtLink
             v-for="g in genreData?.grouped?.region || []" :key="g._id"
             :to="`/zanr/${g.slug}`"
-            class="font-medium text-black/70 hover:text-accent"
+            class="shrink-0 font-medium text-black/70 hover:text-accent"
             active-class="text-accent"
           >{{ g.name }}</NuxtLink>
 
-          <span v-if="genreData?.grouped?.region?.length" class="text-black/15">|</span>
+          <span v-if="genreData?.grouped?.region?.length" class="shrink-0 text-black/15">|</span>
 
           <NuxtLink
             v-for="g in genreData?.grouped?.style || []" :key="g._id"
             :to="`/zanr/${g.slug}`"
-            class="text-black/50 hover:text-accent"
+            class="shrink-0 text-black/50 hover:text-accent"
             active-class="text-accent"
           >{{ g.name }}</NuxtLink>
         </div>

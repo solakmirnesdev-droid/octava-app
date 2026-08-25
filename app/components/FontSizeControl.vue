@@ -4,7 +4,7 @@ const { fontSize, grow, shrink, reset, canGrow, canShrink, isDefault } = useShee
 
 <template>
   <div class="flex items-center gap-2">
-    <span class="text-xs font-medium uppercase tracking-wide text-black/40">Font</span>
+    <span class="hidden text-xs font-medium uppercase tracking-wide text-black/40 sm:inline">Font</span>
 
     <div class="flex items-center overflow-hidden rounded border border-black/15 bg-white">
       <button

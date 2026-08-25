@@ -4,7 +4,7 @@ const { running, speed, toggle, faster, slower, canGoFaster, canGoSlower } = use
 
 <template>
   <div class="flex items-center gap-2">
-    <span class="text-xs font-medium uppercase tracking-wide text-black/40">Klizanje</span>
+    <span class="hidden text-xs font-medium uppercase tracking-wide text-black/40 sm:inline">Klizanje</span>
 
     <div class="flex items-center overflow-hidden rounded border border-black/15 bg-white">
       <button
@@ -36,6 +36,6 @@ const { running, speed, toggle, faster, slower, canGoFaster, canGoSlower } = use
       >+</button>
     </div>
 
-    <span v-if="running" class="text-xs text-black/35">dodirni ekran da staneš</span>
+    <span v-if="running" class="hidden text-xs text-black/35 sm:inline">dodirni ekran da staneš</span>
   </div>
 </template>

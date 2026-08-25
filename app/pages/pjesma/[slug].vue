@@ -73,7 +73,7 @@ useHead({
       </ul>
     </header>
 
-    <div class="mb-8 flex flex-wrap items-center gap-x-6 gap-y-3 border-y border-black/10 py-3">
+    <div class="mb-6 flex flex-wrap items-center gap-x-3 gap-y-2 border-y border-black/10 py-2 sm:mb-8 sm:gap-x-6 sm:gap-y-3 sm:py-3">
       <TransposeControls v-model:semitones="semitones" :original-key="song.originalKey" />
 
       <FontSizeControl />
@@ -99,7 +99,7 @@ useHead({
         <span class="sr-only">Prikaži sve akorde</span>
       </button>
 
-      <span v-if="song.capo" class="text-sm text-black/60">
+      <span v-if="song.capo" class="order-last text-sm text-black/60 sm:order-none">
         Kapodaster: <strong>{{ song.capo }}.</strong> prag
       </span>
 

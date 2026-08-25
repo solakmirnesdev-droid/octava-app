@@ -21,30 +21,31 @@ useSeoMeta({ title: 'Registracija | Octava', robots: 'noindex, nofollow' });
       <NuxtLink to="/" class="text-2xl font-semibold tracking-tight">Octava</NuxtLink>
       <p class="mt-1 mb-8 text-sm text-black/50">Napravi nalog.</p>
 
-      <label class="block text-sm font-medium" for="username">Korisničko ime</label>
+      <label for="username" class="mb-1 block text-sm font-medium">Korisničko ime</label>
       <input
-        id="username" v-model="username" required autocomplete="nickname"
-        class="mt-1 mb-4 w-full rounded border border-black/15 bg-white px-3 py-2 outline-none focus:border-accent"
+        id="username" v-model="username" required autocomplete="nickname" autofocus
+        class="mb-4 w-full rounded border border-black/15 bg-white px-3 py-2 outline-none focus:border-accent"
       />
 
-      <label class="block text-sm font-medium" for="email">Email</label>
+      <label for="email" class="mb-1 block text-sm font-medium">Email</label>
       <input
-        id="email" v-model="email" type="email" required autocomplete="username"
-        class="mt-1 mb-4 w-full rounded border border-black/15 bg-white px-3 py-2 outline-none focus:border-accent"
+        id="email" v-model="email" type="email" required autocomplete="username" inputmode="email"
+        class="mb-4 w-full rounded border border-black/15 bg-white px-3 py-2 outline-none focus:border-accent"
       />
 
-      <label class="block text-sm font-medium" for="password">Lozinka</label>
-      <input
-        id="password" v-model="password" type="password" required minlength="8" autocomplete="new-password"
-        class="mt-1 mb-1 w-full rounded border border-black/15 bg-white px-3 py-2 outline-none focus:border-accent"
+      <PasswordField
+        id="password" v-model="password"
+        autocomplete="new-password" :minlength="8" show-strength
       />
-      <p class="mb-6 text-xs text-black/40">Najmanje 8 znakova.</p>
+      <p class="mt-1 text-xs text-black/40">Najmanje 8 znakova.</p>
 
-      <p v-if="auth.error" class="mb-4 text-sm text-accent">{{ auth.error }}</p>
+      <p v-if="auth.error" role="alert" class="mt-4 rounded bg-accent/10 px-3 py-2 text-sm text-accent">
+        {{ auth.error }}
+      </p>
 
       <button
         type="submit" :disabled="auth.loading"
-        class="w-full rounded bg-ink py-2.5 font-medium text-white hover:bg-accent disabled:opacity-50"
+        class="mt-6 w-full rounded bg-ink py-2.5 font-medium text-white hover:bg-accent disabled:opacity-50"
       >
         {{ auth.loading ? 'Kreiranje…' : 'Registruj se' }}
       </button>
