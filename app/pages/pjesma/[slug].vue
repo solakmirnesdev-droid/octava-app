@@ -1,7 +1,6 @@
 <script setup>
 const route = useRoute();
 const { $api } = useNuxtApp();
-const config = useRuntimeConfig();
 
 const auth = useAuthStore();
 const favorites = useFavoritesStore();
@@ -51,9 +50,9 @@ useSeoMeta({
   ogType: 'article'
 });
 
-useHead({
-  link: [{ rel: 'canonical', href: () => `${config.public.siteUrl}/pjesma/${route.params.slug}` }]
-});
+// Canonical and hreflang come from useLocaleHead in app.vue. A hard-coded
+// canonical here pointed every English page at its Bosnian counterpart,
+// which tells a search engine to index that one instead.
 </script>
 
 <template>

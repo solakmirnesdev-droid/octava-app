@@ -4,7 +4,54 @@ export default defineNuxtConfig({
   compatibilityDate: '2025-01-01',
   devtools: { enabled: false },
 
-  modules: ['@pinia/nuxt', '@nuxt/icon'],
+  modules: ['@pinia/nuxt', '@nuxt/icon', '@nuxtjs/i18n'],
+
+  /**
+   * Two markets on one platform: the Balkan catalogue at the root, the
+   * international one under /en.
+   *
+   * Automatic redirection by IP or Accept-Language is deliberately off.
+   * Search engines crawl mostly from US addresses, so a site that switches
+   * language by itself shows crawlers one version and hides the other — the
+   * Bosnian catalogue would simply never be indexed. The visitor's language is
+   * used to *offer* the other version, never to force it.
+   */
+  i18n: {
+    defaultLocale: 'bs',
+    strategy: 'prefix_except_default',
+    // Off for the reason above; the suggestion banner handles this instead.
+    detectBrowserLanguage: false,
+    // Both versions carry hreflang links to each other, which is how a crawler
+    // learns they are the same site rather than duplicates.
+    baseUrl: process.env.NUXT_PUBLIC_SITE_URL || 'http://localhost:3000',
+
+    locales: [
+      { code: 'bs', language: 'bs-BA', name: 'Bosanski', file: 'bs.json' },
+      { code: 'en', language: 'en', name: 'English', file: 'en.json' }
+    ],
+
+    /**
+     * Paths are translated, not just prefixed. An English visitor searches for
+     * "chords", not "akordi", and the URL is one of the strongest signals a
+     * search engine reads.
+     */
+    customRoutes: 'config',
+    pages: {
+      'pjesma/[slug]':   { bs: '/pjesma/[slug]',   en: '/song/[slug]' },
+      'izvodjac/[slug]': { bs: '/izvodjac/[slug]', en: '/artist/[slug]' },
+      'zanr/[slug]':     { bs: '/zanr/[slug]',     en: '/genre/[slug]' },
+      'izvodjaci':       { bs: '/izvodjaci',       en: '/artists' },
+      'akordi/index':    { bs: '/akordi',          en: '/chords' },
+      'stimer':          { bs: '/stimer',          en: '/tuner' },
+      'pretraga':        { bs: '/pretraga',        en: '/search' },
+      'zatrazi':         { bs: '/zatrazi',         en: '/request' },
+      'sacuvano':        { bs: '/sacuvano',        en: '/saved' },
+      'prijava':         { bs: '/prijava',         en: '/login' },
+      'registracija':    { bs: '/registracija',    en: '/register' },
+      'o-nama':          { bs: '/o-nama',          en: '/about' },
+      'privatnost':      { bs: '/privatnost',      en: '/privacy' }
+    }
+  },
 
   /**
    * Icons are inlined as SVG from the locally installed Material Symbols
@@ -54,7 +101,8 @@ export default defineNuxtConfig({
 
   app: {
     head: {
-      htmlAttrs: { lang: 'bs' },
+      // lang is set per locale by useLocaleHead in app.vue. Hard-coding it
+      // here made the English pages declare themselves as Bosnian.
       meta: [
         { charset: 'utf-8' },
         { name: 'viewport', content: 'width=device-width, initial-scale=1' }

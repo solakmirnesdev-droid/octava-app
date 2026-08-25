@@ -58,6 +58,8 @@ const browse = [
 
 <template>
   <div class="min-h-screen bg-surface text-ink">
+    <LanguageSuggestion />
+
     <header class="sticky top-0 z-10 border-b border-black/10 bg-surface/90 backdrop-blur">
       <div class="mx-auto flex max-w-5xl flex-wrap items-center gap-x-4 gap-y-2 px-5 py-3">
         <NuxtLink to="/" class="text-lg font-semibold tracking-tight">Octava</NuxtLink>
@@ -85,6 +87,8 @@ const browse = [
           </NuxtLink>
 
           <span class="mx-1 h-5 w-px shrink-0 bg-black/10" aria-hidden="true" />
+
+          <LanguageSwitcher />
 
           <!-- Account. Separated deliberately: these act on you, the others
                only move you around the catalogue. -->

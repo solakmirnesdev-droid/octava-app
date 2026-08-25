@@ -1,7 +1,6 @@
 <script setup>
 import { FINGERINGS } from '~/utils/fingerings';
 
-const config = useRuntimeConfig();
 
 /**
  * Grouped by root so the page reads like a reference rather than a dump.
@@ -35,9 +34,9 @@ useSeoMeta({
   ogType: 'article'
 });
 
-useHead({
-  link: [{ rel: 'canonical', href: `${config.public.siteUrl}/akordi` }]
-});
+// Canonical and hreflang come from useLocaleHead in app.vue. A hard-coded
+// canonical here pointed every English page at its Bosnian counterpart,
+// which tells a search engine to index that one instead.
 </script>
 
 <template>

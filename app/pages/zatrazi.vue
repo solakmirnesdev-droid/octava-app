@@ -1,7 +1,6 @@
 <script setup>
 const { $api } = useNuxtApp();
 const auth = useAuthStore();
-const config = useRuntimeConfig();
 
 const form = ref({ title: '', artist: '', note: '' });
 const sending = ref(false);
@@ -50,7 +49,9 @@ useSeoMeta({
   title: 'Zatraži akorde | Octava',
   description: 'Nema pjesme koju tražiš? Pošalji zahtjev i glasaj za pjesme koje drugi traže.'
 });
-useHead({ link: [{ rel: 'canonical', href: `${config.public.siteUrl}/zatrazi` }] });
+// Canonical and hreflang come from useLocaleHead in app.vue. A hard-coded
+// canonical here pointed every English page at its Bosnian counterpart,
+// which tells a search engine to index that one instead.
 </script>
 
 <template>

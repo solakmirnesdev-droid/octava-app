@@ -1,6 +1,5 @@
 <script setup>
 const { listening, error, reading, nearestString, inTune, start, stop, STRINGS } = useTuner();
-const config = useRuntimeConfig();
 
 /**
  * Needle position, clamped to +/- 50 cents.
@@ -28,7 +27,9 @@ useSeoMeta({
   ogTitle: 'Štimer za gitaru'
 });
 
-useHead({ link: [{ rel: 'canonical', href: `${config.public.siteUrl}/stimer` }] });
+// Canonical and hreflang come from useLocaleHead in app.vue. A hard-coded
+// canonical here pointed every English page at its Bosnian counterpart,
+// which tells a search engine to index that one instead.
 </script>
 
 <template>

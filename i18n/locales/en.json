@@ -1,0 +1,59 @@
+{
+  "site": {
+    "name": "Octava",
+    "tagline": "Guitar chords and lyrics",
+    "description": "Guitar chords and lyrics with transposition and fingering diagrams."
+  },
+  "nav": {
+    "artists": "Artists",
+    "chords": "Chords",
+    "tuner": "Tuner",
+    "request": "Request",
+    "saved": "Saved",
+    "login": "Sign in",
+    "logout": "Sign out",
+    "search": "Search songs, artists or genres…",
+    "searchLabel": "Search",
+    "clearSearch": "Clear search"
+  },
+  "song": {
+    "key": "Key",
+    "font": "Text size",
+    "scroll": "Auto-scroll",
+    "capo": "Capo",
+    "capoFret": "fret {n}",
+    "save": "Save",
+    "saved": "Saved",
+    "original": "original",
+    "backToOriginal": "back to {key}",
+    "allChords": "Show every chord in this song",
+    "twoColumns": "Split into two columns",
+    "sameSound": "Same sound: capo at fret {fret}, play {key} shapes."
+  },
+  "footer": {
+    "rubrics": "Genres",
+    "artists": "Artists",
+    "popular": "Most viewed",
+    "tools": "Tools",
+    "allArtists": "All artists →",
+    "tuner": "Guitar tuner",
+    "chords": "All chords and fingerings",
+    "request": "Request chords",
+    "about": "About",
+    "privacy": "Privacy policy",
+    "contact": "Contact",
+    "counts": "{songs} songs · {artists} artists"
+  },
+  "language": {
+    "switch": "Language",
+    "suggestion": "Ova stranica je dostupna na bosanskom.",
+    "viewIn": "Pogledaj na bosanskom",
+    "dismiss": "No thanks"
+  },
+  "common": {
+    "loading": "Loading…",
+    "noResults": "No results.",
+    "previous": "Previous",
+    "next": "Next"
+  }
+}

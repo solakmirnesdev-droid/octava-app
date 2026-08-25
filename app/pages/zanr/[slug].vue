@@ -2,7 +2,6 @@
 const route = useRoute();
 const router = useRouter();
 const { $api } = useNuxtApp();
-const config = useRuntimeConfig();
 
 const page = computed(() => Number(route.query.page) || 1);
 const sort = computed(() => route.query.sort || 'recent');
@@ -32,9 +31,9 @@ useSeoMeta({
     || `Akordi za pjesme iz rubrike ${genre.value?.name}.`
 });
 
-useHead({
-  link: [{ rel: 'canonical', href: () => `${config.public.siteUrl}/zanr/${route.params.slug}` }]
-});
+// Canonical and hreflang come from useLocaleHead in app.vue. A hard-coded
+// canonical here pointed every English page at its Bosnian counterpart,
+// which tells a search engine to index that one instead.
 </script>
 
 <template>

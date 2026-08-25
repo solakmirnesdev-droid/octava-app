@@ -1,0 +1,59 @@
+{
+  "site": {
+    "name": "Octava",
+    "tagline": "Akordi i tekstovi za gitaru",
+    "description": "Akordi i tekstovi za gitaru — domaća i regionalna muzika, sa transponovanjem i dijagramima hvatova."
+  },
+  "nav": {
+    "artists": "Izvođači",
+    "chords": "Akordi",
+    "tuner": "Štimer",
+    "request": "Zatraži",
+    "saved": "Sačuvano",
+    "login": "Prijava",
+    "logout": "Odjava",
+    "search": "Traži pjesmu, izvođača ili rubriku…",
+    "searchLabel": "Pretraga",
+    "clearSearch": "Očisti pretragu"
+  },
+  "song": {
+    "key": "Tonalitet",
+    "font": "Font",
+    "scroll": "Klizanje",
+    "capo": "Kapodaster",
+    "capoFret": "{n}. prag",
+    "save": "Sačuvaj",
+    "saved": "Sačuvano",
+    "original": "original",
+    "backToOriginal": "vrati na {key}",
+    "allChords": "Prikaži sve akorde iz pjesme",
+    "twoColumns": "Podijeli pjesmu u dvije kolone",
+    "sameSound": "Isto zvuči: kapodaster na {fret}. pragu, sviraj oblike iz {key}."
+  },
+  "footer": {
+    "rubrics": "Rubrike",
+    "artists": "Izvođači",
+    "popular": "Najtraženije",
+    "tools": "Alati",
+    "allArtists": "Svi izvođači →",
+    "tuner": "Štimer za gitaru",
+    "chords": "Svi akordi i hvatovi",
+    "request": "Zatraži akorde",
+    "about": "O nama",
+    "privacy": "Politika privatnosti",
+    "contact": "Kontakt",
+    "counts": "{songs} pjesama · {artists} izvođača"
+  },
+  "language": {
+    "switch": "Jezik",
+    "suggestion": "Ova stranica je dostupna na engleskom.",
+    "viewIn": "Pogledaj na engleskom",
+    "dismiss": "Ne, hvala"
+  },
+  "common": {
+    "loading": "Učitavanje…",
+    "noResults": "Nema rezultata.",
+    "previous": "Prethodna",
+    "next": "Sljedeća"
+  }
+}

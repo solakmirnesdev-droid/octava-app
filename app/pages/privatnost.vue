@@ -1,12 +1,13 @@
 <script setup>
-const config = useRuntimeConfig();
 
 useSeoMeta({
   title: 'Politika privatnosti | Octava',
   description: 'Koje podatke Octava prikuplja, zašto, i kako ih možeš obrisati.'
 });
 
-useHead({ link: [{ rel: 'canonical', href: `${config.public.siteUrl}/privatnost` }] });
+// Canonical and hreflang come from useLocaleHead in app.vue. A hard-coded
+// canonical here pointed every English page at its Bosnian counterpart,
+// which tells a search engine to index that one instead.
 </script>
 
 <template>

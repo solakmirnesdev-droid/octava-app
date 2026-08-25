@@ -1,5 +1,4 @@
 <script setup>
-const config = useRuntimeConfig();
 const { $api } = useNuxtApp();
 
 const { data } = await useAsyncData('about-counts', () =>
@@ -12,7 +11,9 @@ useSeoMeta({
   ogTitle: 'O nama — Octava'
 });
 
-useHead({ link: [{ rel: 'canonical', href: `${config.public.siteUrl}/o-nama` }] });
+// Canonical and hreflang come from useLocaleHead in app.vue. A hard-coded
+// canonical here pointed every English page at its Bosnian counterpart,
+// which tells a search engine to index that one instead.
 </script>
 
 <template>
