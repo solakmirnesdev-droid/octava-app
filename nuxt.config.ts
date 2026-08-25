@@ -18,6 +18,7 @@ export default defineNuxtConfig({
    */
   i18n: {
     defaultLocale: 'bs',
+    vueI18n: './i18n/i18n.config.ts',
     strategy: 'prefix_except_default',
     // Off for the reason above; the suggestion banner handles this instead.
     detectBrowserLanguage: false,

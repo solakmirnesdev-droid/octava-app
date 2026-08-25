@@ -55,5 +55,18 @@
     "noResults": "No results.",
     "previous": "Previous",
     "next": "Next"
+  },
+  "rating": {
+    "title": "Chord accuracy",
+    "rate": "Rate",
+    "yourRating": "Your rating",
+    "average": "{average} out of 5",
+    "count": "no ratings | {n} rating | {n} ratings",
+    "signInToRate": "Sign in to rate",
+    "remove": "Remove rating",
+    "saving": "Saving…",
+    "failed": "Rating failed.",
+    "hint": "How closely do these chords match the song?",
+    "star": "{n} out of 5"
   }
 }

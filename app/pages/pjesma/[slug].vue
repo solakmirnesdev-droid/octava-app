@@ -73,6 +73,12 @@ useSeoMeta({
       </ul>
     </header>
 
+    <StarRating
+      class="mb-5"
+      :slug="song.slug"
+      :arrangement-id="song.arrangementId"
+    />
+
     <div class="mb-6 flex flex-wrap items-center gap-x-3 gap-y-2 border-y border-black/10 py-2 sm:mb-8 sm:gap-x-6 sm:gap-y-3 sm:py-3">
       <TransposeControls v-model:semitones="semitones" :original-key="song.originalKey" />
 

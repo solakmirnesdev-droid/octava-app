@@ -55,5 +55,18 @@
     "noResults": "Nema rezultata.",
     "previous": "Prethodna",
     "next": "Sljedeća"
+  },
+  "rating": {
+    "title": "Tačnost akorada",
+    "rate": "Ocijeni",
+    "yourRating": "Tvoja ocjena",
+    "average": "{average} od 5",
+    "count": "nema ocjena | {n} ocjena | {n} ocjene | {n} ocjena",
+    "signInToRate": "Prijavi se da ocijeniš",
+    "remove": "Povuci ocjenu",
+    "saving": "Spašavam…",
+    "failed": "Ocjenjivanje nije uspjelo.",
+    "hint": "Koliko tačno ovi akordi odgovaraju pjesmi?",
+    "star": "{n} od 5"
   }
 }
