@@ -7,56 +7,124 @@ const props = defineProps({
 });
 const emit = defineEmits(['update:semitones']);
 
-// A full octave in either direction. Past a tritone the open shapes stop being
-// practical, but capo users still reach for the far end, so the range stays wide.
-const MIN = -12;
-const MAX = 12;
+const open = ref(false);
 
-const currentKey = computed(() => transposeKey(props.originalKey, props.semitones));
+/**
+ * Local mirror of the prop.
+ *
+ * Stepping computed straight from props.semitones drops updates when two
+ * clicks land in the same tick: the second one reads the value the first has
+ * not written back yet, so +2 then +1 lands on +1 rather than +3. Holding the
+ * value locally and syncing the prop back keeps rapid stepping additive.
+ */
+const value = ref(props.semitones);
+watch(() => props.semitones, (next) => { value.value = next; });
 
-const offsetLabel = computed(() =>
-  props.semitones === 0 ? 'original' : (props.semitones > 0 ? '+' : '') + props.semitones
+/**
+ * Transposition wraps at twelve: +7 and -5 produce identical chords, so there
+ * are only twelve distinct destinations no matter how wide the range looks.
+ * Offsets past the tritone are shown as their negative twin, because "-5" is
+ * the shorter way to say the same thing.
+ */
+const signed = (offset) => (offset > 6 ? offset - 12 : offset);
+
+const keys = computed(() =>
+  Array.from({ length: 12 }, (_, offset) => ({
+    offset,
+    shift: signed(offset),
+    name: transposeKey(props.originalKey, offset)
+  }))
 );
 
-const shift = (delta) =>
-  emit('update:semitones', Math.min(MAX, Math.max(MIN, props.semitones + delta)));
+const currentKey = computed(() => transposeKey(props.originalKey, value.value));
+
+/** 0-11, regardless of which direction the user travelled to get here. */
+const normalized = computed(() => ((value.value % 12) + 12) % 12);
+
+const offsetLabel = computed(() =>
+  value.value === 0 ? 'original' : (value.value > 0 ? '+' : '') + value.value
+);
+
+/**
+ * A capo raises pitch, so any transposition upward can be played with the
+ * original shapes by capoing that many frets. Past the seventh fret the frets
+ * are too narrow for comfortable chording, so the hint stops being useful.
+ */
+const capoHint = computed(() => {
+  const fret = normalized.value;
+  if (fret < 1 || fret > 7) return null;
+  return { fret, shapes: props.originalKey };
+});
+
+function set(next) {
+  // Wrap rather than clamp: stepping past the end lands on the next key round
+  // the circle, which is where the chords actually go.
+  value.value = next > 11 ? next - 12 : next < -11 ? next + 12 : next;
+  emit('update:semitones', value.value);
+}
+
+const shift = (delta) => set(value.value + delta);
+
+function pick(offset) {
+  set(signed(offset));
+  open.value = false;
+}
 </script>
 
 <template>
-  <div class="flex flex-wrap items-center gap-2">
-    <span class="text-xs font-medium uppercase tracking-wide text-black/40">Tonalitet</span>
+  <div class="flex flex-col gap-1.5">
+    <div class="flex flex-wrap items-center gap-2">
+      <span class="text-xs font-medium uppercase tracking-wide text-black/40">Tonalitet</span>
 
-    <div class="flex items-center overflow-hidden rounded border border-black/15 bg-white">
-      <button
-        class="px-2.5 py-1.5 text-sm font-medium hover:bg-black/5 hover:text-accent disabled:opacity-25"
-        :disabled="semitones <= MIN" title="−2 polutona" @click="shift(-2)"
-      >−2</button>
-      <button
-        class="border-l border-black/10 px-2.5 py-1.5 text-sm font-medium hover:bg-black/5 hover:text-accent disabled:opacity-25"
-        :disabled="semitones <= MIN" title="−1 poluton" @click="shift(-1)"
-      >−1</button>
+      <div class="flex items-center overflow-hidden rounded border border-black/15 bg-white">
+        <button class="px-2.5 py-1.5 text-sm font-medium hover:bg-black/5 hover:text-accent"
+                title="−2 polutona" @click="shift(-2)">−2</button>
+        <button class="border-l border-black/10 px-2.5 py-1.5 text-sm font-medium hover:bg-black/5 hover:text-accent"
+                title="−1 poluton" @click="shift(-1)">−1</button>
 
-      <span class="min-w-[4.5rem] border-x border-black/10 px-2 py-1.5 text-center">
-        <span class="block font-mono text-sm font-semibold leading-none">{{ currentKey || '—' }}</span>
-        <span class="mt-0.5 block text-[10px] leading-none text-black/40">{{ offsetLabel }}</span>
-      </span>
+        <button
+          class="min-w-[4.75rem] border-x border-black/10 px-2 py-1.5 text-center hover:bg-black/5"
+          :title="'Izaberi tonalitet'"
+          :aria-expanded="open"
+          @click="open = !open"
+        >
+          <span class="block font-mono text-sm font-semibold leading-none">{{ currentKey || '—' }}</span>
+          <span class="mt-0.5 block text-[10px] leading-none text-black/40">{{ offsetLabel }}</span>
+        </button>
+
+        <button class="px-2.5 py-1.5 text-sm font-medium hover:bg-black/5 hover:text-accent"
+                title="+1 poluton" @click="shift(1)">+1</button>
+        <button class="border-l border-black/10 px-2.5 py-1.5 text-sm font-medium hover:bg-black/5 hover:text-accent"
+                title="+2 polutona" @click="shift(2)">+2</button>
+      </div>
 
       <button
-        class="px-2.5 py-1.5 text-sm font-medium hover:bg-black/5 hover:text-accent disabled:opacity-25"
-        :disabled="semitones >= MAX" title="+1 poluton" @click="shift(1)"
-      >+1</button>
-      <button
-        class="border-l border-black/10 px-2.5 py-1.5 text-sm font-medium hover:bg-black/5 hover:text-accent disabled:opacity-25"
-        :disabled="semitones >= MAX" title="+2 polutona" @click="shift(2)"
-      >+2</button>
+        v-if="value !== 0"
+        class="text-xs text-black/40 underline hover:text-accent"
+        @click="set(0)"
+      >
+        vrati na {{ originalKey }}
+      </button>
     </div>
 
-    <button
-      v-if="semitones !== 0"
-      class="text-xs text-black/40 underline hover:text-accent"
-      @click="emit('update:semitones', 0)"
-    >
-      vrati na {{ originalKey }}
-    </button>
+    <!-- All twelve destinations. There is no thirteenth: the interval wraps. -->
+    <div v-if="open" class="flex flex-wrap gap-1 rounded border border-black/10 bg-white p-2">
+      <button
+        v-for="key in keys" :key="key.offset"
+        class="min-w-[3.25rem] rounded px-2 py-1 text-center hover:bg-accent/10"
+        :class="key.shift === value ? 'bg-ink text-white hover:bg-ink' : ''"
+        @click="pick(key.offset)"
+      >
+        <span class="block font-mono text-sm font-semibold leading-none">{{ key.name }}</span>
+        <span class="mt-0.5 block text-[10px] leading-none opacity-50">
+          {{ key.shift === 0 ? 'original' : (key.shift > 0 ? '+' : '') + key.shift }}
+        </span>
+      </button>
+    </div>
+
+    <p v-if="capoHint" class="text-xs text-black/45">
+      Isto zvuči: kapodaster na <strong>{{ capoHint.fret }}.</strong> pragu, sviraj oblike iz
+      <strong class="font-mono">{{ capoHint.shapes }}</strong>.
+    </p>
   </div>
 </template>

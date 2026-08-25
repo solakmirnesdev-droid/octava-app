@@ -30,6 +30,8 @@ const song = computed(() => data.value?.song);
 // Transposition is deliberately component state, not a URL parameter: every
 // key would otherwise be a separate crawlable URL with near-identical content.
 const semitones = ref(0);
+const { fontSize } = useSheetFontSize();
+const showChords = ref(false);
 
 const title = computed(() =>
   song.value ? `${song.value.title} — ${song.value.artist?.name} | Akordi za gitaru` : 'Octava'
@@ -74,6 +76,29 @@ useHead({
     <div class="mb-8 flex flex-wrap items-center gap-x-6 gap-y-3 border-y border-black/10 py-3">
       <TransposeControls v-model:semitones="semitones" :original-key="song.originalKey" />
 
+      <FontSizeControl />
+
+      <AutoScrollControl />
+
+      <button
+        class="rounded border px-2.5 py-1.5 transition"
+        :class="showChords
+          ? 'border-accent bg-accent text-white'
+          : 'border-black/15 bg-white text-black/60 hover:border-accent hover:text-accent'"
+        :aria-pressed="showChords"
+        title="Prikaži sve akorde iz pjesme"
+        @click="showChords = !showChords"
+      >
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true">
+          <rect x="4" y="4" width="16" height="16" rx="2" />
+          <line x1="9" y1="4" x2="9" y2="20" />
+          <line x1="15" y1="4" x2="15" y2="20" />
+          <line x1="4" y1="10" x2="20" y2="10" />
+          <line x1="4" y1="15" x2="20" y2="15" />
+        </svg>
+        <span class="sr-only">Prikaži sve akorde</span>
+      </button>
+
       <span v-if="song.capo" class="text-sm text-black/60">
         Kapodaster: <strong>{{ song.capo }}.</strong> prag
       </span>
@@ -90,6 +115,19 @@ useHead({
       </NuxtLink>
     </div>
 
-    <ChordSheet :content="song.content" :semitones="semitones" :original-key="song.originalKey" />
+    <ChordGrid
+      v-if="showChords"
+      class="mb-8"
+      :content="song.content"
+      :semitones="semitones"
+      :original-key="song.originalKey"
+    />
+
+    <ChordSheet
+      :content="song.content"
+      :semitones="semitones"
+      :original-key="song.originalKey"
+      :font-size="fontSize"
+    />
   </article>
 </template>

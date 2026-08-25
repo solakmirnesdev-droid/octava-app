@@ -1,17 +1,11 @@
 <script setup>
 const auth = useAuthStore();
-const router = useRouter();
 const { $api } = useNuxtApp();
-const query = ref('');
 
 // Fetched once for the whole layout; the rubric row is on every page.
 const { data: genreData } = await useAsyncData('layout-genres', () =>
   $api('/genres').catch(() => ({ grouped: {} }))
 );
-
-function search() {
-  if (query.value.trim()) router.push({ path: '/pretraga', query: { q: query.value.trim() } });
-}
 </script>
 
 <template>
@@ -20,13 +14,7 @@ function search() {
       <div class="mx-auto flex max-w-5xl items-center gap-4 px-5 py-3">
         <NuxtLink to="/" class="text-lg font-semibold tracking-tight">Octava</NuxtLink>
 
-        <form class="flex-1" @submit.prevent="search">
-          <input
-            v-model="query" type="search" aria-label="Pretraga"
-            placeholder="Traži pjesmu, izvođača ili rubriku…"
-            class="w-full rounded-full border border-black/15 bg-white px-4 py-1.5 text-sm outline-none focus:border-accent"
-          />
-        </form>
+        <SearchBox />
 
         <nav class="flex items-center gap-4 text-sm">
           <NuxtLink to="/izvodjaci" class="hover:text-accent">Izvođači</NuxtLink>
