@@ -49,7 +49,9 @@ export default defineNuxtConfig({
       'prijava':         { bs: '/prijava',         en: '/login' },
       'registracija':    { bs: '/registracija',    en: '/register' },
       'o-nama':          { bs: '/o-nama',          en: '/about' },
-      'privatnost':      { bs: '/privatnost',      en: '/privacy' }
+      'privatnost':      { bs: '/privatnost',      en: '/privacy' },
+      'zaboravljena-lozinka': { bs: '/zaboravljena-lozinka', en: '/forgot-password' },
+      'nova-lozinka':    { bs: '/nova-lozinka',     en: '/new-password' }
     }
   },
 

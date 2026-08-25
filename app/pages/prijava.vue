@@ -30,6 +30,12 @@ useSeoMeta({ title: 'Prijava | Octava', robots: 'noindex, nofollow' });
 
       <PasswordField id="password" v-model="password" />
 
+      <p class="mt-2 text-right">
+        <NuxtLink to="/zaboravljena-lozinka" class="text-xs text-black/45 hover:text-accent">
+          Zaboravljena lozinka?
+        </NuxtLink>
+      </p>
+
       <p v-if="auth.error" role="alert" class="mt-4 rounded bg-accent/10 px-3 py-2 text-sm text-accent">
         {{ auth.error }}
       </p>
