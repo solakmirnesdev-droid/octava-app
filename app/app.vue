@@ -9,6 +9,13 @@
  */
 const head = useLocaleHead();
 
+/**
+ * A fallback share card for the whole site. Song pages replace it with their
+ * own; everything else — the home page, the listings, the tuner — would
+ * otherwise paste into a chat as a bare line of text.
+ */
+defineOgImage('Default');
+
 useHead(() => ({
   htmlAttrs: head.value.htmlAttrs,
   link: head.value.link,

@@ -33,11 +33,41 @@ export default defineEventHandler(async (event) => {
   const config = useRuntimeConfig();
   const site = config.public.siteUrl.replace(/\/$/, '');
 
-  const urls = [
-    entry(`${site}/`, { changefreq: 'daily', priority: '1.0' }),
-    entry(`${site}/izvodjaci`, { changefreq: 'weekly', priority: '0.8' }),
-    entry(`${site}/akordi`, { changefreq: 'monthly', priority: '0.7' })
+  /**
+   * Both catalogues, not just the Bosnian one.
+   *
+   * The English half is a separate set of URLs with its own translated paths;
+   * listing only the Bosnian side left every /en page to be found by chance,
+   * which for a site split this way means largely not found at all.
+   *
+   * Paths are written out rather than derived, because they are translated —
+   * /akordi is /en/chords, not /en/akordi — and the mapping lives in
+   * nuxt.config. Anything added there belongs here too.
+   */
+  const STATIC_PAGES = [
+    { bs: '/',            en: '/en',           changefreq: 'daily',   priority: '1.0' },
+    { bs: '/izvodjaci',   en: '/en/artists',   changefreq: 'weekly',  priority: '0.8' },
+    { bs: '/akordi',      en: '/en/chords',    changefreq: 'monthly', priority: '0.7' },
+    { bs: '/stimer',      en: '/en/tuner',     changefreq: 'monthly', priority: '0.6' },
+    { bs: '/zatrazi',     en: '/en/request',   changefreq: 'weekly',  priority: '0.5' },
+    { bs: '/o-nama',      en: '/en/about',     changefreq: 'yearly',  priority: '0.4' },
+    { bs: '/privatnost',  en: '/en/privacy',   changefreq: 'yearly',  priority: '0.3' },
+    { bs: '/uslovi',      en: '/en/terms',     changefreq: 'yearly',  priority: '0.3' }
   ];
+
+  /** Dynamic paths differ per locale in the same way. */
+  const SECTIONS = {
+    song:   { bs: 'pjesma',    en: 'en/song' },
+    artist: { bs: 'izvodjac',  en: 'en/artist' },
+    genre:  { bs: 'zanr',      en: 'en/genre' }
+  };
+
+  const urls = [];
+  for (const page of STATIC_PAGES) {
+    const { changefreq, priority } = page;
+    urls.push(entry(`${site}${page.bs}`, { changefreq, priority }));
+    urls.push(entry(`${site}${page.en}`, { changefreq, priority }));
+  }
 
   try {
     const [songs, artists, genres] = await Promise.all([
@@ -60,19 +90,21 @@ export default defineEventHandler(async (event) => {
     }
 
     for (const song of all) {
-      urls.push(entry(`${site}/pjesma/${song.slug}`, {
-        lastmod: song.updatedAt,
-        changefreq: 'monthly',
-        priority: '0.9'
-      }));
+      const opts = { lastmod: song.updatedAt, changefreq: 'monthly', priority: '0.9' };
+      urls.push(entry(`${site}/${SECTIONS.song.bs}/${song.slug}`, opts));
+      urls.push(entry(`${site}/${SECTIONS.song.en}/${song.slug}`, opts));
     }
 
     for (const artist of artists.artists || []) {
-      urls.push(entry(`${site}/izvodjac/${artist.slug}`, { changefreq: 'weekly', priority: '0.7' }));
+      const opts = { changefreq: 'weekly', priority: '0.7' };
+      urls.push(entry(`${site}/${SECTIONS.artist.bs}/${artist.slug}`, opts));
+      urls.push(entry(`${site}/${SECTIONS.artist.en}/${artist.slug}`, opts));
     }
 
     for (const genre of genres.genres || []) {
-      urls.push(entry(`${site}/zanr/${genre.slug}`, { changefreq: 'weekly', priority: '0.7' }));
+      const opts = { changefreq: 'weekly', priority: '0.7' };
+      urls.push(entry(`${site}/${SECTIONS.genre.bs}/${genre.slug}`, opts));
+      urls.push(entry(`${site}/${SECTIONS.genre.en}/${genre.slug}`, opts));
     }
   } catch {
     // A sitemap listing only the stable pages beats a 500: a crawler that gets
