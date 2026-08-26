@@ -22,3 +22,59 @@ summary {
 button:disabled {
   cursor: not-allowed;
 }
+
+/*
+ * Printing.
+ *
+ * Guitarists print chord sheets and take them to a rehearsal, where none of the
+ * interactive parts exist: transposition, auto-scroll and font size are things
+ * you do on a screen, and reviews are not what you brought the paper for.
+ *
+ * Marked with data-print="hide" at each site rather than matched by selector
+ * here, so a component that moves does not silently start printing. Anything
+ * that should not reach paper carries the attribute itself.
+ */
+@media print {
+  [data-print="hide"] {
+    display: none !important;
+  }
+
+  /* The page furniture goes with it: a printed nav bar is wasted ink. */
+  header,
+  footer {
+    display: none !important;
+  }
+
+  /* Backgrounds cost ink and gain nothing on white paper. */
+  :root,
+  body {
+    background: #fff !important;
+    color: #000 !important;
+  }
+
+  main {
+    max-width: none !important;
+    padding: 0 !important;
+  }
+
+  /*
+   * A chord line separated from the words underneath it is unreadable, and a
+   * page break between them is exactly that separation.
+   */
+  .chord-line,
+  .chord-row,
+  pre {
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+
+  h1 {
+    font-size: 18pt;
+  }
+
+  /* Chords carry meaning through colour on screen; on paper they need weight. */
+  .chord {
+    color: #000 !important;
+    font-weight: 700;
+  }
+}
