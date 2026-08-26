@@ -1,0 +1,121 @@
+<script setup>
+/**
+ * The replies under one review, loaded only when opened.
+ *
+ * Most reviews are never expanded, so fetching every thread with the page would
+ * spend a request per review to render nothing. The count on the button comes
+ * from the review itself and is already known.
+ */
+const props = defineProps({
+  reviewId: { type: String, required: true },
+  count: { type: Number, default: 0 }
+});
+const emit = defineEmits(['changed']);
+
+const { $api } = useNuxtApp();
+const auth = useAuthStore();
+const localePath = useLocalePath();
+const route = useRoute();
+const { t, locale } = useI18n();
+
+const open = ref(false);
+const items = ref([]);
+const loading = ref(false);
+const draft = ref('');
+const posting = ref(false);
+
+async function toggle() {
+  open.value = !open.value;
+  if (open.value && !items.value.length) await load();
+}
+
+async function load() {
+  loading.value = true;
+  try {
+    const res = await $api(`/reviews/${props.reviewId}/comments`);
+    items.value = res.items || [];
+  } catch {
+    items.value = [];
+  } finally {
+    loading.value = false;
+  }
+}
+
+async function post() {
+  const body = draft.value.trim();
+  if (!body || posting.value) return;
+
+  posting.value = true;
+  try {
+    const res = await $api(`/reviews/${props.reviewId}/comments`, {
+      method: 'POST', body: { body }
+    });
+    items.value.push(res.comment);
+    draft.value = '';
+    emit('changed', 1);
+  } finally {
+    posting.value = false;
+  }
+}
+
+async function remove(comment) {
+  if (!confirm(t('reviews.removeComment'))) return;
+  await $api(`/comments/${comment._id}`, { method: 'DELETE' });
+  items.value = items.value.filter((c) => c._id !== comment._id);
+  emit('changed', -1);
+}
+
+const when = (iso) => new Date(iso).toLocaleDateString(locale.value);
+</script>
+
+<template>
+  <div class="mt-2">
+    <button
+      class="py-3.5 -my-3.5 text-xs text-black/45 hover:text-accent"
+      :aria-expanded="open"
+      @click="toggle"
+    >
+      {{ open ? $t('reviews.hideComments') : $t('reviews.commentCount', { n: count }, count) }}
+    </button>
+
+    <div v-if="open" class="mt-3 border-l-2 border-black/10 pl-4">
+      <p v-if="loading" class="text-xs text-black/40">{{ $t('common.loading') }}</p>
+
+      <p v-else-if="!items.length" class="text-xs text-black/40">{{ $t('reviews.noComments') }}</p>
+
+      <ul v-else class="space-y-3">
+        <li v-for="c in items" :key="c._id" class="text-sm">
+          <div class="flex flex-wrap items-baseline gap-x-2">
+            <span class="font-medium">{{ c.author }}</span>
+            <span class="text-xs text-black/35">{{ when(c.createdAt) }}</span>
+            <span v-if="c.editedAt" class="text-xs text-black/30">· {{ $t('reviews.edited') }}</span>
+            <button
+              v-if="c.mine"
+              class="ml-auto py-3.5 -my-3.5 text-xs text-black/35 hover:text-rose-700"
+              @click="remove(c)"
+            >{{ $t('reviews.remove') }}</button>
+          </div>
+          <p class="mt-0.5 whitespace-pre-wrap text-black/75">{{ c.body }}</p>
+        </li>
+      </ul>
+
+      <form v-if="auth.isAuthenticated" class="mt-3 flex gap-2" @submit.prevent="post">
+        <input
+          v-model="draft" maxlength="2000"
+          class="min-w-0 flex-1 rounded border border-black/15 px-3 py-1.5 text-sm outline-none focus:border-accent"
+          :placeholder="$t('reviews.commentPlaceholder')"
+        >
+        <button
+          class="shrink-0 rounded bg-accent px-3 py-1.5 text-sm text-white disabled:opacity-40"
+          :disabled="!draft.trim() || posting"
+        >{{ posting ? $t('reviews.saving') : $t('reviews.reply') }}</button>
+      </form>
+
+      <NuxtLink
+        v-else
+        :to="localePath({ path: '/prijava', query: { redirect: route.fullPath } })"
+        class="mt-3 inline-block text-xs text-black/45 hover:text-accent"
+      >{{ $t('reviews.signInToReply') }}</NuxtLink>
+    </div>
+  </div>
+</template>
