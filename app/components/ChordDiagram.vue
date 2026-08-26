@@ -39,7 +39,7 @@ const tab = computed(() =>
 <template>
   <div v-if="shape" class="w-[132px] select-none text-center">
     <p class="font-mono text-sm font-semibold text-ink">
-      {{ shape.name }}<span v-if="shape.quality" class="ml-1 font-sans text-xs font-normal text-black/45">{{ shape.quality }}</span>
+      {{ shape.name }}<span v-if="shape.qualityKey" class="ml-1 font-sans text-xs font-normal text-black/45">{{ $t(`chord.${shape.qualityKey}`) }}</span>
     </p>
     <p v-if="shape.formula" class="mb-1 font-mono text-[10px] text-black/35">{{ shape.formula }}</p>
 

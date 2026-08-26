@@ -79,20 +79,26 @@ export const FINGERINGS = {
   'Csus4': OPEN([null, 3, 3, 0, 1, 1])
 };
 
-/** Interval formula, shown so the shape is not just a picture to copy. */
+/**
+ * Interval formula, shown so the shape is not just a picture to copy.
+ *
+ * The quality is a translation key rather than a word: this table is read by
+ * both catalogues, and 'dur' printed on the English site is not a label, it is
+ * a bug.
+ */
 const FORMULAS = {
-  '':      { label: 'dur',        formula: '1 - 3 - 5' },
-  'm':     { label: 'mol',        formula: '1 - b3 - 5' },
-  '7':     { label: 'septakord',  formula: '1 - 3 - 5 - b7' },
-  'm7':    { label: 'mol 7',      formula: '1 - b3 - 5 - b7' },
-  'maj7':  { label: 'veliki 7',   formula: '1 - 3 - 5 - 7' },
-  'sus4':  { label: 'sus4',       formula: '1 - 4 - 5' },
-  'sus2':  { label: 'sus2',       formula: '1 - 2 - 5' },
-  'dim':   { label: 'umanjeni',   formula: '1 - b3 - b5' },
-  'aug':   { label: 'prekomjerni', formula: '1 - 3 - #5' },
-  '6':     { label: 'sekstakord', formula: '1 - 3 - 5 - 6' },
-  'm6':    { label: 'mol 6',      formula: '1 - b3 - 5 - 6' },
-  'add9':  { label: 'add9',       formula: '1 - 3 - 5 - 9' }
+  '':      { labelKey: 'major',        formula: '1 - 3 - 5' },
+  'm':     { labelKey: 'minor',        formula: '1 - b3 - 5' },
+  '7':     { labelKey: 'seventh',  formula: '1 - 3 - 5 - b7' },
+  'm7':    { labelKey: 'minor7',      formula: '1 - b3 - 5 - b7' },
+  'maj7':  { labelKey: 'major7',   formula: '1 - 3 - 5 - 7' },
+  'sus4':  { labelKey: 'sus4',       formula: '1 - 4 - 5' },
+  'sus2':  { labelKey: 'sus2',       formula: '1 - 2 - 5' },
+  'dim':   { labelKey: 'dim',   formula: '1 - b3 - b5' },
+  'aug':   { labelKey: 'aug', formula: '1 - 3 - #5' },
+  '6':     { labelKey: 'sixth', formula: '1 - 3 - 5 - 6' },
+  'm6':    { labelKey: 'minor6',      formula: '1 - b3 - 5 - 6' },
+  'add9':  { labelKey: 'add9',       formula: '1 - 3 - 5 - 9' }
 };
 
 const ROOT = /^([A-H][#b]?)(.*)$/;
@@ -135,5 +141,5 @@ function describe(symbol) {
 
   const suffix = match[2] || '';
   const entry = FORMULAS[suffix] || FORMULAS[/^m(?!aj)/.test(suffix) ? 'm' : ''];
-  return { quality: entry?.label || null, formula: entry?.formula || null };
+  return { qualityKey: entry?.labelKey || null, formula: entry?.formula || null };
 }

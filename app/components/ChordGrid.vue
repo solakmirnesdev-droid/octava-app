@@ -54,11 +54,10 @@ const missing = computed(() => chords.value.filter((c) => !findFingering(c)));
       </div>
     </div>
 
-    <p v-if="missing.length" class="mt-3 text-xs text-black/40">
-      Bez dijagrama: <span class="font-mono">{{ missing.join(', ') }}</span>
+    <p v-if="missing.length" class="mt-3 text-xs text-black/40">{{ $t('song.noDiagrams') }} <span class="font-mono">{{ missing.join(', ') }}</span>
     </p>
     <p v-if="!playable.length" class="text-sm text-black/40">
-      U ovoj pjesmi nema prepoznatih akorda.
+      {{ $t('song.noChords') }}
     </p>
   </div>
 </template>

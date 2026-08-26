@@ -19,11 +19,24 @@ const lines = computed(() =>
 const active = ref(null);
 const isActive = (line, seg) => active.value === `${line}:${seg}`;
 
+/**
+ * The chord button the open diagram belongs to.
+ *
+ * The tooltip measures this rather than sitting inside it: inside the
+ * two-column sheet, CSS fragmentation puts an absolutely-positioned child in
+ * the wrong column. See the trap note in ChordTooltip.vue.
+ */
+const anchor = ref(null);
+
 let closeTimer = null;
 
-function show(line, seg) {
+function show(line, seg, event) {
   clearTimeout(closeTimer);
   active.value = `${line}:${seg}`;
+  if (event?.currentTarget) {
+    const el = event.currentTarget;
+    anchor.value = el.tagName === 'BUTTON' ? el : el.querySelector('button') || el;
+  }
 }
 
 function hide() {
@@ -57,14 +70,14 @@ onBeforeUnmount(() => clearTimeout(closeTimer));
         <span
           v-for="(seg, j) in line.segments.filter((s) => s.chord)" :key="j"
           class="relative"
-          @mouseenter="show(i, 'i' + j)" @mouseleave="hide"
+          @mouseenter="show(i, 'i' + j, $event)" @mouseleave="hide"
         >
           <button
             class="font-semibold text-accent underline decoration-dotted decoration-accent/30 underline-offset-4"
-            @click="isActive(i, 'i' + j) ? hide() : show(i, 'i' + j)"
+            @click="isActive(i, 'i' + j) ? hide() : show(i, 'i' + j, $event)"
           >{{ seg.chord }}</button>
 
-          <ChordTooltip v-if="isActive(i, 'i' + j)" :symbol="seg.chord" @keep="show(i, 'i' + j)" @leave="hide" />
+          <ChordTooltip v-if="isActive(i, 'i' + j)" :symbol="seg.chord" :anchor="anchor" @keep="show(i, 'i' + j)" @leave="hide" />
         </span>
       </div>
 
@@ -76,13 +89,13 @@ onBeforeUnmount(() => clearTimeout(closeTimer));
             <button
               v-if="seg.chord"
               class="font-semibold text-accent underline decoration-dotted decoration-accent/30 underline-offset-2"
-              @mouseenter="show(i, j)" @mouseleave="hide"
-              @click="isActive(i, j) ? hide() : show(i, j)"
+              @mouseenter="show(i, j, $event)" @mouseleave="hide"
+              @click="isActive(i, j) ? hide() : show(i, j, $event)"
             >{{ seg.chord }}</button>
           </span>
           <span class="block whitespace-pre">{{ seg.text }}</span>
 
-          <ChordTooltip v-if="isActive(i, j)" :symbol="seg.chord" @keep="show(i, j)" @leave="hide" />
+          <ChordTooltip v-if="isActive(i, j)" :symbol="seg.chord" :anchor="anchor" @keep="show(i, j)" @leave="hide" />
         </span>
       </div>
     </template>
