@@ -74,17 +74,17 @@ function pick(offset) {
 <template>
   <div class="flex flex-col gap-1.5">
     <div class="flex flex-wrap items-center gap-2">
-      <span class="hidden text-xs font-medium uppercase tracking-wide text-black/40 sm:inline">Tonalitet</span>
+      <span class="hidden text-xs font-medium uppercase tracking-wide text-black/40 sm:inline">{{ $t('song.key') }}</span>
 
       <div class="flex items-center overflow-hidden rounded border border-black/15 bg-white">
         <button class="px-2.5 py-1.5 text-sm font-medium hover:bg-black/5 hover:text-accent"
-                title="−2 polutona" @click="shift(-2)">−2</button>
+                :title="$t('song.semitonesDown', { n: 2 }, 2)" @click="shift(-2)">−2</button>
         <button class="border-l border-black/10 px-2.5 py-1.5 text-sm font-medium hover:bg-black/5 hover:text-accent"
-                title="−1 poluton" @click="shift(-1)">−1</button>
+                :title="$t('song.semitonesDown', { n: 1 }, 1)" @click="shift(-1)">−1</button>
 
         <button
           class="min-w-[4.75rem] border-x border-black/10 px-2 py-1.5 text-center hover:bg-black/5"
-          :title="'Izaberi tonalitet'"
+          :title="$t('song.chooseKey')"
           :aria-expanded="open"
           @click="open = !open"
         >
@@ -93,9 +93,9 @@ function pick(offset) {
         </button>
 
         <button class="px-2.5 py-1.5 text-sm font-medium hover:bg-black/5 hover:text-accent"
-                title="+1 poluton" @click="shift(1)">+1</button>
+                :title="$t('song.semitonesUp', { n: 1 }, 1)" @click="shift(1)">+1</button>
         <button class="border-l border-black/10 px-2.5 py-1.5 text-sm font-medium hover:bg-black/5 hover:text-accent"
-                title="+2 polutona" @click="shift(2)">+2</button>
+                :title="$t('song.semitonesUp', { n: 2 }, 2)" @click="shift(2)">+2</button>
       </div>
 
       <button
@@ -122,9 +122,9 @@ function pick(offset) {
       </button>
     </div>
 
-    <p v-if="capoHint" class="text-xs text-black/45">
-      Isto zvuči: kapodaster na <strong>{{ capoHint.fret }}.</strong> pragu, sviraj oblike iz
-      <strong class="font-mono">{{ capoHint.shapes }}</strong>.
-    </p>
+    <i18n-t keypath="song.sameSound" tag="p" v-if="capoHint" class="text-xs text-black/45" scope="global">
+        <template #fret><strong>{{ capoHint.fret }}</strong></template>
+        <template #key><strong class="font-mono">{{ capoHint.shapes }}</strong></template>
+      </i18n-t>
   </div>
 </template>

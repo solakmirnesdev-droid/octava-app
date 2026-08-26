@@ -1,4 +1,5 @@
 <script setup>
+const localePath = useLocalePath();
 const { $api } = useNuxtApp();
 
 /**
@@ -21,13 +22,13 @@ const year = new Date().getFullYear();
         <!-- Brand. The counts are here because they are the honest measure of
              what the site is, and they read as a reason to trust it. -->
         <div>
-          <NuxtLink to="/" class="text-lg font-semibold tracking-tight">Octava</NuxtLink>
+          <NuxtLink :to="localePath('/')" class="text-lg font-semibold tracking-tight">Octava</NuxtLink>
           <p class="mt-2 text-sm leading-relaxed text-black/55">
             Akordi i tekstovi za gitaru — domaća i regionalna muzika, sa
             transponovanjem i dijagramima hvatova.
           </p>
           <p v-if="data?.counts?.songs" class="mt-3 font-mono text-xs text-black/40">
-            {{ data.counts.songs }} pjesama · {{ data.counts.artists }} izvođača
+            {{ $t('footer.counts', { songs: data.counts.songs, artists: data.counts.artists }) }}
           </p>
         </div>
 
@@ -35,16 +36,16 @@ const year = new Date().getFullYear();
              the deep pages: nothing else on the site links to all of them. -->
         <nav aria-labelledby="footer-rubrike">
           <h2 id="footer-rubrike" class="mb-3 text-xs font-semibold uppercase tracking-wide text-black/40">
-            Rubrike
+            {{ $t('footer.rubrics') }}
           </h2>
           <ul class="space-y-1.5 text-sm">
             <li v-for="genre in regions" :key="genre._id">
-              <NuxtLink :to="`/zanr/${genre.slug}`" class="text-black/65 hover:text-accent">
+              <NuxtLink :to="localePath(`/zanr/${genre.slug}`)" class="text-black/65 hover:text-accent">
                 {{ genre.name }}
               </NuxtLink>
             </li>
             <li v-for="genre in styles" :key="genre._id">
-              <NuxtLink :to="`/zanr/${genre.slug}`" class="text-black/65 hover:text-accent">
+              <NuxtLink :to="localePath(`/zanr/${genre.slug}`)" class="text-black/65 hover:text-accent">
                 {{ genre.name }}
               </NuxtLink>
             </li>
@@ -53,17 +54,17 @@ const year = new Date().getFullYear();
 
         <nav aria-labelledby="footer-izvodjaci">
           <h2 id="footer-izvodjaci" class="mb-3 text-xs font-semibold uppercase tracking-wide text-black/40">
-            Izvođači
+            {{ $t('footer.artists') }}
           </h2>
           <ul class="space-y-1.5 text-sm">
             <li v-for="artist in data?.artists || []" :key="artist._id">
-              <NuxtLink :to="`/izvodjac/${artist.slug}`" class="text-black/65 hover:text-accent">
+              <NuxtLink :to="localePath(`/izvodjac/${artist.slug}`)" class="text-black/65 hover:text-accent">
                 {{ artist.name }}
               </NuxtLink>
             </li>
             <li>
-              <NuxtLink to="/izvodjaci" class="font-medium text-accent hover:underline">
-                Svi izvođači →
+              <NuxtLink :to="localePath('/izvodjaci')" class="font-medium text-accent hover:underline">
+                {{ $t('footer.allArtists') }}
               </NuxtLink>
             </li>
           </ul>
@@ -72,11 +73,11 @@ const year = new Date().getFullYear();
         <div class="space-y-8">
           <nav aria-labelledby="footer-pjesme">
             <h2 id="footer-pjesme" class="mb-3 text-xs font-semibold uppercase tracking-wide text-black/40">
-              Najtraženije
+              {{ $t('footer.popular') }}
             </h2>
             <ul class="space-y-1.5 text-sm">
               <li v-for="song in (data?.songs || []).slice(0, 8)" :key="song.slug">
-                <NuxtLink :to="`/pjesma/${song.slug}`" class="text-black/65 hover:text-accent">
+                <NuxtLink :to="localePath(`/pjesma/${song.slug}`)" class="text-black/65 hover:text-accent">
                   {{ song.title }}
                   <span class="text-black/35">— {{ song.artist?.name }}</span>
                 </NuxtLink>
@@ -86,17 +87,17 @@ const year = new Date().getFullYear();
 
           <nav aria-labelledby="footer-alati">
             <h2 id="footer-alati" class="mb-3 text-xs font-semibold uppercase tracking-wide text-black/40">
-              Alati
+              {{ $t('footer.tools') }}
             </h2>
             <ul class="space-y-1.5 text-sm">
               <li>
-                <NuxtLink to="/stimer" class="text-black/65 hover:text-accent">Štimer za gitaru</NuxtLink>
+                <NuxtLink :to="localePath('/stimer')" class="text-black/65 hover:text-accent">{{ $t('footer.tuner') }}</NuxtLink>
               </li>
               <li>
-                <NuxtLink to="/akordi" class="text-black/65 hover:text-accent">Svi akordi i hvatovi</NuxtLink>
+                <NuxtLink :to="localePath('/akordi')" class="text-black/65 hover:text-accent">{{ $t('footer.chords') }}</NuxtLink>
               </li>
               <li>
-                <NuxtLink to="/zatrazi" class="text-black/65 hover:text-accent">Zatraži akorde</NuxtLink>
+                <NuxtLink :to="localePath('/zatrazi')" class="text-black/65 hover:text-accent">{{ $t('footer.request') }}</NuxtLink>
               </li>
             </ul>
           </nav>
@@ -107,13 +108,14 @@ const year = new Date().getFullYear();
         <p>© {{ year }} Octava</p>
 
         <nav class="flex flex-wrap gap-x-5 gap-y-2">
-          <NuxtLink to="/o-nama" class="hover:text-accent">O nama</NuxtLink>
-          <NuxtLink to="/privatnost" class="hover:text-accent">Politika privatnosti</NuxtLink>
+          <NuxtLink :to="localePath('/o-nama')" class="hover:text-accent">{{ $t('footer.about') }}</NuxtLink>
+          <NuxtLink :to="localePath('/privatnost')" class="hover:text-accent">{{ $t('footer.privacy') }}</NuxtLink>
+          <NuxtLink :to="localePath('/uslovi')" class="hover:text-accent">{{ $t('footer.terms') }}</NuxtLink>
           <!-- TODO(Mirnes): replace with a real address once one exists.
                A site carrying song lyrics needs a reachable channel for
                takedown requests; leaving this unset is the gap worth closing
                first. -->
-          <span class="text-black/30">Kontakt: —</span>
+          <span class="text-black/30">{{ $t('footer.contact') }}: —</span>
         </nav>
       </div>
     </div>

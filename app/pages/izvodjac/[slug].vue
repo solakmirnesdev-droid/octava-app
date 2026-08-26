@@ -1,4 +1,6 @@
 <script setup>
+const { t } = useI18n();
+const localePath = useLocalePath();
 const route = useRoute();
 const { $api } = useNuxtApp();
 
@@ -8,7 +10,7 @@ const { data, error } = await useAsyncData(
 );
 
 if (error.value) {
-  throw createError({ statusCode: 404, statusMessage: 'Izvođač nije pronađen.', fatal: true });
+  throw createError({ statusCode: 404, statusMessage: t('meta.artistNotFound'), fatal: true });
 }
 
 const artist = computed(() => data.value?.artist);
@@ -28,7 +30,7 @@ useSeoMeta({
       <ul v-if="artist.genres?.length" class="mt-2 flex flex-wrap gap-1.5">
         <li v-for="genre in artist.genres" :key="genre._id">
           <NuxtLink
-            :to="`/zanr/${genre.slug}`"
+            :to="localePath(`/zanr/${genre.slug}`)"
             class="rounded-full border border-black/15 px-2.5 py-0.5 text-xs text-black/60 hover:border-accent hover:text-accent"
           >{{ genre.name }}</NuxtLink>
         </li>

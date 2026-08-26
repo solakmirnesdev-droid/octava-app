@@ -1,4 +1,7 @@
 <script setup>
+const config = useRuntimeConfig();
+const localePath = useLocalePath();
+const { t } = useI18n();
 const router = useRouter();
 const { $api } = useNuxtApp();
 
@@ -22,10 +25,33 @@ let controller = null;
  * result in visual order without the three sections knowing about each other.
  */
 const flat = computed(() => [
-  ...results.value.songs.map((s) => ({ key: 's' + s._id, label: s.title, sub: s.artist?.name, to: `/pjesma/${s.slug}` })),
-  ...results.value.artists.map((a) => ({ key: 'a' + a._id, label: a.name, sub: `${a.songCount || 0} pjesama`, to: `/izvodjac/${a.slug}` })),
-  ...results.value.genres.map((g) => ({ key: 'g' + g._id, label: g.name, sub: 'rubrika', to: `/zanr/${g.slug}` }))
+  // Artists lead. Someone typing "aca lukas" means the performer; the songs are
+  // what they browse once they get there. Ranking them under five song titles
+  // buried the one result that answers the query.
+  ...results.value.artists.map((a) => ({
+    key: 'a' + a._id, kind: 'artist', label: a.name,
+    sub: t('common.songCount', { n: a.songCount || 0 }, a.songCount || 0),
+    to: localePath(`/izvodjac/${a.slug}`),
+    // A face is recognised faster than a name is read.
+    image: a.hasImage ? `${config.public.apiBase}/artists/${a._id}/image` : null,
+    flag: a.flag || null
+  })),
+  ...results.value.songs.map((s) => ({
+    key: 's' + s._id, kind: 'song', label: s.title, sub: s.artist?.name,
+    to: localePath(`/pjesma/${s.slug}`)
+  })),
+  ...results.value.genres.map((g) => ({
+    key: 'g' + g._id, kind: 'genre', label: g.name, sub: t('common.genre'),
+    to: localePath(`/zanr/${g.slug}`)
+  }))
 ]);
+
+/** An artist row and a song row read identically without this. */
+const ICONS = {
+  artist: 'material-symbols:artist-rounded',
+  song: 'material-symbols:music-note-rounded',
+  genre: 'material-symbols:label-outline-rounded'
+};
 
 const hasResults = computed(() => flat.value.length > 0);
 
@@ -84,7 +110,7 @@ function submit() {
   const term = query.value.trim();
   if (term) {
     close();
-    router.push({ path: '/pretraga', query: { q: term } });
+    router.push(localePath({ path: '/pretraga', query: { q: term } }));
   }
 }
 
@@ -127,9 +153,9 @@ onBeforeUnmount(() => {
       <input
         v-model="query"
         type="search"
-        aria-label="Pretraga"
+        :aria-label="$t('nav.searchLabel')"
         autocomplete="off"
-        placeholder="Traži pjesmu, izvođača ili rubriku…"
+        :placeholder="$t('nav.search')"
         class="w-full rounded-full border border-black/15 bg-white py-1.5 pl-9 pr-9 text-sm outline-none focus:border-accent"
         :aria-expanded="open"
         @focus="query.trim().length >= MIN_QUERY && (open = true)"
@@ -142,11 +168,11 @@ onBeforeUnmount(() => {
         v-if="query"
         type="button"
         class="absolute right-3 top-1/2 -translate-y-1/2 text-black/30 hover:text-accent"
-        title="Očisti"
+        :title="$t('nav.clear')"
         @click="query = ''; close()"
       >
         <Icon name="material-symbols:close-rounded" />
-        <span class="sr-only">Očisti pretragu</span>
+        <span class="sr-only">{{ $t('nav.clearSearch') }}</span>
       </button>
     </form>
 
@@ -154,10 +180,10 @@ onBeforeUnmount(() => {
       v-if="open"
       class="absolute left-0 right-0 top-full z-30 mt-1 overflow-hidden rounded-lg border border-black/10 bg-white shadow-lg"
     >
-      <p v-if="loading && !hasResults" class="px-4 py-3 text-sm text-black/40">Traženje…</p>
+      <p v-if="loading && !hasResults" class="px-4 py-3 text-sm text-black/40">{{ $t('nav.searching') }}</p>
 
       <p v-else-if="!hasResults" class="px-4 py-3 text-sm text-black/40">
-        Nema rezultata za „{{ query.trim() }}"
+        {{ $t('nav.noResultsFor', { q: query.trim() }) }}
       </p>
 
       <ul v-else class="max-h-80 overflow-auto py-1">
@@ -169,8 +195,15 @@ onBeforeUnmount(() => {
             @click="go(item.to)"
             @mouseenter="highlighted = i"
           >
-            <span class="font-medium">{{ item.label }}</span>
-            <span class="text-xs text-black/45">{{ item.sub }}</span>
+            <img
+              v-if="item.image" :src="item.image" alt=""
+              class="size-6 shrink-0 self-center rounded-full object-cover ring-1 ring-black/10"
+            >
+            <Icon v-else :name="ICONS[item.kind]" class="shrink-0 self-center text-black/30" />
+            <span class="font-medium">
+              <span v-if="item.flag" class="mr-1">{{ item.flag }}</span>{{ item.label }}
+            </span>
+            <span class="truncate text-xs text-black/45">{{ item.sub }}</span>
           </button>
         </li>
       </ul>

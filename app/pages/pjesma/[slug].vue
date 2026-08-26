@@ -1,4 +1,8 @@
 <script setup>
+// Declared before the error branch below uses it: const is not hoisted,
+// so a later declaration throws only on the 404 path — which ordinary
+// testing never walks.
+const { locale, t } = useI18n();
 const route = useRoute();
 const { $api } = useNuxtApp();
 
@@ -8,8 +12,13 @@ const favorites = useFavoritesStore();
 // Fetched during SSR, so the chords are in the initial HTML. This is the whole
 // reason the app renders on the server: search traffic lands directly here.
 const { data, error } = await useAsyncData(
-  () => `song-${route.params.slug}`,
-  () => $api(`/songs/${route.params.slug}`)
+  // The version is part of the key: without it, switching would return the
+  // cached payload of whichever chart was fetched first.
+  () => `song-${route.params.slug}-${route.query.v || 'primary'}`,
+  () => $api(`/songs/${route.params.slug}`, {
+    params: route.query.v ? { arrangement: route.query.v } : undefined
+  }),
+  { watch: [() => route.query.v] }
 );
 
 if (error.value) {
@@ -19,12 +28,35 @@ if (error.value) {
 
   throw createError({
     statusCode: status === 404 ? 404 : 500,
-    statusMessage: status === 404 ? 'Pjesma nije pronađena.' : 'Greška pri učitavanju.',
+    statusMessage: status === 404 ? t('meta.songNotFound') : t('meta.loadError'),
     fatal: true
   });
 }
 
 const song = computed(() => data.value?.song);
+
+const localePath = useLocalePath();
+
+/**
+ * Difficulty is stored as easy/medium/hard and translated here rather than in
+ * the database, so the same record reads correctly in both catalogues.
+ */
+const DIFFICULTY_KEY = { easy: 'difficultyEasy', medium: 'difficultyMedium', hard: 'difficultyHard' };
+const difficultyKey = computed(() => DIFFICULTY_KEY[song.value?.difficulty] || null);
+
+const DIFFICULTY_CLASS = {
+  easy:   'border-emerald-600/25 bg-emerald-50 text-emerald-800',
+  medium: 'border-amber-600/25 bg-amber-50 text-amber-800',
+  hard:   'border-rose-600/25 bg-rose-50 text-rose-800'
+};
+const difficultyClass = computed(() => DIFFICULTY_CLASS[song.value?.difficulty] || '');
+
+// Grouped by the reader's own locale: 1.849 in Bosnian, 1,849 in English.
+const viewsLabel = computed(() => {
+  const n = song.value?.views;
+  if (typeof n !== 'number') return null;
+  return { n, formatted: new Intl.NumberFormat(locale.value).format(n) };
+});
 
 // Transposition is deliberately component state, not a URL parameter: every
 // key would otherwise be a separate crawlable URL with near-identical content.
@@ -33,14 +65,21 @@ const { fontSize } = useSheetFontSize();
 const showChords = ref(false);
 const { columns, wideEnough, active: splitColumns, toggle: toggleColumns } = useSheetColumns();
 
-const title = computed(() =>
-  song.value ? `${song.value.title} — ${song.value.artist?.name} | Akordi za gitaru` : 'Octava'
-);
-const description = computed(() =>
-  song.value
-    ? `Akordi za pjesmu ${song.value.title} (${song.value.artist?.name}). Originalni tonalitet ${song.value.originalKey}. Transponuj u bilo koji tonalitet.`
-    : ''
-);
+// These are what a search engine prints in its results, so they translate like
+// anything else: the English catalogue was advertising itself in Bosnian.
+// AI-TRAP: a literal | inside a translated message is vue-i18n's plural
+// separator. 'X | Akordi za gitaru' parses as two plural forms, and calling
+// t() on it with named arguments throws "Unexpected return type in composer"
+// — a 500 on the page, not a formatting glitch. Escape it as {'|'} in the
+// locale file, which is what song.metaTitle does.
+const metaArgs = computed(() => ({
+  title: song.value?.title || '',
+  artist: song.value?.artist?.name || '',
+  key: song.value?.originalKey || ''
+}));
+
+const title = computed(() => (song.value ? t('song.metaTitle', metaArgs.value) : 'Octava'));
+const description = computed(() => (song.value ? t('song.metaDescription', metaArgs.value) : ''));
 
 useSeoMeta({
   title,
@@ -49,6 +88,33 @@ useSeoMeta({
   ogDescription: description,
   ogType: 'article'
 });
+
+/**
+ * The picture that appears when the link is pasted into a chat. Built from the
+ * song itself rather than one shared site image, because the whole point is
+ * that the recipient sees which song it is before opening anything.
+ */
+// Plain values, not a computed: these props are serialised into the image URL,
+// and a reactive ref serialises as a circular structure — a 500 on the page
+// itself, not a broken picture.
+/**
+ * The picture that appears when the link is pasted into a chat. Built from the
+ * song itself rather than one shared site image, because the point is that the
+ * recipient sees which song it is before opening anything.
+ *
+ * Plain values, not a computed: these props are serialised into the image URL,
+ * and a reactive ref serialises as a circular structure — which fails the page
+ * itself, not just the picture.
+ */
+defineOgImage('Song', {
+  title: song.value?.title || '',
+  artist: song.value?.artist?.name || '',
+  musicalKey: song.value?.originalKey || '',
+  capo: song.value?.capo || 0,
+  capoLabel: song.value?.capo ? `${t('song.capo')} ${t('song.capoFret', { n: song.value.capo })}` : '',
+  difficulty: difficultyKey.value ? t(`song.${difficultyKey.value}`) : ''
+});
+
 
 // Canonical and hreflang come from useLocaleHead in app.vue. A hard-coded
 // canonical here pointed every English page at its Bosnian counterpart,
@@ -59,27 +125,54 @@ useSeoMeta({
   <article v-if="song">
     <header class="mb-6">
       <h1 class="text-2xl font-semibold tracking-tight">{{ song.title }}</h1>
-      <NuxtLink :to="`/izvodjac/${song.artist?.slug}`" class="text-black/60 hover:text-accent">
+      <NuxtLink :to="localePath(`/izvodjac/${song.artist?.slug}`)" class="text-black/60 hover:text-accent">
         {{ song.artist?.name }}
       </NuxtLink>
 
       <ul v-if="song.genres?.length" class="mt-2 flex flex-wrap gap-1.5">
         <li v-for="genre in song.genres" :key="genre._id">
           <NuxtLink
-            :to="`/zanr/${genre.slug}`"
+            :to="localePath(`/zanr/${genre.slug}`)"
             class="rounded-full border border-black/15 px-2.5 py-0.5 text-xs text-black/60 hover:border-accent hover:text-accent"
           >{{ genre.name }}</NuxtLink>
         </li>
       </ul>
+
+      <!-- Both were already in the payload and neither was ever shown. The
+           difficulty tells a beginner whether to attempt this at all; the view
+           count is the only signal on the page that other people play it. -->
+      <p v-if="difficultyKey || viewsLabel" class="mt-2.5 flex flex-wrap items-center gap-x-2.5 gap-y-1 text-xs text-black/50">
+        <span
+          v-if="difficultyKey"
+          class="rounded-full border px-2 py-0.5 font-medium"
+          :class="difficultyClass"
+          :title="$t('song.difficultyLabel')"
+        >{{ $t(`song.${difficultyKey}`) }}</span>
+
+        <span v-if="difficultyKey && viewsLabel" aria-hidden="true">·</span>
+
+        <span v-if="viewsLabel">{{ $t('song.views', { n: viewsLabel.formatted }, viewsLabel.n) }}</span>
+      </p>
     </header>
 
-    <StarRating
+    <VersionSwitcher
+
+      data-print="hide"
+
+      :arrangements="song.arrangements || []"
+
+      :current="song.arrangementId"
+
+    />
+
+
+    <StarRating data-print="hide"
       class="mb-5"
       :slug="song.slug"
       :arrangement-id="song.arrangementId"
     />
 
-    <div class="mb-6 flex flex-wrap items-center gap-x-3 gap-y-2 border-y border-black/10 py-2 sm:mb-8 sm:gap-x-6 sm:gap-y-3 sm:py-3">
+    <div data-print="hide" class="mb-6 flex flex-wrap items-center gap-x-3 gap-y-2 border-y border-black/10 py-2 sm:mb-8 sm:gap-x-6 sm:gap-y-3 sm:py-3">
       <TransposeControls v-model:semitones="semitones" :original-key="song.originalKey" />
 
       <FontSizeControl />
@@ -93,11 +186,11 @@ useSeoMeta({
           ? 'border-accent bg-accent text-white'
           : 'border-black/15 bg-white text-black/60 hover:border-accent hover:text-accent'"
         :aria-pressed="columns"
-        title="Podijeli pjesmu u dvije kolone"
+        :title="$t('song.twoColumns')"
         @click="toggleColumns"
       >
         <Icon name="material-symbols:vertical-split-rounded" />
-        <span class="sr-only">Dvije kolone</span>
+        <span class="sr-only">{{ $t('song.twoColumns') }}</span>
       </button>
 
       <button
@@ -106,16 +199,33 @@ useSeoMeta({
           ? 'border-accent bg-accent text-white'
           : 'border-black/15 bg-white text-black/60 hover:border-accent hover:text-accent'"
         :aria-pressed="showChords"
-        title="Prikaži sve akorde iz pjesme"
+        :title="$t('song.allChords')"
         @click="showChords = !showChords"
       >
         <Icon name="material-symbols:grid-view-rounded" />
-        <span class="sr-only">Prikaži sve akorde</span>
+        <span class="sr-only">{{ $t('song.allChords') }}</span>
       </button>
 
       <span v-if="song.capo" class="order-last text-sm text-black/60 sm:order-none">
-        Kapodaster: <strong>{{ song.capo }}.</strong> prag
+        {{ $t('song.capo') }}: {{ $t('song.capoFret', { n: song.capo }) }}
       </span>
+
+      <button
+
+        class="rounded border border-black/15 bg-white px-2.5 py-1.5 text-black/60 transition hover:border-accent hover:text-accent"
+
+        :title="$t('song.print')"
+
+        @click="print()"
+
+      >
+
+        <Icon name="material-symbols:print-outline-rounded" />
+
+        <span class="sr-only">{{ $t('song.print') }}</span>
+
+      </button>
+
 
       <button
         v-if="auth.isAuthenticated"
@@ -123,15 +233,15 @@ useSeoMeta({
         @click="favorites.toggle(song._id)"
       >
         <Icon :name="favorites.has(song._id) ? 'material-symbols:favorite-rounded' : 'material-symbols:favorite-outline-rounded'" />
-        {{ favorites.has(song._id) ? 'Sačuvano' : 'Sačuvaj' }}
+        {{ favorites.has(song._id) ? $t('song.saved') : $t('song.save') }}
       </button>
-      <NuxtLink v-else to="/prijava" class="ml-auto flex items-center gap-1 text-sm text-black/40 hover:text-accent">
+      <NuxtLink v-else :to="localePath('/prijava')" class="ml-auto flex items-center gap-1 text-sm text-black/40 hover:text-accent">
         <Icon name="material-symbols:favorite-outline-rounded" />
-        Sačuvaj
+        {{ $t('song.save') }}
       </NuxtLink>
     </div>
 
-    <ChordGrid
+    <ChordGrid data-print="hide"
       v-if="showChords"
       class="mb-8"
       :content="song.content"
@@ -146,5 +256,26 @@ useSeoMeta({
       :font-size="fontSize"
       :columns="splitColumns"
     />
+
+
+    <!-- Under the chords and set small: the reader who needs this is a
+
+         minority, and a form for them would sit in front of everyone else. -->
+
+    <div data-print="hide" class="mt-4 flex justify-end">
+
+      <ReportProblem :slug="song.slug" :arrangement-id="song.arrangementId" />
+
+    </div>
+
+
+    <!-- Below the chords, deliberately: someone opening this page came to
+
+         play, and what other people thought is worth reading after that. -->
+
+    <SongReviews data-print="hide" :slug="song.slug" />
+
+
+    <RelatedSongs data-print="hide" :slug="song.slug" />
   </article>
 </template>

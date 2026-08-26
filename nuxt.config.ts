@@ -4,7 +4,39 @@ export default defineNuxtConfig({
   compatibilityDate: '2025-01-01',
   devtools: { enabled: false },
 
-  modules: ['@pinia/nuxt', '@nuxt/icon', '@nuxtjs/i18n'],
+  modules: ['@pinia/nuxt', '@nuxt/icon', '@nuxtjs/i18n', '@nuxt/fonts', 'nuxt-og-image'],
+
+  /**
+   * Songs here are shared by link far more than they are searched for — into
+   * WhatsApp and Viber groups, onto Facebook. A link with no picture collapses
+   * to a line of grey text there, so every song renders its own card.
+   */
+  site: {
+    url: process.env.NUXT_PUBLIC_SITE_URL || 'http://localhost:3000',
+    name: 'Octava'
+  },
+
+  /**
+   * AI-TRAP: the latin-ext subset is what carries č ć ž š đ. Without it satori
+   * renders every one of them as a NO GLYPH box in the shared-link picture —
+   * the Bosnian catalogue's own titles, unreadable in exactly the place the
+   * links get shared. nuxt-og-image v6 dropped its own `fonts` option and
+   * reads the faces this module provides instead.
+   */
+  fonts: {
+    families: [
+      { name: 'Inter', provider: 'google', weights: [400, 700], subsets: ['latin', 'latin-ext'] }
+    ]
+  },
+
+  ogImage: {
+    // Rendered once and cached rather than on every crawl of every song.
+    defaults: { cacheMaxAgeSeconds: 60 * 60 * 24 * 7, width: 1200, height: 630 },
+    // Stable across builds on purpose: the signature is part of the image URL,
+    // and Facebook and WhatsApp cache that URL. An auto-generated secret gives
+    // every deploy new URLs, so previously shared links lose their picture.
+    secret: process.env.NUXT_OG_IMAGE_SECRET
+  },
 
   /**
    * Two markets on one platform: the Balkan catalogue at the root, the
@@ -18,7 +50,13 @@ export default defineNuxtConfig({
    */
   i18n: {
     defaultLocale: 'bs',
-    vueI18n: './i18n/i18n.config.ts',
+    // AI-TRAP: resolved relative to the i18n/ directory, not the project root.
+    // './i18n/i18n.config.ts' looks right and silently resolves to
+    // i18n/i18n/i18n.config.ts; the module then skips the file with only a
+    // warning, and the Bosnian plural rule inside it never loads. Bosnian then
+    // falls back to English pluralisation, which is right for 1 and 5 and
+    // wrong for 21, 22 and 101 — rare enough to pass a casual look.
+    vueI18n: './i18n.config.ts',
     strategy: 'prefix_except_default',
     // Off for the reason above; the suggestion banner handles this instead.
     detectBrowserLanguage: false,
@@ -51,6 +89,7 @@ export default defineNuxtConfig({
       'registracija':    { bs: '/registracija',    en: '/register' },
       'o-nama':          { bs: '/o-nama',          en: '/about' },
       'privatnost':      { bs: '/privatnost',      en: '/privacy' },
+      'uslovi':          { bs: '/uslovi',          en: '/terms' },
       'zaboravljena-lozinka': { bs: '/zaboravljena-lozinka', en: '/forgot-password' },
       'nova-lozinka':    { bs: '/nova-lozinka',     en: '/new-password' }
     }
@@ -91,7 +130,9 @@ export default defineNuxtConfig({
     public: {
       // Client-side calls use the same origin, proxied by Nitro below.
       apiBase: process.env.NUXT_PUBLIC_API_BASE || '/api',
-      siteUrl: process.env.NUXT_PUBLIC_SITE_URL || 'http://localhost:3000'
+      siteUrl: process.env.NUXT_PUBLIC_SITE_URL || 'http://localhost:3000',
+      // Empty until the keys exist; both widgets render nothing without them.
+      turnstileSiteKey: process.env.NUXT_PUBLIC_TURNSTILE_SITE_KEY || ''
     }
   },
 

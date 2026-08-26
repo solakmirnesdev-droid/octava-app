@@ -1,4 +1,5 @@
 <script setup>
+const { t } = useI18n();
 import { FINGERINGS } from '~/utils/fingerings';
 
 
@@ -28,9 +29,9 @@ const grouped = computed(() => {
 const total = computed(() => Object.keys(FINGERINGS).length);
 
 useSeoMeta({
-  title: 'Akordi za gitaru — svi hvatovi | Octava',
+  title: t('meta.chordsTitle'),
   description: `Dijagrami hvatova za ${total.value} akorda na gitari. Durski i molski trozvuci, septakordi i sus akordi, u našoj notaciji sa H.`,
-  ogTitle: 'Akordi za gitaru — svi hvatovi',
+  ogTitle: t('meta.chordsHeading'),
   ogType: 'article'
 });
 
@@ -42,11 +43,11 @@ useSeoMeta({
 <template>
   <div>
     <header class="mb-8">
-      <h1 class="text-2xl font-semibold tracking-tight">Akordi za gitaru</h1>
-      <p class="mt-2 max-w-2xl text-black/60">
-        Hvatovi za {{ total }} akorda. Notacija je naša — <strong class="font-mono">H</strong>
-        je dvanaesti stepen, a povisilice se pišu umjesto snizilica.
-      </p>
+      <h1 class="text-2xl font-semibold tracking-tight">{{ $t('page.chordsTitle') }}</h1>
+      <i18n-t keypath="page.chordsLead" tag="p" class="mt-2 max-w-2xl text-black/60" scope="global">
+        <template #total>{{ total }}</template>
+        <template #h><strong class="font-mono">H</strong></template>
+      </i18n-t>
     </header>
 
     <section v-for="root in ROOTS" :key="root" class="mb-8">

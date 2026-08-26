@@ -1,8 +1,9 @@
 <script setup>
+const { t, locale } = useI18n();
 
 useSeoMeta({
-  title: 'Politika privatnosti | Octava',
-  description: 'Koje podatke Octava prikuplja, zašto, i kako ih možeš obrisati.'
+  title: t('meta.privacyTitle'),
+  description: t('meta.privacyDesc')
 });
 
 // Canonical and hreflang come from useLocaleHead in app.vue. A hard-coded
@@ -12,57 +13,42 @@ useSeoMeta({
 
 <template>
   <article class="mx-auto max-w-2xl">
-    <h1 class="text-2xl font-semibold tracking-tight">Politika privatnosti</h1>
-    <p class="mt-2 text-sm text-black/45">Posljednja izmjena: {{ new Date().toLocaleDateString('bs') }}</p>
-
-    <h2 class="mt-8 text-lg font-semibold">Šta prikupljamo</h2>
-    <p class="mt-2 text-black/70">
-      Bez naloga ne prikupljamo ništa što bi te identifikovalo. Ako napraviš
-      nalog, čuvamo <strong>email adresu</strong>, <strong>korisničko ime</strong> i
-      <strong>lozinku u kriptovanom obliku</strong> — lozinka se ne čuva u
-      čitljivom zapisu i ne možemo je pročitati. Uz to se veže spisak pjesama
-      koje si sačuvao.
+    <h1 class="text-2xl font-semibold tracking-tight">{{ $t('privacy.title') }}</h1>
+    <!-- Formatted in the reader's locale: a fixed 'bs' printed Bosnian dates on
+         the English page. -->
+    <p class="mt-2 text-sm text-black/45">
+      {{ $t('privacy.updated', { date: new Date().toLocaleDateString(locale) }) }}
     </p>
 
-    <h2 class="mt-8 text-lg font-semibold">Kolačići</h2>
-    <p class="mt-2 text-black/70">
-      Koristimo jedan kolačić, i to samo kad si prijavljen — služi da te sesija
-      pamti. Postavljen je kao <span class="font-mono">httpOnly</span>, što znači
-      da mu skripte u pregledniku ne mogu pristupiti.
-      <strong>Nemamo kolačiće za praćenje ni reklame.</strong>
-    </p>
+    <h2 class="mt-8 text-lg font-semibold">{{ $t('privacy.collectTitle') }}</h2>
+    <i18n-t keypath="privacy.collect" tag="p" class="mt-2 text-black/70" scope="global">
+      <template #email><strong>{{ $t('privacy.email') }}</strong></template>
+      <template #username><strong>{{ $t('privacy.username') }}</strong></template>
+      <template #password><strong>{{ $t('privacy.password') }}</strong></template>
+    </i18n-t>
 
-    <h2 class="mt-8 text-lg font-semibold">Postavke u pregledniku</h2>
-    <p class="mt-2 text-black/70">
-      Veličina teksta i brzina klizanja pamte se lokalno, u tvom pregledniku.
-      Ti podaci nikad ne stižu do nas i brišu se kad očistiš podatke stranice.
-    </p>
+    <h2 class="mt-8 text-lg font-semibold">{{ $t('privacy.cookiesTitle') }}</h2>
+    <i18n-t keypath="privacy.cookies" tag="p" class="mt-2 text-black/70" scope="global">
+      <template #httpOnly><span class="font-mono">httpOnly</span></template>
+      <template #noTracking><strong>{{ $t('privacy.noTracking') }}</strong></template>
+    </i18n-t>
 
-    <h2 class="mt-8 text-lg font-semibold">Mikrofon</h2>
-    <p class="mt-2 text-black/70">
-      Štimer traži pristup mikrofonu samo dok je uključen. Zvuk se obrađuje
-      isključivo u tvom pregledniku — ništa se ne snima, ne šalje niti čuva.
-    </p>
+    <h2 class="mt-8 text-lg font-semibold">{{ $t('privacy.browserTitle') }}</h2>
+    <p class="mt-2 text-black/70">{{ $t('privacy.browser') }}</p>
 
-    <h2 class="mt-8 text-lg font-semibold">Tvoja prava</h2>
-    <p class="mt-2 text-black/70">
-      Možeš zatražiti uvid u svoje podatke, njihovu ispravku ili brisanje
-      naloga. Brisanjem naloga uklanjaju se email, korisničko ime i sačuvane
-      pjesme.
-    </p>
+    <h2 class="mt-8 text-lg font-semibold">{{ $t('privacy.micTitle') }}</h2>
+    <p class="mt-2 text-black/70">{{ $t('privacy.mic') }}</p>
+
+    <h2 class="mt-8 text-lg font-semibold">{{ $t('privacy.rightsTitle') }}</h2>
+    <p class="mt-2 text-black/70">{{ $t('privacy.rights') }}</p>
 
     <!-- TODO(Mirnes): a privacy policy without a contact address is not
          actionable — a reader has no way to exercise any of the rights above.
          This is the first thing to fill in. -->
     <p class="mt-8 rounded border border-amber-300 bg-amber-50 px-4 py-3 text-sm text-amber-900">
-      <strong>Nedostaje kontakt.</strong> Ovdje treba stajati adresa na koju se
-      šalju zahtjevi vezani za podatke. Dok je nema, korisnik nema način da
-      ostvari prava navedena iznad.
+      <strong>{{ $t('privacy.noContactLead') }}</strong> {{ $t('privacy.noContact') }}
     </p>
 
-    <p class="mt-6 text-sm text-black/45">
-      Ovaj tekst opisuje kako sajt stvarno radi, ali nije pravni savjet.
-      Prije puštanja u rad neka ga pregleda neko ko se time bavi.
-    </p>
+    <p class="mt-6 text-sm text-black/45">{{ $t('privacy.disclaimer') }}</p>
   </article>
 </template>

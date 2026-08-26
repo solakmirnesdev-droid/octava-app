@@ -1,4 +1,5 @@
 <script setup>
+const { t } = useI18n();
 const { listening, error, reading, nearestString, inTune, start, stop, STRINGS } = useTuner();
 
 /**
@@ -15,16 +16,16 @@ const needle = computed(() => {
 
 const verdict = computed(() => {
   if (!reading.value) return null;
-  if (inTune.value) return { text: 'naštimano', tone: 'text-green-600' };
+  if (inTune.value) return { text: t('meta.inTune'), tone: 'text-green-600' };
   return reading.value.cents < 0
     ? { text: 'nisko — zategni', tone: 'text-amber-600' }
     : { text: 'visoko — popusti', tone: 'text-amber-600' };
 });
 
 useSeoMeta({
-  title: 'Štimer za gitaru | Octava',
-  description: 'Naštimaj gitaru preko mikrofona. Standardno štimovanje E A D G H E, prikaz odstupanja u centima.',
-  ogTitle: 'Štimer za gitaru'
+  title: t('meta.tunerTitle'),
+  description: t('meta.tunerDesc'),
+  ogTitle: t('meta.tunerOg')
 });
 
 // Canonical and hreflang come from useLocaleHead in app.vue. A hard-coded
@@ -35,11 +36,10 @@ useSeoMeta({
 <template>
   <div class="mx-auto max-w-xl">
     <header class="mb-8">
-      <h1 class="text-2xl font-semibold tracking-tight">Štimer</h1>
-      <p class="mt-2 text-black/60">
-        Standardno štimovanje — <span class="font-mono">E A D G H E</span>.
-        Odsviraj jednu žicu i pusti je da zvoni.
-      </p>
+      <h1 class="text-2xl font-semibold tracking-tight">{{ $t('page.tuner') }}</h1>
+      <i18n-t keypath="page.tuningLead" tag="p" class="mb-6 text-sm text-black/60" scope="global">
+        <template #tuning><span class="font-mono">E A D G H E</span></template>
+      </i18n-t>
     </header>
 
     <div class="rounded-lg border border-black/10 bg-white p-6">
@@ -48,11 +48,11 @@ useSeoMeta({
           class="rounded bg-ink px-6 py-3 font-medium text-white hover:bg-accent"
           @click="start"
         >
-          Uključi mikrofon
+          {{ $t('page.micOn') }}
         </button>
         <p v-if="error" role="alert" class="mt-4 text-sm text-accent">{{ error }}</p>
         <p v-else class="mt-4 text-xs text-black/40">
-          Zvuk se obrađuje u pregledniku i nigdje se ne šalje.
+          {{ $t('page.micPrivacy') }}
         </p>
       </div>
 
@@ -64,7 +64,7 @@ useSeoMeta({
             >{{ reading.octave }}</span>
           </p>
           <p v-if="verdict" class="mt-2 text-sm font-medium" :class="verdict.tone">{{ verdict.text }}</p>
-          <p v-else class="mt-2 text-sm text-black/35">odsviraj žicu…</p>
+          <p v-else class="mt-2 text-sm text-black/35">{{ $t('page.playString') }}</p>
         </div>
 
         <!-- Cent scale. Centre is in tune; the shaded band is the tolerance. -->
@@ -97,7 +97,7 @@ useSeoMeta({
           class="mt-6 w-full rounded border border-black/15 py-2 text-sm hover:border-accent"
           @click="stop"
         >
-          Zaustavi
+          {{ $t('page.stop') }}
         </button>
       </div>
     </div>

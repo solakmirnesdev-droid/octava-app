@@ -1,4 +1,5 @@
 <script setup>
+const localePath = useLocalePath();
 const { $api } = useNuxtApp();
 const auth = useAuthStore();
 
@@ -57,23 +58,23 @@ useSeoMeta({
 <template>
   <div class="mx-auto max-w-2xl">
     <header class="mb-6">
-      <h1 class="text-2xl font-semibold tracking-tight">Zatraži akorde</h1>
+      <h1 class="text-2xl font-semibold tracking-tight">{{ $t('page.requestTitle') }}</h1>
       <p class="mt-2 text-black/60">
-        Nema pjesme koju tražiš? Javi nam. Pjesme sa najviše glasova obrađujemo prve.
+        {{ $t('page.requestLead') }}
       </p>
     </header>
 
     <form class="mb-10 rounded-lg border border-black/10 bg-white p-4" @submit.prevent="submit">
       <div class="grid gap-3 sm:grid-cols-2">
         <label class="block">
-          <span class="text-sm font-medium">Izvođač</span>
+          <span class="text-sm font-medium">{{ $t('page.artist') }}</span>
           <input
             v-model="form.artist" required maxlength="120"
             class="mt-1 w-full rounded border border-black/15 px-3 py-2 outline-none focus:border-accent"
           />
         </label>
         <label class="block">
-          <span class="text-sm font-medium">Naslov</span>
+          <span class="text-sm font-medium">{{ $t('page.songTitle') }}</span>
           <input
             v-model="form.title" required maxlength="200"
             class="mt-1 w-full rounded border border-black/15 px-3 py-2 outline-none focus:border-accent"
@@ -82,9 +83,9 @@ useSeoMeta({
       </div>
 
       <label class="mt-3 block">
-        <span class="text-sm font-medium">Napomena <span class="font-normal text-black/40">(nije obavezno)</span></span>
+        <span class="text-sm font-medium">{{ $t('page.note') }} <span class="font-normal text-black/40">{{ $t('page.optional') }}</span></span>
         <input
-          v-model="form.note" maxlength="500" placeholder="npr. verzija uživo, ili tonalitet koji ti treba"
+          v-model="form.note" maxlength="500" :placeholder="$t('page.notePlaceholder')"
           class="mt-1 w-full rounded border border-black/15 px-3 py-2 outline-none focus:border-accent"
         />
       </label>
@@ -110,11 +111,11 @@ useSeoMeta({
     </form>
 
     <h2 class="mb-3 text-sm font-semibold uppercase tracking-wide text-black/40">
-      Najtraženije
+      {{ $t('page.popular') }}
     </h2>
 
     <p v-if="!data?.requests?.length" class="text-sm text-black/50">
-      Još nema zahtjeva. Budi prvi.
+      {{ $t('page.noRequests') }}
     </p>
 
     <ul v-else class="divide-y divide-black/5">
@@ -122,7 +123,7 @@ useSeoMeta({
         <button
           class="flex w-12 shrink-0 flex-col items-center rounded border py-1 transition"
           :class="request.voted ? 'border-accent bg-accent/10 text-accent' : 'border-black/15 hover:border-accent'"
-          :title="request.voted ? 'Povuci glas' : 'Glasaj'"
+          :title="request.voted ? $t('page.unvote') : $t('page.vote')"
           @click="toggleVote(request)"
         >
           <span class="text-xs leading-none">▲</span>
@@ -139,9 +140,9 @@ useSeoMeta({
 
         <NuxtLink
           v-if="request.fulfilledBy"
-          :to="`/pjesma/${request.fulfilledBy.slug}`"
+          :to="localePath(`/pjesma/${request.fulfilledBy.slug}`)"
           class="shrink-0 text-sm text-accent hover:underline"
-        >Otvori</NuxtLink>
+        >{{ $t('page.open') }}</NuxtLink>
         <span
           v-else
           class="shrink-0 rounded px-2 py-0.5 text-xs"

@@ -1,4 +1,5 @@
 <script setup>
+const { t } = useI18n();
 const route = useRoute();
 const router = useRouter();
 const { $api } = useNuxtApp();
@@ -15,7 +16,7 @@ const { data, error } = await useAsyncData(
 );
 
 if (error.value) {
-  throw createError({ statusCode: 404, statusMessage: 'Rubrika nije pronađena.', fatal: true });
+  throw createError({ statusCode: 404, statusMessage: t('meta.genreNotFound'), fatal: true });
 }
 
 const genre = computed(() => data.value?.genre);
@@ -67,14 +68,14 @@ useSeoMeta({
         class="rounded border border-black/15 px-3 py-1.5 hover:border-accent disabled:opacity-30"
         :disabled="meta.page <= 1" @click="go(meta.page - 1)"
       >
-        Prethodna
+        {{ $t('page.prev') }}
       </button>
       <span class="text-black/50">{{ meta.page }} / {{ meta.pages }}</span>
       <button
         class="rounded border border-black/15 px-3 py-1.5 hover:border-accent disabled:opacity-30"
         :disabled="meta.page >= meta.pages" @click="go(meta.page + 1)"
       >
-        Sljedeća
+        {{ $t('page.next') }}
       </button>
     </nav>
   </div>

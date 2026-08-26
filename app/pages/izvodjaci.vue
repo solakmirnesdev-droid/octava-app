@@ -1,4 +1,5 @@
 <script setup>
+const localePath = useLocalePath();
 const route = useRoute();
 const { $api } = useNuxtApp();
 
@@ -27,7 +28,7 @@ useSeoMeta({
 </script>
 
 <template>
-  <h1 class="mb-6 text-2xl font-semibold tracking-tight">Izvođači</h1>
+  <h1 class="mb-6 text-2xl font-semibold tracking-tight">{{ $t('page.artists') }}</h1>
 
   <!-- Letters with no artists stay visible but inert, so the row does not
        reflow every time the filter changes. -->
@@ -36,7 +37,7 @@ useSeoMeta({
       :to="{ query: { ...route.query, letter: undefined, page: undefined } }"
       class="rounded px-2 py-1 text-sm hover:bg-black/5"
       :class="!letter ? 'bg-ink text-white hover:bg-ink' : ''"
-    >Sve</NuxtLink>
+    >{{ $t('page.allFilter') }}</NuxtLink>
 
     <template v-for="char in ALPHABET" :key="char">
       <NuxtLink
@@ -54,7 +55,7 @@ useSeoMeta({
       :to="{ query: { ...route.query, genre: undefined, page: undefined } }"
       class="rounded-full border px-3 py-1 text-xs"
       :class="!genre ? 'border-accent bg-accent/10 text-accent' : 'border-black/15 text-black/60 hover:border-accent'"
-    >Sve rubrike</NuxtLink>
+    >{{ $t('page.allRubrics') }}</NuxtLink>
 
     <NuxtLink
       v-for="g in genreData?.genres || []" :key="g._id"
@@ -65,13 +66,13 @@ useSeoMeta({
   </nav>
 
   <p v-if="!data?.artists?.length" class="text-sm text-black/50">
-    Nema izvođača za ovaj filter.
+    {{ $t('page.noArtists') }}
   </p>
 
   <ul v-else class="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
     <li v-for="artist in data.artists" :key="artist._id">
       <NuxtLink
-        :to="`/izvodjac/${artist.slug}`"
+        :to="localePath(`/izvodjac/${artist.slug}`)"
         class="block rounded border border-black/10 bg-white px-4 py-3 hover:border-accent"
       >
         <span class="block font-medium">{{ artist.name }}</span>

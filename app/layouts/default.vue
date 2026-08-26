@@ -86,7 +86,7 @@ const itemClass =
 
 <template>
   <div class="min-h-screen bg-surface text-ink">
-    <LanguageSuggestion />
+    <LanguageSuggestion data-print="hide" />
 
     <header class="sticky top-0 z-10 border-b border-black/10 bg-surface/90 backdrop-blur">
       <div class="mx-auto flex max-w-5xl items-center gap-x-3 px-5 py-2.5 sm:gap-x-4 sm:py-3">

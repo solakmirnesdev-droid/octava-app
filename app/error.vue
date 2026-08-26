@@ -1,4 +1,5 @@
 <script setup>
+const localePath = useLocalePath();
 defineProps({ error: { type: Object, required: true } });
 </script>
 
@@ -8,8 +9,8 @@ defineProps({ error: { type: Object, required: true } });
     <h1 class="mt-2 text-2xl font-semibold tracking-tight">
       {{ error.statusMessage || 'Nešto je pošlo po zlu.' }}
     </h1>
-    <NuxtLink to="/" class="mt-6 text-accent hover:underline" @click="clearError">
-      Nazad na početnu
+    <NuxtLink :to="localePath('/')" class="mt-6 text-accent hover:underline" @click="clearError">
+      {{ $t('common.backHome') }}
     </NuxtLink>
   </div>
 </template>
