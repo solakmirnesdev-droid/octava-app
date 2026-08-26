@@ -80,7 +80,9 @@
     "versions": "Verzije",
     "versionPrimary": "glavna",
     "versionNoRating": "bez ocjena",
-    "versionRating": "{rating} ({n})"
+    "versionRating": "{rating} ({n})",
+    "listen": "Poslušaj original",
+    "videoLabel": "Snimak pjesme"
   },
   "footer": {
     "rubrics": "Rubrike",
@@ -160,7 +162,8 @@
     "unvote": "Povuci glas",
     "tuningLead": "Standardno štimovanje — {tuning}. Odsviraj jednu žicu i pusti je da zvoni.",
     "chordsTitle": "Akordi za gitaru",
-    "chordsLead": "Hvatovi za {total} akorda. Notacija je naša — {h} je dvanaesti stepen, a povisilice se pišu umjesto snizilica."
+    "chordsLead": "Hvatovi za {total} akorda. Notacija je naša — {h} je dvanaesti stepen, a povisilice se pišu umjesto snizilica.",
+    "noArtistSongs": "Još nema pjesama ovog izvođača."
   },
   "auth": {
     "signInLead": "Prijavi se da sačuvaš pjesme.",

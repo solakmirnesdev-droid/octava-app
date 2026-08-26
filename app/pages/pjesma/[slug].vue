@@ -258,6 +258,23 @@ defineOgImage('Song', {
     />
 
 
+    <!-- Below the chords: the chart is what the page is for, and a player at
+
+         the top would push it off the first screen. -->
+
+    <SongVideo
+
+      v-if="song.youtubeId"
+
+      data-print="hide"
+
+      :video-id="song.youtubeId"
+
+      :title="song.title"
+
+    />
+
+
     <!-- Under the chords and set small: the reader who needs this is a
 
          minority, and a form for them would sit in front of everyone else. -->
@@ -273,7 +290,11 @@ defineOgImage('Song', {
 
          play, and what other people thought is worth reading after that. -->
 
-    <SongReviews data-print="hide" :slug="song.slug" />
+    <!-- AI-TRAP: not `hydrate-on-visible`. Deferring hydration here leaves the
+           component frozen in its server-rendered state — the section renders,
+           shows "Učitavanje…" and never resolves, because onMounted never runs
+           and nothing fetches. Verified on the page, not assumed. -->
+      <SongReviews data-print="hide" :slug="song.slug" />
 
 
     <RelatedSongs data-print="hide" :slug="song.slug" />

@@ -80,7 +80,9 @@
     "versions": "Versions",
     "versionPrimary": "main",
     "versionNoRating": "no ratings",
-    "versionRating": "{rating} ({n})"
+    "versionRating": "{rating} ({n})",
+    "listen": "Listen to the original",
+    "videoLabel": "Recording of the song"
   },
   "footer": {
     "rubrics": "Genres",
@@ -160,7 +162,8 @@
     "unvote": "Remove vote",
     "tuningLead": "Standard tuning — {tuning}. Play one string and let it ring.",
     "chordsTitle": "Guitar chords",
-    "chordsLead": "Fingerings for {total} chords. The notation is ours — {h} is the twelfth degree, and sharps are written instead of flats."
+    "chordsLead": "Fingerings for {total} chords. The notation is ours — {h} is the twelfth degree, and sharps are written instead of flats.",
+    "noArtistSongs": "No songs for this artist yet."
   },
   "auth": {
     "signInLead": "Sign in to save songs.",
