@@ -1,4 +1,6 @@
 <script setup>
+const { t } = useI18n();
+const localePath = useLocalePath();
 definePageMeta({ layout: false });
 
 const route = useRoute();
@@ -28,27 +30,27 @@ async function submit() {
   }
 }
 
-useSeoMeta({ title: 'Nova lozinka | Octava', robots: 'noindex, nofollow' });
+useSeoMeta({ title: t('meta.newPassTitle'), robots: 'noindex, nofollow' });
 </script>
 
 <template>
   <div class="flex min-h-screen items-center justify-center bg-surface px-6 text-ink">
     <div class="w-full max-w-sm">
-      <NuxtLink to="/" class="text-2xl font-semibold tracking-tight">Octava</NuxtLink>
+      <NuxtLink :to="localePath('/')" class="text-2xl font-semibold tracking-tight">Octava</NuxtLink>
 
       <p v-if="!token" class="mt-6 rounded bg-accent/10 px-4 py-3 text-sm text-accent">
-        Link nije potpun. Zatraži novi.
+        {{ $t('auth.linkIncomplete') }}
       </p>
 
       <template v-else-if="!done">
-        <p class="mt-1 mb-8 text-sm text-black/50">Postavi novu lozinku.</p>
+        <p class="mt-1 mb-8 text-sm text-black/50">{{ $t('auth.setNewPassword') }}</p>
 
         <form @submit.prevent="submit">
           <PasswordField
             id="password" v-model="password"
             label="Nova lozinka" autocomplete="new-password" :minlength="8" show-strength
           />
-          <p class="mt-1 text-xs text-black/40">Najmanje 8 znakova.</p>
+          <p class="mt-1 text-xs text-black/40">{{ $t('auth.minChars') }}</p>
 
           <p v-if="error" role="alert" class="mt-4 rounded bg-accent/10 px-3 py-2 text-sm text-accent">
             {{ error }}
@@ -64,17 +66,17 @@ useSeoMeta({ title: 'Nova lozinka | Octava', robots: 'noindex, nofollow' });
       </template>
 
       <div v-else class="mt-6 rounded border border-green-600/30 bg-green-50 p-5">
-        <p class="text-sm text-green-900">Lozinka je promijenjena.</p>
+        <p class="text-sm text-green-900">{{ $t('auth.passwordChanged') }}</p>
         <!-- Every session issued before this moment is now refused, so signing
              in again is genuinely required rather than a formality. -->
-        <p class="mt-1 text-xs text-green-900/70">Prijavi se novom lozinkom.</p>
-        <NuxtLink to="/prijava" class="mt-4 inline-block text-sm font-medium text-accent hover:underline">
-          Idi na prijavu →
+        <p class="mt-1 text-xs text-green-900/70">{{ $t('auth.signInWithNew') }}</p>
+        <NuxtLink :to="localePath('/prijava')" class="mt-4 inline-block text-sm font-medium text-accent hover:underline">
+          {{ $t('auth.goToSignIn') }}
         </NuxtLink>
       </div>
 
       <p v-if="!done" class="mt-6 text-center text-sm text-black/50">
-        <NuxtLink to="/prijava" class="text-accent hover:underline">Nazad na prijavu</NuxtLink>
+        <NuxtLink :to="localePath('/prijava')" class="text-accent hover:underline">{{ $t('auth.backToSignIn') }}</NuxtLink>
       </p>
     </div>
   </div>

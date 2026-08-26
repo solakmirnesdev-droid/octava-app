@@ -1,4 +1,7 @@
 <script setup>
+const turnstileToken = ref('');
+const { t } = useI18n();
+const localePath = useLocalePath();
 definePageMeta({ layout: false });
 
 const { $api } = useNuxtApp();
@@ -9,7 +12,7 @@ const sent = ref(false);
 async function submit() {
   sending.value = true;
   try {
-    await $api('/auth/forgot', { method: 'POST', body: { email: email.value } });
+    await $api('/auth/forgot', { method: 'POST', body: { email: email.value, turnstileToken: turnstileToken.value } });
   } catch {
     // The server answers the same either way; a network failure must not
     // become the one signal that distinguishes a real account from a missing
@@ -20,26 +23,29 @@ async function submit() {
   }
 }
 
-useSeoMeta({ title: 'Zaboravljena lozinka | Octava', robots: 'noindex, nofollow' });
+useSeoMeta({ title: t('meta.forgotTitle'), robots: 'noindex, nofollow' });
 </script>
 
 <template>
   <div class="flex min-h-screen items-center justify-center bg-surface px-6 text-ink">
     <div class="w-full max-w-sm">
-      <NuxtLink to="/" class="text-2xl font-semibold tracking-tight">Octava</NuxtLink>
+      <NuxtLink :to="localePath('/')" class="text-2xl font-semibold tracking-tight">Octava</NuxtLink>
 
       <template v-if="!sent">
         <p class="mt-1 mb-8 text-sm text-black/50">
-          Upiši email i poslat ćemo ti link za novu lozinku.
+          {{ $t('auth.resetLead') }}
         </p>
 
         <form @submit.prevent="submit">
-          <label for="email" class="mb-1 block text-sm font-medium">Email</label>
+          <label for="email" class="mb-1 block text-sm font-medium">{{ $t('auth.email') }}</label>
           <input
             id="email" v-model="email" type="email" required autocomplete="username"
             autofocus inputmode="email"
             class="mb-6 w-full rounded border border-black/15 bg-white px-3 py-2 outline-none focus:border-accent"
           />
+
+          <TurnstileWidget v-model="turnstileToken" />
+
 
           <button
             type="submit" :disabled="sending"
@@ -51,16 +57,18 @@ useSeoMeta({ title: 'Zaboravljena lozinka | Octava', robots: 'noindex, nofollow'
       </template>
 
       <div v-else class="mt-6 rounded border border-black/10 bg-white p-5">
-        <p class="text-sm text-black/70">
-          Ako nalog postoji, link je poslan na <strong>{{ email }}</strong>.
-        </p>
+        <!-- i18n-t rather than a plain key: the address stays inside its own
+                 <strong>, and the sentence can put it wherever the language needs. -->
+            <i18n-t keypath="auth.resetSent" tag="p" class="text-sm text-black/70" scope="global">
+              <template #email><strong>{{ email }}</strong></template>
+            </i18n-t>
         <p class="mt-2 text-xs text-black/45">
-          Link vrijedi 60 minuta. Provjeri i neželjenu poštu.
+          {{ $t('auth.resetValid') }}
         </p>
       </div>
 
       <p class="mt-6 text-center text-sm text-black/50">
-        <NuxtLink to="/prijava" class="text-accent hover:underline">Nazad na prijavu</NuxtLink>
+        <NuxtLink :to="localePath('/prijava')" class="text-accent hover:underline">{{ $t('auth.backToSignIn') }}</NuxtLink>
       </p>
     </div>
   </div>

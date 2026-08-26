@@ -29,8 +29,8 @@ export const useAuthStore = defineStore('auth', () => {
   const login = (email, password) =>
     submit('/auth/login', { email, password }, 'Prijava nije uspjela.');
 
-  const register = (email, password, username) =>
-    submit('/auth/register', { email, password, username }, 'Registracija nije uspjela.');
+  const register = (email, password, username, turnstileToken) =>
+    submit('/auth/register', { email, password, username, turnstileToken }, 'Registracija nije uspjela.');
 
   async function fetchMe() {
     const { $api } = useNuxtApp();
@@ -52,5 +52,17 @@ export const useAuthStore = defineStore('auth', () => {
     }
   }
 
-  return { user, loading, error, isAuthenticated, login, register, fetchMe, logout };
+  /**
+   * Takes a session the server already established.
+   *
+   * Google signs in through its own endpoint, which sets the same cookie and
+   * returns the same user shape. Refetching /auth/me afterwards would be a
+   * round trip to learn what we were just handed.
+   */
+  function adopt(data) {
+    user.value = data?.user || null;
+    error.value = null;
+  }
+
+  return { user, loading, error, isAuthenticated, login, register, fetchMe, logout, adopt };
 });

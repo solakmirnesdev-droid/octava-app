@@ -1,4 +1,11 @@
 <script setup>
+const { t } = useI18n();
+const googleError = ref('');
+function onGoogle() {
+  // Server already set the session cookie; go where the visitor was headed.
+  navigateTo(localePath(route.query.redirect || '/'));
+}
+const localePath = useLocalePath();
 definePageMeta({ layout: false });
 
 const email = ref('');
@@ -8,20 +15,20 @@ const route = useRoute();
 
 async function submit() {
   if (await auth.login(email.value, password.value)) {
-    await navigateTo(route.query.redirect || '/');
+    await navigateTo(localePath(route.query.redirect || '/'));
   }
 }
 
-useSeoMeta({ title: 'Prijava | Octava', robots: 'noindex, nofollow' });
+useSeoMeta({ title: t('meta.loginTitle'), robots: 'noindex, nofollow' });
 </script>
 
 <template>
   <div class="flex min-h-screen items-center justify-center bg-surface px-6 text-ink">
     <form class="w-full max-w-sm" @submit.prevent="submit">
-      <NuxtLink to="/" class="text-2xl font-semibold tracking-tight">Octava</NuxtLink>
-      <p class="mt-1 mb-8 text-sm text-black/50">Prijavi se da sačuvaš pjesme.</p>
+      <NuxtLink :to="localePath('/')" class="text-2xl font-semibold tracking-tight">Octava</NuxtLink>
+      <p class="mt-1 mb-8 text-sm text-black/50">{{ $t('auth.signInLead') }}</p>
 
-      <label for="email" class="mb-1 block text-sm font-medium">Email</label>
+      <label for="email" class="mb-1 block text-sm font-medium">{{ $t('auth.email') }}</label>
       <input
         id="email" v-model="email" type="email" required autocomplete="username"
         autofocus inputmode="email"
@@ -31,8 +38,8 @@ useSeoMeta({ title: 'Prijava | Octava', robots: 'noindex, nofollow' });
       <PasswordField id="password" v-model="password" />
 
       <p class="mt-2 text-right">
-        <NuxtLink to="/zaboravljena-lozinka" class="text-xs text-black/45 hover:text-accent">
-          Zaboravljena lozinka?
+        <NuxtLink :to="localePath('/zaboravljena-lozinka')" class="text-xs text-black/45 hover:text-accent">
+          {{ $t('auth.forgot') }}
         </NuxtLink>
       </p>
 
@@ -48,9 +55,19 @@ useSeoMeta({ title: 'Prijava | Octava', robots: 'noindex, nofollow' });
       </button>
 
       <p class="mt-6 text-center text-sm text-black/50">
-        Nemaš nalog?
-        <NuxtLink to="/registracija" class="text-accent hover:underline">Registruj se</NuxtLink>
+        {{ $t('auth.noAccount') }}
+        <NuxtLink :to="localePath('/registracija')" class="text-accent hover:underline">{{ $t('auth.register') }}</NuxtLink>
       </p>
     </form>
+    <!-- Under the password form, not above it: most people here already
+         have an account of one kind, and the form is what they came for. -->
+    <div class="mt-5">
+      <div class="mb-3 flex items-center gap-3 text-xs text-black/35">
+        <span class="h-px flex-1 bg-black/10" />{{ $t('auth.or') }}<span class="h-px flex-1 bg-black/10" />
+      </div>
+      <GoogleSignIn @signed-in="onGoogle" @failed="googleError = $t('auth.googleFailed')" />
+      <p v-if="googleError" class="mt-2 text-sm text-rose-700">{{ googleError }}</p>
+    </div>
+
   </div>
 </template>
