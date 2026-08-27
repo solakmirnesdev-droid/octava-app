@@ -34,6 +34,7 @@
     "capoFret": "fret {n}",
     "save": "Save",
     "saved": "Saved",
+    "songSaved": "Song saved",
     "original": "original",
     "backToOriginal": "back to {key}",
     "allChords": "Show every chord in this song",
@@ -89,7 +90,8 @@
     "listen": "Listen to the original",
     "videoLabel": "Recording of the song",
     "seeReviews": "See ratings and reviews",
-    "beFirstToRate": "Be the first to rate"
+    "beFirstToRate": "Be the first to rate",
+    "chordHear": "Press a chord to hear it and see the shape."
   },
   "footer": {
     "rubrics": "Genres",
@@ -129,7 +131,7 @@
   },
   "rating": {
     "title": "Chord accuracy",
-    "rate": "Rate",
+    "rate": "Rate this song",
     "yourRating": "Your rating",
     "average": "{average} out of 5",
     "count": "no ratings | {n} rating | {n} ratings",
@@ -138,7 +140,9 @@
     "saving": "Saving…",
     "failed": "Rating failed.",
     "hint": "How closely do these chords match the song?",
-    "star": "{n} out of 5"
+    "star": "{n} out of 5",
+    "yours": "Your rating: {n}",
+    "give": "Give {n} out of 5"
   },
   "page": {
     "artists": "Artists",
@@ -185,7 +189,8 @@
     "savedArtists": "Artists",
     "savedEmpty": "You haven't saved any songs yet.",
     "metronome": "Metronome",
-    "metronomeLead": "Set the tempo, press space, and play along."
+    "metronomeLead": "Set the tempo, press space, and play along.",
+    "chordHear": "Press any diagram to hear how it sounds."
   },
   "auth": {
     "signInLead": "Sign in to save songs.",
@@ -422,7 +427,8 @@
     "active": "Active",
     "website": "Website",
     "save": "Save artist",
-    "saved": "Saved"
+    "saved": "Saved",
+    "artistSaved": "Artist saved"
   },
   "tuner": {
     "guitar": "Guitar",

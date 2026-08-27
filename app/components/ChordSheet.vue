@@ -1,5 +1,7 @@
 <script setup>
 import { parseSong, transposeContent, normalizeNotation } from '~/utils/chordpro';
+import { strum } from '~/utils/chordAudio';
+import { findFingering } from '~/utils/chordEngine';
 
 const props = defineProps({
   content: { type: String, default: '' },
@@ -46,6 +48,20 @@ function hide() {
 }
 
 onBeforeUnmount(() => clearTimeout(closeTimer));
+
+/**
+ * Pressing a chord in the text plays it and leaves the shape on screen.
+ *
+ * AI-DECISION: press no longer toggles the diagram shut. Somebody tapping a
+ * chord in a lyric sheet is asking to hear it, and the second tap is almost
+ * always "again", not "close" — closing is what moving away already does. The
+ * dotted underline was the only sign these did anything at all.
+ */
+function playChord(symbol) {
+  const shape = findFingering(symbol);
+  if (shape) strum(shape.frets);
+}
+
 </script>
 
 <template>
@@ -74,7 +90,8 @@ onBeforeUnmount(() => clearTimeout(closeTimer));
         >
           <button
             class="font-semibold text-accent underline decoration-dotted decoration-accent/30 underline-offset-4"
-            @click="isActive(i, 'i' + j) ? hide() : show(i, 'i' + j, $event)"
+            :title="$t('song.chordHear')"
+            @click="playChord(seg.chord); show(i, 'i' + j, $event)"
           >{{ seg.chord }}</button>
 
           <ChordTooltip v-if="isActive(i, 'i' + j)" :symbol="seg.chord" :anchor="anchor" @keep="show(i, 'i' + j)" @leave="hide" />
@@ -90,7 +107,8 @@ onBeforeUnmount(() => clearTimeout(closeTimer));
               v-if="seg.chord"
               class="font-semibold text-accent underline decoration-dotted decoration-accent/30 underline-offset-2"
               @mouseenter="show(i, j, $event)" @mouseleave="hide"
-              @click="isActive(i, j) ? hide() : show(i, j, $event)"
+              :title="$t('song.chordHear')"
+              @click="playChord(seg.chord); show(i, j, $event)"
             >{{ seg.chord }}</button>
           </span>
           <span class="block whitespace-pre">{{ seg.text }}</span>

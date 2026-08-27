@@ -1,4 +1,5 @@
 <script setup>
+const auth = useAuthStore();
 const localePath = useLocalePath();
 
 defineProps({
@@ -34,7 +35,18 @@ defineProps({
         <span v-if="showArtist" class="truncate text-sm text-muted">{{ song.artist?.name }}</span>
       </NuxtLink>
 
+      <!-- Signed in, the stars are the vote. Signed out they stay a picture and
+           lead to the reviews, where signing in is offered. -->
+      <span v-if="auth.isAuthenticated" class="-my-0.5 shrink-0 self-center px-1 py-0.5">
+        <RatingStars
+          :value="song.rating || 0" :count="song.ratingCount || 0"
+          :slug="song.slug" :arrangement-id="song.arrangementId"
+          @rated="(r) => { song.rating = r.average; song.ratingCount = r.count; }"
+        />
+      </span>
+
       <NuxtLink
+        v-else
         :to="localePath(`/pjesma/${song.slug}`) + '#recenzije'"
         class="-my-0.5 shrink-0 self-center rounded px-1 py-0.5 hover:bg-raised"
         :title="song.ratingCount ? $t('song.seeReviews') : $t('song.beFirstToRate')"

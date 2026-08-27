@@ -34,6 +34,7 @@
     "capoFret": "{n}. prag",
     "save": "Sačuvaj",
     "saved": "Sačuvano",
+    "songSaved": "Pjesma sačuvana",
     "original": "original",
     "backToOriginal": "vrati na {key}",
     "allChords": "Prikaži sve akorde iz pjesme",
@@ -89,7 +90,8 @@
     "listen": "Poslušaj original",
     "videoLabel": "Snimak pjesme",
     "seeReviews": "Pogledaj ocjene i recenzije",
-    "beFirstToRate": "Budi prvi koji ocjenjuje"
+    "beFirstToRate": "Budi prvi koji ocjenjuje",
+    "chordHear": "Pritisni akord da ga čuješ i vidiš hvat."
   },
   "footer": {
     "rubrics": "Rubrike",
@@ -129,7 +131,7 @@
   },
   "rating": {
     "title": "Tačnost akorada",
-    "rate": "Ocijeni",
+    "rate": "Ocijeni ovu pjesmu",
     "yourRating": "Tvoja ocjena",
     "average": "{average} od 5",
     "count": "nema ocjena | {n} ocjena | {n} ocjene | {n} ocjena",
@@ -138,7 +140,9 @@
     "saving": "Spašavam…",
     "failed": "Ocjenjivanje nije uspjelo.",
     "hint": "Koliko tačno ovi akordi odgovaraju pjesmi?",
-    "star": "{n} od 5"
+    "star": "{n} od 5",
+    "yours": "Tvoja ocjena: {n}",
+    "give": "Daj {n} od 5"
   },
   "page": {
     "artists": "Izvođači",
@@ -185,7 +189,8 @@
     "savedArtists": "Izvođači",
     "savedEmpty": "Još nemaš sačuvanih pjesama.",
     "metronome": "Metronom",
-    "metronomeLead": "Postavi tempo, pritisni razmak i sviraj uz otkucaje."
+    "metronomeLead": "Postavi tempo, pritisni razmak i sviraj uz otkucaje.",
+    "chordHear": "Pritisni bilo koji dijagram da čuješ kako zvuči."
   },
   "auth": {
     "signInLead": "Prijavi se da sačuvaš pjesme.",
@@ -422,7 +427,8 @@
     "active": "Aktivan",
     "website": "Stranica",
     "save": "Sačuvaj izvođača",
-    "saved": "Sačuvan"
+    "saved": "Sačuvan",
+    "artistSaved": "Izvođač sačuvan"
   },
   "tuner": {
     "guitar": "Gitara",

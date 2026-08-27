@@ -95,13 +95,21 @@ const step = (by) => {
          keyboard and announces itself. -->
     <button
       type="button"
-      class="mx-auto block rounded transition-colors"
+      class="group relative mx-auto block rounded transition-colors"
       :class="ringing ? 'bg-accent-soft' : 'hover:bg-raised'"
       :disabled="!audible"
       :title="audible ? $t('chord.hear', { name: shape.name }) : ''"
       :aria-label="$t('chord.hear', { name: shape.name })"
       @click.stop="play"
     >
+      <Icon
+        v-if="audible"
+        name="material-symbols:volume-up-outline-rounded"
+        aria-hidden="true"
+        class="pointer-events-none absolute right-1 top-1 text-xs transition-colors"
+        :class="ringing ? 'text-accent' : 'text-dim group-hover:text-accent'"
+      />
+
       <svg :width="132" :height="TOP + FRETS * STEP_Y + 14" class="overflow-visible">
       <!-- Open and muted markers sit above the nut. -->
       <template v-for="(fret, i) in shape.frets" :key="'m' + i">

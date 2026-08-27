@@ -36,6 +36,23 @@ if (error.value) {
 const song = computed(() => data.value?.song);
 
 const localePath = useLocalePath();
+const toast = useToast();
+
+async function toggleFavorite() {
+  if (!song.value) return;
+  const wasSaved = favorites.has(song.value._id);
+  await favorites.toggle(song.value._id);
+  if (!wasSaved) {
+    toast.show({
+      title: song.value.title,
+      artistName: song.value.artist?.name || '',
+      artistId: song.value.artist?._id || '',
+      hasImage: Boolean(song.value.artist?.hasImage || song.value.artist?.imageBytes),
+      message: t('song.songSaved'),
+      type: 'song'
+    });
+  }
+}
 
 /**
  * Difficulty is stored as easy/medium/hard and translated here rather than in
@@ -211,33 +228,41 @@ defineOgImage('Song', {
       </span>
 
       <button
-
         class="rounded border border-line-strong bg-panel px-2.5 py-1.5 text-muted transition hover:border-accent hover:text-accent"
-
         :title="$t('song.print')"
-
         @click="print()"
-
       >
-
         <Icon name="material-symbols:print-outline-rounded" />
-
         <span class="sr-only">{{ $t('song.print') }}</span>
-
       </button>
 
-
+      <!-- AI-TRAP: both icon names are written out as literals and toggled
+           with v-show, never bound as one expression. @nuxt/icon builds its
+           client bundle by scanning source for literal names; a computed
+           name renders a correctly sized SVG with no paths in it. -->
       <button
         v-if="auth.isAuthenticated"
-        class="ml-auto flex items-center gap-1 text-sm hover:text-accent"
-        @click="favorites.toggle(song._id)"
+        class="rounded border px-2.5 py-1.5 transition"
+        :class="favorites.has(song._id)
+          ? 'border-accent bg-accent text-on-accent'
+          : 'border-line-strong bg-panel text-muted hover:border-accent hover:text-accent'"
+        :aria-pressed="favorites.has(song._id)"
+        :title="favorites.has(song._id) ? $t('song.saved') : $t('song.save')"
+        @click="toggleFavorite"
       >
-        <Icon :name="favorites.has(song._id) ? 'material-symbols:favorite-rounded' : 'material-symbols:favorite-outline-rounded'" />
-        {{ favorites.has(song._id) ? $t('song.saved') : $t('song.save') }}
+        <Icon v-show="favorites.has(song._id)" name="material-symbols:favorite-rounded" />
+        <Icon v-show="!favorites.has(song._id)" name="material-symbols:favorite-outline-rounded" />
+        <span class="sr-only">{{ favorites.has(song._id) ? $t('song.saved') : $t('song.save') }}</span>
       </button>
-      <NuxtLink v-else :to="localePath('/prijava')" class="ml-auto flex items-center gap-1 text-sm text-faint hover:text-accent">
+
+      <NuxtLink
+        v-else
+        :to="localePath({ path: '/prijava', query: { redirect: route.fullPath } })"
+        class="rounded border border-line-strong bg-panel px-2.5 py-1.5 text-muted transition hover:border-accent hover:text-accent"
+        :title="$t('song.save')"
+      >
         <Icon name="material-symbols:favorite-outline-rounded" />
-        {{ $t('song.save') }}
+        <span class="sr-only">{{ $t('song.save') }}</span>
       </NuxtLink>
     </div>
 
@@ -248,6 +273,19 @@ defineOgImage('Song', {
       :semitones="semitones"
       :original-key="song.originalKey"
     />
+
+    <!-- Said once, above the sheet: the dotted underline is the only thing on a
+
+         chord that hints it does anything, and nobody reads an underline. -->
+
+    <p class="mb-2 flex items-center gap-1.5 text-xs text-faint" data-print="hide">
+
+      <Icon name="material-symbols:volume-up-outline-rounded" aria-hidden="true" />
+
+      {{ $t('song.chordHear') }}
+
+    </p>
+
 
     <ChordSheet
       :content="song.content"

@@ -48,25 +48,50 @@ const all = computed(() => CATALOGUE.map((symbol) => {
 }));
 
 /**
- * Matches on the symbol, the root, or the name of the quality.
+ * Splits a query into a root and whatever follows it.
+ *
+ * AI-TRAP: "cdur" and "c dur" are the obvious way to ask for C major and both
+ * failed. Matching the symbol OR the quality name is not enough — the reader
+ * writes them together, and neither half matches the whole string. The query has
+ * to be taken apart the same way a chord symbol is.
+ */
+function splitQuery(text) {
+  const q = normalise(text);
+  const m = /^([a-h][#]?)\s*(.*)$/.exec(q);
+  if (!m) return { root: null, rest: q, whole: q };
+  return { root: m[1].toUpperCase(), rest: m[2].trim(), whole: q };
+}
+
+/**
+ * Matches on the symbol, the root, the quality name, or a root and a quality
+ * name written together.
  *
  * AI-DECISION: prefix on the symbol rather than an exact parse. Typing "am"
  * should show the whole A minor family — Am, Am6, Am7 — because somebody
- * looking up a chord is usually deciding between them. An exact parse would
+ * looking a chord up is usually deciding between them. An exact parse would
  * return one card and hide the four they were choosing among.
  */
 const visible = computed(() => {
-  const q = normalise(query.value);
+  const { root: qRoot, rest, whole } = splitQuery(query.value);
   const wanted = root.value;
 
   return all.value.filter((c) => {
     if (wanted && c.root !== wanted) return false;
-    if (!q) return true;
+    if (!whole) return true;
 
     const symbol = normalise(c.symbol);
-    return symbol.startsWith(q)
-      || normalise(c.root) === q
-      || (qualityWords.value[c.quality] || '').includes(q);
+    const quality = qualityWords.value[c.quality] || '';
+
+    // "cdur", "c dur", "amol": a root written together with a quality name.
+    if (qRoot && c.root === qRoot) {
+      if (!rest) return true;
+      if (quality.startsWith(rest) || quality.includes(rest)) return true;
+      if (normalise(c.quality).startsWith(rest)) return true;
+    }
+
+    return symbol.startsWith(whole)
+      || normalise(c.root) === whole
+      || quality.includes(whole);
   });
 });
 
@@ -110,6 +135,10 @@ useSeoMeta({
         <template #total>{{ total }}</template>
         <template #h><strong class="font-mono">H</strong></template>
       </i18n-t>
+      <p class="mt-2 flex items-center gap-1.5 text-sm text-faint">
+        <Icon name="material-symbols:volume-up-outline-rounded" aria-hidden="true" />
+        {{ $t('page.chordHear') }}
+      </p>
     </header>
 
     <div class="mb-6">
