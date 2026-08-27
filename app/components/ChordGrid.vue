@@ -1,6 +1,6 @@
 <script setup>
 import { extractChords, transposeContent, normalizeNotation } from '~/utils/chordpro';
-import { findFingering } from '~/utils/fingerings';
+import { findFingering } from '~/utils/chordEngine';
 
 const props = defineProps({
   content: { type: String, default: '' },
@@ -17,12 +17,11 @@ const chords = computed(() =>
 );
 
 /**
- * One card per distinct shape.
+ * One card per distinct chord.
  *
- * A slash chord falls back to the shape of the chord before the slash, so G/H
- * and G would otherwise sit side by side showing the same fingering — noise in
- * a panel whose whole job is to show the different shapes. The slash chord is
- * still reachable from the sheet itself, where hovering it gives the same card.
+ * Slash chords used to fall back to the shape before the slash, so G/H and G
+ * showed the same fingering twice. They now get their own voicing — G/H really
+ * is a different grip — so both belong on the panel.
  */
 const playable = computed(() => {
   const seen = new Set();
@@ -44,19 +43,19 @@ const missing = computed(() => chords.value.filter((c) => !findFingering(c)));
 </script>
 
 <template>
-  <div class="rounded-lg border border-black/10 bg-white p-4">
+  <div class="rounded-lg border border-line bg-panel p-4">
     <div class="grid grid-cols-2 gap-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
       <div
         v-for="chord in playable" :key="chord"
-        class="flex justify-center rounded border border-black/8 py-2"
+        class="flex justify-center rounded border border-line py-2"
       >
         <ChordDiagram :symbol="chord" />
       </div>
     </div>
 
-    <p v-if="missing.length" class="mt-3 text-xs text-black/40">{{ $t('song.noDiagrams') }} <span class="font-mono">{{ missing.join(', ') }}</span>
+    <p v-if="missing.length" class="mt-3 text-xs text-faint">{{ $t('song.noDiagrams') }} <span class="font-mono">{{ missing.join(', ') }}</span>
     </p>
-    <p v-if="!playable.length" class="text-sm text-black/40">
+    <p v-if="!playable.length" class="text-sm text-faint">
       {{ $t('song.noChords') }}
     </p>
   </div>

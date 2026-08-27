@@ -1,6 +1,6 @@
 <script setup>
 const { t } = useI18n();
-import { FINGERINGS } from '~/utils/fingerings';
+import { CATALOGUE } from '~/utils/chordEngine';
 
 
 /**
@@ -13,7 +13,7 @@ const ROOTS = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'H'];
 const grouped = computed(() => {
   const map = Object.fromEntries(ROOTS.map((r) => [r, []]));
 
-  for (const symbol of Object.keys(FINGERINGS)) {
+  for (const symbol of CATALOGUE) {
     const root = /^([A-H][#b]?)/.exec(symbol)?.[1];
     if (map[root]) map[root].push(symbol);
   }
@@ -26,7 +26,7 @@ const grouped = computed(() => {
   return map;
 });
 
-const total = computed(() => Object.keys(FINGERINGS).length);
+const total = computed(() => CATALOGUE.length);
 
 useSeoMeta({
   title: t('meta.chordsTitle'),
@@ -44,7 +44,7 @@ useSeoMeta({
   <div>
     <header class="mb-8">
       <h1 class="text-2xl font-semibold tracking-tight">{{ $t('page.chordsTitle') }}</h1>
-      <i18n-t keypath="page.chordsLead" tag="p" class="mt-2 max-w-2xl text-black/60" scope="global">
+      <i18n-t keypath="page.chordsLead" tag="p" class="mt-2 max-w-2xl text-muted" scope="global">
         <template #total>{{ total }}</template>
         <template #h><strong class="font-mono">H</strong></template>
       </i18n-t>
@@ -56,7 +56,7 @@ useSeoMeta({
       <div class="grid grid-cols-2 gap-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
         <div
           v-for="symbol in grouped[root]" :key="symbol"
-          class="flex justify-center rounded border border-black/10 bg-white py-3"
+          class="flex justify-center rounded border border-line bg-panel py-3"
         >
           <ChordDiagram :symbol="symbol" />
         </div>
