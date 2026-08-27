@@ -16,10 +16,10 @@ const needle = computed(() => {
 
 const verdict = computed(() => {
   if (!reading.value) return null;
-  if (inTune.value) return { text: t('meta.inTune'), tone: 'text-green-600' };
+  if (inTune.value) return { text: t('meta.inTune'), tone: 'text-ok' };
   return reading.value.cents < 0
-    ? { text: 'nisko — zategni', tone: 'text-amber-600' }
-    : { text: 'visoko — popusti', tone: 'text-amber-600' };
+    ? { text: 'nisko — zategni', tone: 'text-warn' }
+    : { text: 'visoko — popusti', tone: 'text-warn' };
 });
 
 useSeoMeta({
@@ -58,7 +58,7 @@ useSeoMeta({
 
       <div v-else>
         <div class="mb-2 text-center">
-          <p class="font-mono text-5xl font-semibold leading-none" :class="inTune ? 'text-green-600' : 'text-ink'">
+          <p class="font-mono text-5xl font-semibold leading-none" :class="inTune ? 'text-ok' : 'text-ink'">
             {{ reading ? reading.note : '—' }}<span
               v-if="reading" class="align-super text-xl text-dim"
             >{{ reading.octave }}</span>
@@ -70,13 +70,13 @@ useSeoMeta({
         <!-- Cent scale. Centre is in tune; the shaded band is the tolerance. -->
         <div class="relative mt-6 h-16">
           <div class="absolute inset-x-0 top-7 h-px bg-sunken" />
-          <div class="absolute left-1/2 top-4 h-8 w-[10%] -translate-x-1/2 rounded bg-green-600/10" />
+          <div class="absolute left-1/2 top-4 h-8 w-[10%] -translate-x-1/2 rounded bg-ok-soft/10" />
           <div class="absolute left-1/2 top-3 h-10 w-px -translate-x-1/2 bg-line-strong" />
 
           <div
             v-if="reading"
             class="absolute top-2 h-12 w-1 -translate-x-1/2 rounded-full transition-all duration-150"
-            :class="inTune ? 'bg-green-600' : 'bg-accent'"
+            :class="inTune ? 'bg-ok-soft' : 'bg-accent'"
             :style="{ left: needle + '%' }"
           />
 
@@ -109,7 +109,7 @@ useSeoMeta({
         v-for="(string, i) in STRINGS" :key="i"
         class="flex-1 rounded border py-2 text-center transition"
         :class="nearestString && nearestString.frequency === string.frequency
-          ? (inTune ? 'border-green-600 bg-green-600/10' : 'border-accent bg-accent-soft')
+          ? (inTune ? 'border-ok bg-ok-soft/10' : 'border-accent bg-accent-soft')
           : 'border-line'"
       >
         <span class="block font-mono text-sm font-semibold">{{ string.label }}</span>

@@ -42,8 +42,8 @@ async function toggleVote(request) {
 
 const STATUS = {
   open: { label: 'čeka', cls: 'bg-raised text-muted' },
-  in_progress: { label: 'u radu', cls: 'bg-amber-100 text-amber-800' },
-  done: { label: 'gotovo', cls: 'bg-green-100 text-green-800' }
+  in_progress: { label: 'u radu', cls: 'bg-warn-soft text-warn' },
+  done: { label: 'gotovo', cls: 'bg-ok-soft text-ok' }
 };
 
 useSeoMeta({
@@ -102,7 +102,7 @@ useSeoMeta({
           v-if="feedback" role="status"
           class="text-sm"
           :class="{
-            'text-green-700': feedback.tone === 'ok',
+            'text-ok': feedback.tone === 'ok',
             'text-muted': feedback.tone === 'info',
             'text-accent': feedback.tone === 'error'
           }"

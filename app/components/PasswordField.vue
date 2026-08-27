@@ -26,9 +26,9 @@ const strength = computed(() => {
   if (value.length >= 16) score++;
   if (/[^a-zA-Z0-9]/.test(value) || (/[a-z]/.test(value) && /[A-Z]/.test(value) && /\d/.test(value))) score++;
 
-  if (score <= 1) return { label: 'slaba', width: '33%', tone: 'bg-red-500' };
-  if (score === 2) return { label: 'osrednja', width: '66%', tone: 'bg-amber-500' };
-  return { label: 'jaka', width: '100%', tone: 'bg-green-600' };
+  if (score <= 1) return { label: 'slaba', width: '33%', tone: 'bg-danger-soft' };
+  if (score === 2) return { label: 'osrednja', width: '66%', tone: 'bg-warn-soft' };
+  return { label: 'jaka', width: '100%', tone: 'bg-ok-soft' };
 });
 </script>
 

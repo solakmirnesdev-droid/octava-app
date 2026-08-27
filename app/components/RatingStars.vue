@@ -34,7 +34,7 @@ const formatted = computed(() => props.value.toFixed(1));
       <!-- Overlaid and clipped: one partial star instead of a rounded one. -->
       <span
         v-if="rated"
-        class="absolute inset-0 flex overflow-hidden text-amber-500"
+        class="absolute inset-0 flex overflow-hidden text-warn"
         :style="{ width: percent + '%' }"
       >
         <Icon v-for="i in 5" :key="`f${i}`" name="material-symbols:star-rounded" class="shrink-0 text-sm" />

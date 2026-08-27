@@ -65,11 +65,11 @@ useSeoMeta({ title: t('meta.newPassTitle'), robots: 'noindex, nofollow' });
         </form>
       </template>
 
-      <div v-else class="mt-6 rounded border border-green-600/30 bg-green-50 p-5">
-        <p class="text-sm text-green-900">{{ $t('auth.passwordChanged') }}</p>
+      <div v-else class="mt-6 rounded border border-ok/30 bg-ok-soft p-5">
+        <p class="text-sm text-ok">{{ $t('auth.passwordChanged') }}</p>
         <!-- Every session issued before this moment is now refused, so signing
              in again is genuinely required rather than a formality. -->
-        <p class="mt-1 text-xs text-green-900/70">{{ $t('auth.signInWithNew') }}</p>
+        <p class="mt-1 text-xs text-ok/70">{{ $t('auth.signInWithNew') }}</p>
         <NuxtLink :to="localePath('/prijava')" class="mt-4 inline-block text-sm font-medium text-accent hover:underline">
           {{ $t('auth.goToSignIn') }}
         </NuxtLink>

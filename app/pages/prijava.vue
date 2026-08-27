@@ -66,7 +66,7 @@ useSeoMeta({ title: t('meta.loginTitle'), robots: 'noindex, nofollow' });
         <span class="h-px flex-1 bg-sunken" />{{ $t('auth.or') }}<span class="h-px flex-1 bg-sunken" />
       </div>
       <GoogleSignIn @signed-in="onGoogle" @failed="googleError = $t('auth.googleFailed')" />
-      <p v-if="googleError" class="mt-2 text-sm text-rose-700">{{ googleError }}</p>
+      <p v-if="googleError" class="mt-2 text-sm text-danger">{{ googleError }}</p>
     </div>
 
   </div>

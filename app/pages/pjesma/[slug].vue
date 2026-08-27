@@ -45,9 +45,9 @@ const DIFFICULTY_KEY = { easy: 'difficultyEasy', medium: 'difficultyMedium', har
 const difficultyKey = computed(() => DIFFICULTY_KEY[song.value?.difficulty] || null);
 
 const DIFFICULTY_CLASS = {
-  easy:   'border-emerald-600/25 bg-emerald-50 text-emerald-800',
-  medium: 'border-amber-600/25 bg-amber-50 text-amber-800',
-  hard:   'border-rose-600/25 bg-rose-50 text-rose-800'
+  easy:   'border-ok/25 bg-ok-soft text-ok',
+  medium: 'border-warn/25 bg-warn-soft text-warn',
+  hard:   'border-danger/25 bg-danger-soft text-danger'
 };
 const difficultyClass = computed(() => DIFFICULTY_CLASS[song.value?.difficulty] || '');
 

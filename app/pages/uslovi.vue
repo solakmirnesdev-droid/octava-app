@@ -59,7 +59,7 @@ useSeoMeta({
     <!-- TODO(Mirnes): the takedown promise in the copyright section is not
          actionable without an address to send a notice to. Of everything left
          on this page, this is the one that has to be filled in before launch. -->
-    <p class="mt-8 rounded border border-amber-300 bg-amber-50 px-4 py-3 text-sm text-amber-900">
+    <p class="mt-8 rounded border border-warn bg-warn-soft px-4 py-3 text-sm text-warn">
       <strong>{{ $t('terms.noContactLead') }}</strong> {{ $t('terms.noContact') }}
     </p>
 

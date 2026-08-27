@@ -43,6 +43,14 @@
   --color-accent-soft: var(--accent-soft);
   --color-on-accent: var(--on-accent);
 
+  --color-ok: var(--ok);
+  --color-ok-soft: var(--ok-soft);
+  --color-warn: var(--warn);
+  --color-warn-soft: var(--warn-soft);
+  --color-danger: var(--danger);
+  --color-danger-soft: var(--danger-soft);
+  --color-on-danger: var(--on-danger);
+
   --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
   --font-mono: "JetBrains Mono", ui-monospace, "SF Mono", monospace;
 }
@@ -102,6 +110,25 @@
   --accent: light-dark(#b4472f, #e2795c);
   --accent-soft: light-dark(rgb(180 71 47 / 0.10), rgb(226 121 92 / 0.16));
   --on-accent: light-dark(#ffffff, #1a1310);
+
+  /*
+   * Status.
+   *
+   * AI-DECISION: one `ok` rather than the green/emerald pair the pages had been
+   * mixing for the same meaning, and one `danger` rather than red/rose. The soft
+   * grounds are tints, not Tailwind's `-50` step — a fixed pale colour turns
+   * unreadable the moment the page behind it goes dark. Same set as the
+   * dashboard, so the two surfaces keep one vocabulary.
+   */
+  --ok: light-dark(#15803d, #6ee7a7);
+  --ok-soft: light-dark(rgb(22 163 74 / 0.10), rgb(110 231 167 / 0.14));
+  --warn: light-dark(#a16207, #fbbf24);
+  --warn-soft: light-dark(rgb(217 119 6 / 0.12), rgb(251 191 36 / 0.16));
+  --danger: light-dark(#b91c1c, #f87171);
+  --danger-soft: light-dark(rgb(185 28 28 / 0.10), rgb(248 113 113 / 0.16));
+  /* Same inversion as on-accent, named for its own use so a red button is
+     never wired to the terracotta's companion by accident. */
+  --on-danger: light-dark(#ffffff, #1a1310);
 }
 
 /* An explicit choice pins the scheme; `light-dark()` follows it from there. */

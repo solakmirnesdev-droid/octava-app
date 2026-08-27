@@ -45,7 +45,7 @@ useSeoMeta({
     <!-- TODO(Mirnes): a privacy policy without a contact address is not
          actionable — a reader has no way to exercise any of the rights above.
          This is the first thing to fill in. -->
-    <p class="mt-8 rounded border border-amber-300 bg-amber-50 px-4 py-3 text-sm text-amber-900">
+    <p class="mt-8 rounded border border-warn bg-warn-soft px-4 py-3 text-sm text-warn">
       <strong>{{ $t('privacy.noContactLead') }}</strong> {{ $t('privacy.noContact') }}
     </p>
 
