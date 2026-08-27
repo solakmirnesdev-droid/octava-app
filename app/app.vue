@@ -34,8 +34,8 @@ useHead(() => ({
       key: 'theme',
       tagPosition: 'head',
       innerHTML:
-        "try{var t=localStorage.getItem('octava-theme');" +
-        "if(t==='light'||t==='dark')document.documentElement.setAttribute('data-theme',t)}catch(e){}"
+        "try{var t=localStorage.getItem('octava-theme')||'dark';" +
+        "document.documentElement.setAttribute('data-theme',t)}catch(e){document.documentElement.setAttribute('data-theme','dark')}"
     }
   ]
 }));

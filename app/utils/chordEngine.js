@@ -20,7 +20,32 @@ import { canonicalShapes, OPEN_ONLY } from './chordShapes.js';
 export const NOTES = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'H'];
 
 /** Standard tuning as MIDI numbers, low string first: E A D G H E. */
-const TUNING = [40, 45, 50, 55, 59, 64];
+/**
+ * The instruments the diagrams can be drawn for.
+ *
+ * AI-TRAP: the ukulele is RE-ENTRANT. Its G string sounds above its C string,
+ * so string index 0 is not the lowest pitch — which every "the bass note is the
+ * first sounding string" assumption gets wrong. Anything here that needs the
+ * bass of a voicing has to find it by pitch, never by position.
+ *
+ * AI-DECISION: `maxNotes` is only set for the bass, and it is a musical limit
+ * rather than a technical one. Four-note chords down at E1 are mud — the
+ * intervals beat against each other badly enough that nobody voices them there.
+ * What bass players actually use is the root with a fifth or an octave, so the
+ * generator is capped at three and allowed to stop at two.
+ */
+export const INSTRUMENTS = {
+  guitar:  { tuning: [40, 45, 50, 55, 59, 64], minNotes: 3, maxNotes: 6, openShapes: true,  requireBass: true },
+  bass:    { tuning: [28, 33, 38, 43],         minNotes: 2, maxNotes: 3, openShapes: false, requireBass: true },
+  // All four strings, always: real ukulele charts practically never mute one,
+  // and allowing it produced three-string shapes that outranked the standard
+  // fingerings on score while looking nothing like them.
+  ukulele: { tuning: [67, 60, 64, 69],         minNotes: 4, maxNotes: 4, openShapes: false, requireBass: false }
+};
+
+const DEFAULT_INSTRUMENT = 'guitar';
+
+const TUNING = INSTRUMENTS.guitar.tuning;
 
 const STRINGS = 6;
 const MAX_SPAN = 4;        // frets a hand covers without shifting
@@ -146,7 +171,7 @@ export function chordName({ root, quality, bass }) {
  */
 function playability(frets) {
   const fretted = [];
-  for (let i = 0; i < STRINGS; i++) if (frets[i] > 0) fretted.push(i);
+  for (let i = 0; i < frets.length; i++) if (frets[i] > 0) fretted.push(i);
   if (fretted.length <= MAX_FINGERS) return { barre: null };
 
   const low = Math.min(...fretted.map((i) => frets[i]));
@@ -164,7 +189,11 @@ function playability(frets) {
 }
 
 /** Generates every playable voicing of one chord, best first. */
-export function voicings(parsed, limit = 8) {
+export function voicings(parsed, limit = 8, instrument = DEFAULT_INSTRUMENT) {
+  const inst = INSTRUMENTS[instrument] || INSTRUMENTS[DEFAULT_INSTRUMENT];
+  const tuning = inst.tuning;
+  const strings = tuning.length;
+
   const { root, quality, bass } = parsed;
   const spec = QUALITIES[quality];
   if (!spec) return [];
@@ -185,29 +214,56 @@ export function voicings(parsed, limit = 8) {
 
   for (let base = 0; base + MAX_SPAN - 1 <= HIGHEST_FRET; base++) {
     const options = [];
-    for (let s = 0; s < STRINGS; s++) {
+    for (let s = 0; s < strings; s++) {
       const list = [null];
       const lo = base === 0 ? 0 : base;
       for (let f = lo; f < lo + MAX_SPAN; f++) {
         if (f > HIGHEST_FRET) break;
-        if (playable.has((TUNING[s] + f) % 12)) list.push(f);
+        if (playable.has((tuning[s] + f) % 12)) list.push(f);
       }
-      if (base > 0 && playable.has(TUNING[s] % 12)) list.push(0);
+      if (base > 0 && playable.has(tuning[s] % 12)) list.push(0);
       options.push(list);
     }
 
     // Sounding strings must be contiguous: a muted string in the middle of the
     // shape is a damping technique, not something to put in front of a learner.
     const walk = (s, frets) => {
-      if (s === STRINGS) {
+      if (s === strings) {
         const sounding = [];
-        for (let i = 0; i < STRINGS; i++) if (frets[i] !== null) sounding.push(i);
-        if (sounding.length < (quality === '5' ? 2 : 3)) return;
+        for (let i = 0; i < strings; i++) if (frets[i] !== null) sounding.push(i);
+        const floor = quality === '5' ? 2 : inst.minNotes;
+        if (sounding.length < floor || sounding.length > inst.maxNotes) return;
         if (sounding[sounding.length - 1] - sounding[0] + 1 !== sounding.length) return;
 
-        if ((TUNING[sounding[0]] + frets[sounding[0]]) % 12 !== bassNote) return;
+        /*
+         * Which note is in the bass, and whether it matters at all.
+         *
+         * AI-TRAP: on a guitar or a bass the lowest pitch is the lowest string,
+         * so the two can be used interchangeably. On a re-entrant ukulele they
+         * are different — the G string sounds a fourth ABOVE the C — so the
+         * lowest pitch has to be searched for rather than read off sounding[0].
+         *
+         * AI-DECISION: and on the ukulele the rule is then dropped entirely.
+         * Every string sits inside one octave there, so no voicing has a bass in
+         * the sense this test means; the ear hears a chord, not an inversion.
+         * Enforcing it rejected the standard shapes outright — Am is 2000 on
+         * every ukulele chart ever printed, and its lowest sounding pitch is C.
+         * A generator that "correctly" refuses to draw Am is wrong about the
+         * instrument, not about the theory.
+         */
+        if (inst.requireBass) {
+          let lowest = sounding[0];
+          for (const i of sounding) {
+            if (tuning[i] + frets[i] < tuning[lowest] + frets[lowest]) lowest = i;
+          }
+          if ((tuning[lowest] + frets[lowest]) % 12 !== bassNote) return;
+        } else if (bass !== null) {
+          // A slash chord still has to contain the note it names, even where
+          // the instrument cannot put it underneath.
+          if (!sounding.some((i) => (tuning[i] + frets[i]) % 12 === bassNote)) return;
+        }
 
-        const pcs = new Set(sounding.map((i) => (TUNING[i] + frets[i]) % 12));
+        const pcs = new Set(sounding.map((i) => (tuning[i] + frets[i]) % 12));
         for (const need of mustHave) if (!pcs.has(need)) return;
         // Only the bass may sit outside the chord, and only once.
         for (const pc of pcs) if (!wanted.has(pc) && pc !== bassNote) return;
@@ -224,7 +280,7 @@ export function voicings(parsed, limit = 8) {
       }
       frets[s] = null;
     };
-    walk(0, new Array(STRINGS).fill(null));
+    walk(0, new Array(strings).fill(null));
   }
 
   for (const v of found) {
@@ -239,7 +295,7 @@ export function voicings(parsed, limit = 8) {
     // than muting the bottom one: a thumb rests on the low E anyway, while
     // silencing the high E mid-strum is awkward and thins the chord out.
     const mutedLow = v.sounding[0];
-    const mutedHigh = STRINGS - 1 - v.sounding[v.sounding.length - 1];
+    const mutedHigh = strings - 1 - v.sounding[v.sounding.length - 1];
 
     v.score = (high - low) * 8
       + low * 4
@@ -276,10 +332,16 @@ const cache = new Map();
  * learned first, then the movable forms up the neck, then whatever else the
  * search can find for positions the first two do not reach.
  */
-export function fingeringsFor(symbol) {
+export function fingeringsFor(symbol, instrument = DEFAULT_INSTRUMENT) {
   const parsed = parseChord(symbol);
   if (!parsed) return [];
-  const key = chordName(parsed);
+  const inst = INSTRUMENTS[instrument] || INSTRUMENTS[DEFAULT_INSTRUMENT];
+
+  // AI-TRAP: the instrument belongs in the cache key. Without it the first
+  // lookup for "Am" fills the entry and every other instrument is handed
+  // guitar shapes for the rest of the session — six numbers where a ukulele
+  // has four, drawn without complaint.
+  const key = instrument + ':' + chordName(parsed);
   if (cache.has(key)) return cache.get(key);
 
   const out = [];
@@ -291,8 +353,9 @@ export function fingeringsFor(symbol) {
     out.push(v);
   };
 
-  // Slash chords have no canonical form — the bass decides the shape.
-  if (parsed.bass === null) {
+  // The hand-written open shapes and the CAGED forms are guitar tables; the
+  // other instruments are generated from their tuning alone.
+  if (parsed.bass === null && inst.openShapes) {
     const open = OPEN_ONLY[NOTES[parsed.root] + parsed.quality];
     if (open) {
       const fretted = open.filter((f) => f !== null && f > 0);
@@ -305,7 +368,7 @@ export function fingeringsFor(symbol) {
     }
   }
 
-  for (const v of voicings(parsed, 12)) {
+  for (const v of voicings(parsed, 12, instrument)) {
     if (out.length >= 8) break;
     if (out.some((o) => o.position === v.position)) continue;
     add(v);
@@ -339,11 +402,11 @@ export function chordNotes(symbol) {
  * rather than a guess — an approximate shape drawn without warning is worse
  * than an honest gap.
  */
-export function findFingering(symbol, variant = 0) {
+export function findFingering(symbol, variant = 0, instrument = DEFAULT_INSTRUMENT) {
   const parsed = parseChord(symbol);
   if (!parsed) return null;
 
-  const all = fingeringsFor(symbol);
+  const all = fingeringsFor(symbol, instrument);
   if (!all.length) return null;
 
   const spec = QUALITIES[parsed.quality];
@@ -360,8 +423,8 @@ export function findFingering(symbol, variant = 0) {
 }
 
 /** How many positions exist for a symbol, for a variant picker. */
-export function variantCount(symbol) {
-  return fingeringsFor(symbol).length;
+export function variantCount(symbol, instrument = DEFAULT_INSTRUMENT) {
+  return fingeringsFor(symbol, instrument).length;
 }
 
 /**

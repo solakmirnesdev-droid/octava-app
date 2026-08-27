@@ -3,11 +3,11 @@ import { toWebp } from '~/utils/toWebp';
 import { countryName } from '~/utils/countries';
 
 /**
- * The reader's own account.
+ * The reader's own account settings.
  *
- * Three separate forms rather than one: a display name is a preference, an
- * address and a password are credentials. Putting them in one Save button means
- * typing your password to correct a typo in your own name.
+ * 2-column responsive dashboard for 2026 aesthetics:
+ * - Left column: Identity (Avatar, Username, Country)
+ * - Right column: Security (Email address, Password change)
  */
 const { t, locale } = useI18n();
 const localePath = useLocalePath();
@@ -90,130 +90,280 @@ async function savePassword() {
   if (passwordMismatch.value) return;
   if (await auth.changePassword(pass.value.current, pass.value.next)) {
     pass.value = { current: '', next: '', repeat: '' };
-    // Every other session was just ejected, which is the point of the change
-    // and worth saying out loud.
     say(t('profile.passwordSaved'));
   }
 }
 
 useSeoMeta({ title: t('meta.profileTitle'), robots: 'noindex, nofollow' });
-
-const field = 'w-full rounded border border-line-strong bg-panel px-3 py-2 outline-none focus:border-accent';
-const card = 'rounded-lg border border-line bg-panel p-5';
 </script>
 
 <template>
-  <div v-if="auth.user" class="mx-auto max-w-xl">
-    <h1 class="mb-6 text-2xl font-semibold tracking-tight">{{ $t('profile.title') }}</h1>
+  <div v-if="auth.user" class="mx-auto max-w-6xl space-y-6">
+    <!-- Page Header & Status alerts -->
+    <header class="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between border-b border-line pb-4">
+      <div>
+        <h1 class="text-2xl sm:text-3xl font-bold tracking-tight text-ink">{{ $t('profile.title') }}</h1>
+        <p class="text-xs sm:text-sm text-muted mt-1">Upravljaj svojim korisničkim računom, postavkama i sigurnošću.</p>
+      </div>
 
-    <p v-if="done" role="status" class="mb-4 rounded bg-ok-soft px-3 py-2 text-sm text-ok">{{ done }}</p>
-    <p v-if="auth.error" role="alert" class="mb-4 rounded bg-danger-soft px-3 py-2 text-sm text-danger">
-      {{ auth.error }}
-    </p>
+      <!-- Quick user chip on top right -->
+      <div class="inline-flex items-center gap-2 rounded-2xl border border-line bg-panel/80 px-3.5 py-1.5 text-xs text-muted shadow-2xs">
+        <span class="size-2 rounded-full bg-ok animate-pulse" />
+        <span>Prijavljen kao <strong class="font-mono text-ink">{{ auth.user.username }}</strong></span>
+      </div>
+    </header>
 
-    <!-- Portrait -------------------------------------------------------- -->
-    <section :class="card" class="mb-4">
-      <h2 class="mb-4 text-sm font-medium">{{ $t('profile.photo') }}</h2>
+    <!-- Feedback alerts with smooth transitions -->
+    <div v-if="done" role="status" class="flex items-center gap-2 rounded-xl border border-ok/30 bg-ok-soft px-4 py-3 text-sm text-ok shadow-2xs">
+      <Icon name="material-symbols:check-circle-rounded" class="text-base shrink-0" />
+      <span>{{ done }}</span>
+    </div>
 
-      <div class="flex items-center gap-5">
-        <UserAvatar
-          :key="version"
-          :name="auth.user.username" :user-id="auth.user.id"
-          :has-avatar="auth.user.hasAvatar" :flag="auth.user.flag || ''" size="lg"
-        />
+    <div v-if="auth.error" role="alert" class="flex items-center gap-2 rounded-xl border border-danger/30 bg-danger-soft px-4 py-3 text-sm text-danger shadow-2xs">
+      <Icon name="material-symbols:error-rounded" class="text-base shrink-0" />
+      <span>{{ auth.error }}</span>
+    </div>
 
-        <div class="min-w-0">
-          <div class="flex flex-wrap gap-2">
-            <button
-              class="rounded border border-line-strong px-3 py-1.5 text-sm hover:border-accent hover:text-accent disabled:opacity-40"
-              :disabled="busyAvatar" @click="fileInput?.click()"
-            >{{ busyAvatar ? $t('common.loading') : $t('profile.choosePhoto') }}</button>
-
-            <button
-              v-if="auth.user.hasAvatar"
-              class="rounded border border-line-strong px-3 py-1.5 text-sm text-muted hover:border-danger hover:text-danger disabled:opacity-40"
-              :disabled="busyAvatar" @click="removeAvatar"
-            >{{ $t('profile.removePhoto') }}</button>
+    <!-- 2-Column Responsive Dashboard -->
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+      
+      <!-- LEFT COLUMN: Identity, Avatar & Profile Info (5 cols) -->
+      <div class="lg:col-span-5 space-y-6">
+        
+        <!-- Photo & Avatar Card -->
+        <section class="rounded-2xl border border-line bg-gradient-to-b from-panel/95 via-panel/80 to-surface/90 p-5 sm:p-6 backdrop-blur-md shadow-xs">
+          <div class="flex items-center gap-2 mb-4">
+            <Icon name="material-symbols:account-circle-outline-rounded" class="text-accent text-lg" />
+            <h2 class="text-xs font-semibold uppercase tracking-wider text-faint">{{ $t('profile.photo') }}</h2>
           </div>
 
-          <!-- The conversion happens here, so nothing about formats or sizes
-               needs to reach the reader as a rule to follow. -->
-          <input ref="fileInput" type="file" accept="image/*" class="hidden" @change="pickAvatar">
-          <p class="mt-2 text-xs text-faint">{{ $t('profile.photoHint') }}</p>
-          <p v-if="avatarError" class="mt-1 text-xs text-danger">{{ avatarError }}</p>
-        </div>
+          <div class="flex flex-col sm:flex-row items-center sm:items-start gap-5">
+            <UserAvatar
+              :key="version"
+              :name="auth.user.username"
+              :user-id="auth.user.id"
+              :has-avatar="auth.user.hasAvatar"
+              :flag="auth.user.flag || ''"
+              size="lg"
+            />
+
+            <div class="flex-1 min-w-0 text-center sm:text-left space-y-2">
+              <div class="flex flex-wrap items-center justify-center sm:justify-start gap-2">
+                <button
+                  type="button"
+                  class="inline-flex items-center gap-1.5 rounded-xl border border-line bg-panel px-3 py-1.5 text-xs font-semibold text-ink shadow-2xs transition-all hover:border-accent hover:text-accent disabled:opacity-40"
+                  :disabled="busyAvatar"
+                  @click="fileInput?.click()"
+                >
+                  <Icon name="material-symbols:upload-rounded" class="text-sm" />
+                  <span>{{ busyAvatar ? $t('common.loading') : $t('profile.choosePhoto') }}</span>
+                </button>
+
+                <button
+                  v-if="auth.user.hasAvatar"
+                  type="button"
+                  class="inline-flex items-center gap-1.5 rounded-xl border border-line bg-panel px-3 py-1.5 text-xs font-semibold text-muted shadow-2xs transition-all hover:border-danger hover:text-danger disabled:opacity-40"
+                  :disabled="busyAvatar"
+                  @click="removeAvatar"
+                >
+                  <Icon name="material-symbols:delete-outline-rounded" class="text-sm" />
+                  <span>{{ $t('profile.removePhoto') }}</span>
+                </button>
+              </div>
+
+              <input ref="fileInput" type="file" accept="image/*" class="hidden" @change="pickAvatar">
+              <p class="text-xs text-faint leading-relaxed">{{ $t('profile.photoHint') }}</p>
+              <p v-if="avatarError" class="text-xs text-danger font-medium">{{ avatarError }}</p>
+            </div>
+          </div>
+        </section>
+
+        <!-- Account Details Card (Username & Country) -->
+        <section class="rounded-2xl border border-line bg-gradient-to-b from-panel/95 via-panel/80 to-surface/90 p-5 sm:p-6 backdrop-blur-md shadow-xs">
+          <div class="flex items-center gap-2 mb-4">
+            <Icon name="material-symbols:badge-outline-rounded" class="text-accent text-lg" />
+            <h2 class="text-xs font-semibold uppercase tracking-wider text-faint">{{ $t('profile.details') }}</h2>
+          </div>
+
+          <div class="space-y-4">
+            <div>
+              <label for="username" class="mb-1.5 block text-xs font-semibold uppercase tracking-wider text-faint">
+                {{ $t('auth.username') }}
+              </label>
+              <input
+                id="username"
+                v-model="username"
+                type="text"
+                maxlength="40"
+                class="w-full rounded-xl border border-line bg-surface/90 px-3.5 py-2.5 text-sm text-ink outline-none transition-all focus:border-accent focus:bg-panel focus:ring-2 focus:ring-accent/15"
+              >
+            </div>
+
+            <div>
+              <label for="country" class="mb-1.5 block text-xs font-semibold uppercase tracking-wider text-faint">
+                {{ $t('auth.country') }}
+              </label>
+              <CountrySelect id="country" v-model="country" />
+              <p v-if="country" class="mt-1.5 text-xs text-faint">
+                {{ $t('profile.shownAs') }} {{ auth.user.flag }} {{ countryName(country, locale) }}
+              </p>
+            </div>
+
+            <button
+              type="button"
+              class="w-full inline-flex items-center justify-center gap-2 rounded-xl bg-accent px-4 py-2.5 text-sm font-bold text-on-accent shadow-xs transition-colors hover:bg-accent-hover disabled:opacity-40 disabled:cursor-not-allowed"
+              :disabled="auth.loading || !profileChanged"
+              @click="saveProfile"
+            >
+              <Icon name="material-symbols:check-rounded" class="text-base" />
+              <span>{{ $t('common.save') }}</span>
+            </button>
+          </div>
+        </section>
+
       </div>
-    </section>
 
-    <!-- Name and country ------------------------------------------------ -->
-    <section :class="card" class="mb-4">
-      <h2 class="mb-4 text-sm font-medium">{{ $t('profile.details') }}</h2>
+      <!-- RIGHT COLUMN: Security, Email & Password (7 cols) -->
+      <div class="lg:col-span-7 space-y-6">
 
-      <label for="username" class="mb-1 block text-sm">{{ $t('auth.username') }}</label>
-      <input id="username" v-model="username" :class="field" class="mb-4" maxlength="40">
+        <!-- Email Address Section -->
+        <section class="rounded-2xl border border-line bg-gradient-to-b from-panel/95 via-panel/80 to-surface/90 p-5 sm:p-6 backdrop-blur-md shadow-xs">
+          <div class="flex items-center justify-between gap-2 mb-4">
+            <div class="flex items-center gap-2">
+              <Icon name="material-symbols:mail-outline-rounded" class="text-accent text-lg" />
+              <h2 class="text-xs font-semibold uppercase tracking-wider text-faint">{{ $t('profile.email') }}</h2>
+            </div>
 
-      <label for="country" class="mb-1 block text-sm">{{ $t('auth.country') }}</label>
-      <CountrySelect id="country" v-model="country" />
-      <p v-if="country" class="mt-1.5 text-xs text-faint">
-        {{ $t('profile.shownAs') }} {{ auth.user.flag }} {{ countryName(country, locale) }}
-      </p>
+            <!-- Current Email verification status chip -->
+            <span
+              v-if="auth.user.emailVerified"
+              class="inline-flex items-center gap-1 rounded-full border border-ok/30 bg-ok-soft px-2.5 py-0.5 text-[11px] font-bold text-ok"
+            >
+              <Icon name="material-symbols:check-circle-rounded" class="text-xs" />
+              <span>Potvrđen</span>
+            </span>
+            <span
+              v-else
+              class="inline-flex items-center gap-1 rounded-full border border-warn/30 bg-warn-soft px-2.5 py-0.5 text-[11px] font-bold text-warn"
+            >
+              <Icon name="material-symbols:warning-rounded" class="text-xs" />
+              <span>{{ $t('profile.unverified') }}</span>
+            </span>
+          </div>
 
-      <button
-        class="mt-4 rounded bg-ink px-4 py-2 text-sm font-medium text-on-ink hover:bg-accent disabled:opacity-40"
-        :disabled="auth.loading || !profileChanged" @click="saveProfile"
-      >{{ $t('common.save') }}</button>
-    </section>
+          <p class="text-xs text-muted mb-4 font-mono bg-surface/60 rounded-lg p-2 border border-line-soft">
+            Trenutna adresa: <strong class="text-ink">{{ auth.user.email }}</strong>
+          </p>
 
-    <!-- Address --------------------------------------------------------- -->
-    <section :class="card" class="mb-4">
-      <h2 class="text-sm font-medium">{{ $t('profile.email') }}</h2>
-      <p class="mb-4 mt-1 text-sm text-muted">
-        {{ auth.user.email }}
-        <span v-if="!auth.user.emailVerified" class="ml-1 rounded bg-warn-soft px-1.5 py-0.5 text-xs text-warn">
-          {{ $t('profile.unverified') }}
-        </span>
-      </p>
+          <div class="space-y-4">
+            <div>
+              <label for="new-email" class="mb-1.5 block text-xs font-semibold uppercase tracking-wider text-faint">
+                {{ $t('profile.newEmail') }}
+              </label>
+              <input
+                id="new-email"
+                v-model="email.next"
+                type="email"
+                autocomplete="email"
+                placeholder="nova.adresa@primjer.com"
+                class="w-full rounded-xl border border-line bg-surface/90 px-3.5 py-2.5 text-sm text-ink outline-none transition-all focus:border-accent focus:bg-panel focus:ring-2 focus:ring-accent/15 placeholder:text-dim"
+              >
+            </div>
 
-      <label for="new-email" class="mb-1 block text-sm">{{ $t('profile.newEmail') }}</label>
-      <input id="new-email" v-model="email.next" type="email" autocomplete="email" :class="field" class="mb-4">
+            <div>
+              <label for="email-password" class="mb-1.5 block text-xs font-semibold uppercase tracking-wider text-faint">
+                {{ $t('profile.confirmPassword') }}
+              </label>
+              <input
+                id="email-password"
+                v-model="email.password"
+                type="password"
+                autocomplete="current-password"
+                placeholder="••••••••"
+                class="w-full rounded-xl border border-line bg-surface/90 px-3.5 py-2.5 text-sm text-ink outline-none transition-all focus:border-accent focus:bg-panel focus:ring-2 focus:ring-accent/15 placeholder:text-dim"
+              >
+              <p class="mt-1 text-xs text-faint">{{ $t('profile.whyPassword') }}</p>
+            </div>
 
-      <label for="email-password" class="mb-1 block text-sm">{{ $t('profile.confirmPassword') }}</label>
-      <input id="email-password" v-model="email.password" type="password" autocomplete="current-password" :class="field">
-      <!-- Asked for even though they are signed in: an unattended browser is the
-           ordinary case, and an address swapped without one is an account taken
-           over quietly. -->
-      <p class="mt-1 text-xs text-faint">{{ $t('profile.whyPassword') }}</p>
+            <button
+              type="button"
+              class="inline-flex items-center justify-center gap-2 rounded-xl bg-accent px-4 py-2.5 text-sm font-bold text-on-accent shadow-xs transition-colors hover:bg-accent-hover disabled:opacity-40 disabled:cursor-not-allowed"
+              :disabled="auth.loading || !email.next || !email.password"
+              @click="saveEmail"
+            >
+              <Icon name="material-symbols:mail-rounded" class="text-base" />
+              <span>{{ $t('profile.changeEmail') }}</span>
+            </button>
+          </div>
+        </section>
 
-      <button
-        class="mt-4 rounded bg-ink px-4 py-2 text-sm font-medium text-on-ink hover:bg-accent disabled:opacity-40"
-        :disabled="auth.loading || !email.next || !email.password" @click="saveEmail"
-      >{{ $t('profile.changeEmail') }}</button>
-    </section>
+        <!-- Password Change Section -->
+        <section class="rounded-2xl border border-line bg-gradient-to-b from-panel/95 via-panel/80 to-surface/90 p-5 sm:p-6 backdrop-blur-md shadow-xs">
+          <div class="flex items-center gap-2 mb-4">
+            <Icon name="material-symbols:lock-outline-rounded" class="text-accent text-lg" />
+            <h2 class="text-xs font-semibold uppercase tracking-wider text-faint">{{ $t('profile.password') }}</h2>
+          </div>
 
-    <!-- Password -------------------------------------------------------- -->
-    <section :class="card">
-      <h2 class="mb-4 text-sm font-medium">{{ $t('profile.password') }}</h2>
+          <div class="space-y-4">
+            <div>
+              <label for="current-password" class="mb-1.5 block text-xs font-semibold uppercase tracking-wider text-faint">
+                {{ $t('profile.currentPassword') }}
+              </label>
+              <input
+                id="current-password"
+                v-model="pass.current"
+                type="password"
+                autocomplete="current-password"
+                placeholder="••••••••"
+                class="w-full rounded-xl border border-line bg-surface/90 px-3.5 py-2.5 text-sm text-ink outline-none transition-all focus:border-accent focus:bg-panel focus:ring-2 focus:ring-accent/15 placeholder:text-dim"
+              >
+            </div>
 
-      <label for="current-password" class="mb-1 block text-sm">{{ $t('profile.currentPassword') }}</label>
-      <input id="current-password" v-model="pass.current" type="password" autocomplete="current-password" :class="field" class="mb-4">
+            <div>
+              <label for="new-password" class="mb-1.5 block text-xs font-semibold uppercase tracking-wider text-faint">
+                Nova lozinka
+              </label>
+              <PasswordField id="new-password" v-model="pass.next" autocomplete="new-password" :minlength="8" show-strength />
+            </div>
 
-      <PasswordField id="new-password" v-model="pass.next" autocomplete="new-password" :minlength="8" show-strength />
+            <div>
+              <label for="repeat-password" class="mb-1.5 block text-xs font-semibold uppercase tracking-wider text-faint">
+                {{ $t('profile.repeatPassword') }}
+              </label>
+              <input
+                id="repeat-password"
+                v-model="pass.repeat"
+                type="password"
+                autocomplete="new-password"
+                placeholder="••••••••"
+                class="w-full rounded-xl border border-line bg-surface/90 px-3.5 py-2.5 text-sm text-ink outline-none transition-all focus:border-accent focus:bg-panel focus:ring-2 focus:ring-accent/15 placeholder:text-dim"
+              >
+              <p v-if="passwordMismatch" class="mt-1 text-xs text-danger font-medium">{{ $t('profile.mismatch') }}</p>
+            </div>
 
-      <label for="repeat-password" class="mb-1 mt-4 block text-sm">{{ $t('profile.repeatPassword') }}</label>
-      <input id="repeat-password" v-model="pass.repeat" type="password" autocomplete="new-password" :class="field">
-      <p v-if="passwordMismatch" class="mt-1 text-xs text-danger">{{ $t('profile.mismatch') }}</p>
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-2">
+              <button
+                type="button"
+                class="inline-flex items-center justify-center gap-2 rounded-xl bg-accent px-4 py-2.5 text-sm font-bold text-on-accent shadow-xs transition-colors hover:bg-accent-hover disabled:opacity-40 disabled:cursor-not-allowed"
+                :disabled="auth.loading || !pass.next || passwordMismatch"
+                @click="savePassword"
+              >
+                <Icon name="material-symbols:key-rounded" class="text-base" />
+                <span>{{ $t('profile.changePassword') }}</span>
+              </button>
 
-      <button
-        class="mt-4 rounded bg-ink px-4 py-2 text-sm font-medium text-on-ink hover:bg-accent disabled:opacity-40"
-        :disabled="auth.loading || !pass.next || passwordMismatch" @click="savePassword"
-      >{{ $t('profile.changePassword') }}</button>
+              <NuxtLink
+                :to="localePath('/zaboravljena-lozinka')"
+                class="text-xs font-medium text-muted hover:text-accent transition-colors"
+              >
+                {{ $t('profile.forgotHint') }} {{ $t('auth.forgot') }}
+              </NuxtLink>
+            </div>
+          </div>
+        </section>
 
-      <p class="mt-4 text-xs text-faint">
-        {{ $t('profile.forgotHint') }}
-        <NuxtLink :to="localePath('/zaboravljena-lozinka')" class="text-accent hover:underline">
-          {{ $t('auth.forgot') }}
-        </NuxtLink>
-      </p>
-    </section>
+      </div>
+
+    </div>
   </div>
 </template>

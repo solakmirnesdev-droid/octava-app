@@ -9,8 +9,8 @@ const { data, status } = await useAsyncData(
   () => `search-${query.value}`,
   () => query.value
     ? $api('/songs/search', { params: { q: query.value } })
-        .catch(() => ({ songs: [], artists: [], genres: [] }))
-    : Promise.resolve({ songs: [], artists: [], genres: [] }),
+        .catch(() => ({ songs: [], artists: [], genres: [], suggestion: null }))
+    : Promise.resolve({ songs: [], artists: [], genres: [], suggestion: null }),
   { watch: [query] }
 );
 
@@ -33,6 +33,20 @@ useSeoMeta({
 
   <p v-if="status === 'pending'" class="text-sm text-muted">{{ $t('page.searching') }}</p>
   <p v-else-if="!hasResults" class="text-sm text-muted">{{ $t('page.nothingFound') }}</p>
+
+  <!--
+    The API sets `suggestion` only when nothing matched the query as typed, so
+    what is on screen is already the corrected search. Saying "did you mean" here
+    would be asking a question the page has answered for itself — this states
+    what happened instead, and leaves the reader the original as a way back.
+  -->
+  <i18n-t
+    v-if="data?.suggestion" keypath="page.searchCorrected" tag="p"
+    class="mb-6 rounded border border-line bg-panel px-3 py-2 text-sm text-muted" scope="global"
+  >
+    <template #typed><span class="text-faint">{{ query }}</span></template>
+    <template #suggestion><strong class="font-medium text-ink">{{ data.suggestion }}</strong></template>
+  </i18n-t>
 
   <template v-else>
     <section v-if="data.artists?.length" class="mb-8">

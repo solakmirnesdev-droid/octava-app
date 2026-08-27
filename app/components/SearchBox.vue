@@ -1,5 +1,6 @@
 <script setup>
-import { initials, avatarStyle } from '~/utils/avatar';
+import { initials } from '~/utils/avatar';
+import { safeFlag } from '~/utils/countries';
 
 const config = useRuntimeConfig();
 const localePath = useLocalePath();
@@ -26,27 +27,38 @@ let controller = null;
  * Flat list behind the grouped display, so the arrow keys can walk every
  * result in visual order without the three sections knowing about each other.
  */
-const flat = computed(() => [
-  // Artists lead. Someone typing "aca lukas" means the performer; the songs are
-  // what they browse once they get there. Ranking them under five song titles
-  // buried the one result that answers the query.
-  ...results.value.artists.map((a) => ({
-    key: 'a' + a._id, kind: 'artist', label: a.name,
-    sub: t('common.songCount', { n: a.songCount || 0 }, a.songCount || 0),
-    to: localePath(`/izvodjac/${a.slug}`),
-    // A face is recognised faster than a name is read.
-    image: a.hasImage ? `${config.public.apiBase}/artists/${a._id}/image` : null,
-    flag: a.flag || null
-  })),
-  ...results.value.songs.map((s) => ({
-    key: 's' + s._id, kind: 'song', label: s.title, sub: s.artist?.name,
-    to: localePath(`/pjesma/${s.slug}`)
-  })),
-  ...results.value.genres.map((g) => ({
-    key: 'g' + g._id, kind: 'genre', label: g.name, sub: t('common.genre'),
-    to: localePath(`/zanr/${g.slug}`)
-  }))
-]);
+const flat = computed(() => {
+  const topArtistName = results.value.artists.length === 1 ? results.value.artists[0].name?.toLowerCase() : null;
+
+  return [
+    ...results.value.artists.map((a) => ({
+      key: 'a' + a._id,
+      kind: 'artist',
+      label: a.name,
+      to: localePath(`/izvodjac/${a.slug}`),
+      image: a.hasImage ? `${config.public.apiBase}/artists/${a._id}/image` : null,
+      flag: safeFlag(a.flag, a.country)
+    })),
+    ...results.value.songs.map((s) => {
+      const songArtistName = s.artist?.name;
+      // Do not repeat artist name if the searched artist is already displayed on top
+      const isRedundant = topArtistName && songArtistName && songArtistName.toLowerCase() === topArtistName;
+      return {
+        key: 's' + s._id,
+        kind: 'song',
+        label: s.title,
+        artistName: isRedundant ? null : songArtistName,
+        to: localePath(`/pjesma/${s.slug}`)
+      };
+    }),
+    ...results.value.genres.map((g) => ({
+      key: 'g' + g._id,
+      kind: 'genre',
+      label: g.name,
+      to: localePath(`/zanr/${g.slug}`)
+    }))
+  ];
+});
 
 /** An artist row and a song row read identically without this. */
 const ICONS = {
@@ -142,7 +154,7 @@ onBeforeUnmount(() => {
 </script>
 
 <template>
-  <div ref="root" class="relative flex-1 min-w-[180px] sm:min-w-[220px] max-w-sm">
+  <div ref="root" class="relative w-full min-w-0 max-w-[200px] xl:max-w-[250px]">
     <form role="search" class="relative" @submit.prevent="submit">
       <!-- Decorative: the input already has an accessible name, so announcing
            the icon as well would just repeat it. -->
@@ -158,7 +170,7 @@ onBeforeUnmount(() => {
         :aria-label="$t('nav.searchLabel')"
         autocomplete="off"
         :placeholder="$t('nav.search')"
-        class="w-full rounded-full border border-line-strong bg-panel py-1.5 pl-9 pr-9 text-sm outline-none focus:border-accent"
+        class="w-full rounded-full border border-line-strong bg-panel py-2 pl-9.5 pr-9 text-sm outline-none focus:border-accent"
         :aria-expanded="open"
         @focus="query.trim().length >= MIN_QUERY && (open = true)"
         @keydown.down.prevent="move(1)"
@@ -192,8 +204,8 @@ onBeforeUnmount(() => {
         <li v-for="(item, i) in flat" :key="item.key">
           <button
             type="button"
-            class="flex w-full items-center gap-2.5 px-3.5 py-2 text-left text-sm"
-            :class="i === highlighted ? 'bg-accent-soft text-accent' : 'hover:bg-raised'"
+            class="flex w-full items-center gap-2.5 px-3.5 py-2 text-left text-sm transition-colors"
+            :class="i === highlighted ? 'bg-accent-soft text-accent' : 'hover:bg-raised text-ink'"
             @click="go(item.to)"
             @mouseenter="highlighted = i"
           >
@@ -203,14 +215,18 @@ onBeforeUnmount(() => {
             >
             <span
               v-else-if="item.kind === 'artist'"
-              :style="avatarStyle(item.label)"
-              class="flex size-6 shrink-0 select-none items-center justify-center rounded-full text-[9px] font-semibold ring-1 ring-line-soft"
+              class="flex size-6 shrink-0 select-none items-center justify-center rounded-full border border-line bg-surface/90 font-mono text-[9px] font-bold text-muted ring-1 ring-line-soft"
             >{{ initials(item.label) }}</span>
             <Icon v-else :name="ICONS[item.kind]" class="size-4 shrink-0 text-dim" />
-            <span class="min-w-0 flex-1 truncate font-medium">
-              <span v-if="item.flag" class="mr-1.5">{{ item.flag }}</span>{{ item.label }}
-            </span>
-            <span class="shrink-0 text-xs text-faint">{{ item.sub }}</span>
+
+            <div class="min-w-0 flex-1 flex items-center justify-between gap-2">
+              <span class="truncate font-medium">
+                <span v-if="item.flag" class="mr-1.5">{{ item.flag }}</span>{{ item.label }}
+              </span>
+              <span v-if="item.artistName" class="shrink-0 text-xs text-faint truncate max-w-[120px]">
+                {{ item.artistName }}
+              </span>
+            </div>
           </button>
         </li>
       </ul>

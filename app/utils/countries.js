@@ -34,12 +34,41 @@ const CODES = [
 ];
 
 /**
+ * Countries that no longer exist, which the catalogue is full of.
+ *
+ * AI-TRAP: `Intl.DisplayNames.of('YU')` returns "Serbia" — the standard maps the
+ * defunct code onto its successor state. Six artists here are coded YU because
+ * that is what MusicBrainz holds for a Yugoslav-era release, and left alone they
+ * would appear as a second pill also labelled "Srbija", beside the 43 genuinely
+ * coded RS. Two pills with one name, and the name wrong on one of them.
+ *
+ * They also have no flag: 🇾🇺 is a valid pair of regional indicators that no font
+ * draws, so it renders as two letters in boxes. `flagOf` returns null for these.
+ */
+export const HISTORIC = {
+  YU: { bs: 'Jugoslavija', en: 'Yugoslavia' },
+  CS: { bs: 'Srbija i Crna Gora', en: 'Serbia and Montenegro' },
+  SU: { bs: 'Sovjetski Savez', en: 'Soviet Union' },
+  DD: { bs: 'Istočna Njemačka', en: 'East Germany' }
+};
+
+/**
  * Regional indicator symbols sit at a fixed offset from A-Z, so BA becomes the
  * two code points a font renders as one flag.
  */
 export function flagOf(code) {
   if (!code || code.length !== 2) return null;
-  return String.fromCodePoint(...[...code.toUpperCase()].map((c) => 0x1f1e6 + c.charCodeAt(0) - 65));
+  const upper = code.toUpperCase();
+  // A code with no state behind it has no flag to draw.
+  if (HISTORIC[upper]) return null;
+  return String.fromCodePoint(...[...upper].map((c) => 0x1f1e6 + c.charCodeAt(0) - 65));
+}
+
+export function safeFlag(flag, country) {
+  if (country && HISTORIC[country.toUpperCase()]) return null;
+  if (!flag) return country ? flagOf(country) : null;
+  if (flag.includes('\uD83C\uDDFE\uD83C\uDDFA') || flag.includes('YU')) return null;
+  return flag;
 }
 
 /**
@@ -57,18 +86,6 @@ const BS_OVERRIDES = {
   DK: 'Danska'
 };
 
-/**
- * A locale Intl will actually translate region names into.
- *
- * AI-TRAP: `supportedLocalesOf(['bs'])` returns 'bs' and
- * `resolvedOptions().locale` reports 'bs', and yet every name comes back in
- * English — some builds carry a 'bs' entry with no region data behind it. Both
- * of the obvious ways to ask therefore lie, and the only reliable test is to
- * translate something whose Bosnian name cannot be its English one.
- *
- * Croatian is the stand-in: for region names the two are the same language with
- * a few exceptions, which BS_OVERRIDES covers.
- */
 const PROBES = ['DE', 'BA', 'SE'];
 const FALLBACKS = { bs: ['bs', 'hr', 'en'], en: ['en'] };
 
@@ -123,5 +140,8 @@ export function countries(locale = 'bs') {
 /** One country's name, for showing a stored code back to the reader. */
 export function countryName(code, locale = 'bs') {
   if (!code) return null;
-  return namerFor(locale)(code.toUpperCase());
+  const upper = code.toUpperCase();
+  const historic = HISTORIC[upper];
+  if (historic) return historic[locale] || historic.en;
+  return namerFor(locale)(upper);
 }

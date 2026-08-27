@@ -1,11 +1,13 @@
 <script setup>
-import { findFingering, fingerNumbers } from '~/utils/chordEngine';
+import { findFingering, fingerNumbers, INSTRUMENTS } from '~/utils/chordEngine';
 import { strum, canPlay } from '~/utils/chordAudio';
 
 const props = defineProps({
   symbol: { type: String, required: true },
   // Tight spots — the hover tooltip — can drop the position switcher.
-  switchable: { type: Boolean, default: true }
+  switchable: { type: Boolean, default: true },
+  /** 'guitar', 'bass' or 'ukulele'. Decides the tuning, and with it the shape. */
+  instrument: { type: String, default: 'guitar' }
 });
 
 const variant = ref(0);
@@ -27,7 +29,11 @@ const ringing = ref(false);
 let timer = null;
 
 function play() {
-  if (!strum(shape.value.frets)) return;
+  // The tuning goes with the shape: the same fret numbers on a ukulele are a
+  // different chord, and playing them against guitar strings would teach the ear
+  // something the diagram does not say.
+  const tuning = (INSTRUMENTS[props.instrument] || INSTRUMENTS.guitar).tuning;
+  if (!strum(shape.value.frets, { tuning })) return;
   ringing.value = true;
   window.clearTimeout(timer);
   timer = window.setTimeout(() => { ringing.value = false; }, 700);
@@ -37,18 +43,25 @@ onBeforeUnmount(() => window.clearTimeout(timer));
 
 // A different chord under the same component is a different set of positions,
 // so the switcher has to start over rather than keep an index into the old one.
-watch(() => props.symbol, () => { variant.value = 0; });
+watch(() => [props.symbol, props.instrument], () => { variant.value = 0; });
 
-const shape = computed(() => findFingering(props.symbol, variant.value));
+const shape = computed(() => findFingering(props.symbol, variant.value, props.instrument));
 const fingers = computed(() => (shape.value ? fingerNumbers(shape.value) : []));
 
 // Geometry of the drawn grid, in SVG units.
-const STRINGS = 6;
+/**
+ * Taken from the shape rather than fixed at six.
+ *
+ * A bass and a ukulele both have four, and a diagram that always draws six
+ * would render their shapes against two strings that are not there — with the
+ * dots landing on the wrong lines rather than obviously breaking.
+ */
+const STRINGS = computed(() => props.shape?.frets?.length || 6);
 const FRETS = 5;
-const LEFT = 14;
-const TOP = 22;
-const STEP_X = 16;
-const STEP_Y = 18;
+const LEFT = 16;
+const TOP = 24;
+const STEP_X = 18;
+const STEP_Y = 20;
 
 const x = (stringIndex) => LEFT + stringIndex * STEP_X;
 const y = (fret) => TOP + (fret - 0.5) * STEP_Y;
@@ -84,109 +97,118 @@ const step = (by) => {
 </script>
 
 <template>
-  <div v-if="shape" class="w-[132px] select-none text-center">
-    <p class="font-mono text-sm font-semibold text-ink">
-      {{ shape.name }}<span v-if="shape.qualityKey" class="ml-1 font-sans text-xs font-normal text-faint">{{ $t(`chord.${shape.qualityKey}`) }}</span>
-    </p>
-    <p v-if="shape.formula" class="mb-1 font-mono text-[10px] text-faint">{{ shape.formula }}</p>
-
-    <!-- The diagram is the control: clicking it strums the shape. A button
-         wrapper rather than a click handler on the svg, so it is reachable by
-         keyboard and announces itself. -->
-    <button
-      type="button"
-      class="group relative mx-auto block rounded transition-colors"
-      :class="ringing ? 'bg-accent-soft' : 'hover:bg-raised'"
-      :disabled="!audible"
-      :title="audible ? $t('chord.hear', { name: shape.name }) : ''"
-      :aria-label="$t('chord.hear', { name: shape.name })"
-      @click.stop="play"
+  <div
+    v-if="shape"
+    class="relative w-full max-w-[155px] select-none text-center flex flex-col items-center cursor-pointer"
+    :title="audible ? $t('chord.hear', { name: shape.name }) : ''"
+    @click="play"
+  >
+    <!-- Top-Right Audio Icon Badge -->
+    <span
+      v-if="audible"
+      class="absolute -top-1 -right-1 sm:top-0 sm:right-0 flex size-7 items-center justify-center rounded-lg border border-transparent transition-colors z-20"
+      :class="ringing ? 'border-accent/40 bg-accent-soft text-accent shadow-xs' : 'text-faint hover:text-accent group-hover:text-accent'"
+      aria-hidden="true"
     >
       <Icon
-        v-if="audible"
-        name="material-symbols:volume-up-outline-rounded"
-        aria-hidden="true"
-        class="pointer-events-none absolute right-1 top-1 text-xs transition-colors"
-        :class="ringing ? 'text-accent' : 'text-dim group-hover:text-accent'"
+        :name="ringing ? 'material-symbols:volume-up-rounded' : 'material-symbols:volume-up-outline-rounded'"
+        class="text-base"
       />
+    </span>
 
-      <svg :width="132" :height="TOP + FRETS * STEP_Y + 14" class="overflow-visible">
-      <!-- Open and muted markers sit above the nut. -->
-      <template v-for="(fret, i) in shape.frets" :key="'m' + i">
+    <!-- Chord Name & Quality -->
+    <div class="mb-1 w-full px-5">
+      <div class="flex items-baseline justify-center gap-1.5">
+        <span class="font-mono text-base sm:text-lg font-extrabold text-ink tracking-tight">{{ shape.name }}</span>
+        <span v-if="shape.qualityKey" class="text-xs font-semibold text-accent truncate">{{ $t(`chord.${shape.qualityKey}`) }}</span>
+      </div>
+      <p v-if="shape.formula" class="mt-0.5 inline-block rounded-md border border-line-soft bg-surface/70 px-2 py-0.5 font-mono text-[9.5px] text-faint font-medium">
+        {{ shape.formula }}
+      </p>
+    </div>
+
+    <!-- The diagram SVG (Larger Fretboard Grip) -->
+    <div class="relative mx-auto my-1 block rounded-xl p-1">
+      <svg :width="132" :height="TOP + FRETS * STEP_Y + 12" class="overflow-visible">
+        <!-- Open and muted markers sit above the nut. -->
+        <template v-for="(fret, i) in shape.frets" :key="'m' + i">
+          <text
+            :x="x(i)" :y="TOP - 7" text-anchor="middle"
+            class="fill-faint font-mono font-bold" style="font-size: 11px"
+          >{{ fret === null ? '×' : (fret === 0 ? '○' : '') }}</text>
+        </template>
+
+        <!-- Nut is heavy only when the shape starts at the top of the neck. -->
+        <line
+          :x1="x(0)" :y1="TOP" :x2="x(STRINGS - 1)" :y2="TOP"
+          stroke="currentColor" :stroke-width="shape.baseFret === 1 ? 3.5 : 1.5" class="text-body"
+        />
+
+        <line
+          v-for="f in FRETS" :key="'f' + f"
+          :x1="x(0)" :y1="TOP + f * STEP_Y" :x2="x(STRINGS - 1)" :y2="TOP + f * STEP_Y"
+          stroke="currentColor" stroke-width="1.2" class="text-dim"
+        />
+
+        <line
+          v-for="s in STRINGS" :key="'s' + s"
+          :x1="x(s - 1)" :y1="TOP" :x2="x(s - 1)" :y2="TOP + FRETS * STEP_Y"
+          stroke="currentColor" stroke-width="1.2" class="text-dim"
+        />
+
+        <!-- Position marker for shapes that start further down the neck. -->
         <text
-          :x="x(i)" :y="TOP - 6" text-anchor="middle"
-          class="fill-faint font-mono" style="font-size: 10px"
-        >{{ fret === null ? '×' : (fret === 0 ? '○' : '') }}</text>
-      </template>
+          v-if="shape.baseFret > 1"
+          :x="x(0) - 7" :y="y(1) + 4" text-anchor="end"
+          class="fill-muted font-mono font-bold" style="font-size: 11px"
+        >{{ shape.baseFret }}</text>
 
-      <!-- Nut is heavy only when the shape starts at the top of the neck. -->
-      <line
-        :x1="x(0)" :y1="TOP" :x2="x(STRINGS - 1)" :y2="TOP"
-        stroke="currentColor" :stroke-width="shape.baseFret === 1 ? 3 : 1" class="text-body"
-      />
-
-      <line
-        v-for="f in FRETS" :key="'f' + f"
-        :x1="x(0)" :y1="TOP + f * STEP_Y" :x2="x(STRINGS - 1)" :y2="TOP + f * STEP_Y"
-        stroke="currentColor" stroke-width="1" class="text-dim"
-      />
-
-      <line
-        v-for="s in STRINGS" :key="'s' + s"
-        :x1="x(s - 1)" :y1="TOP" :x2="x(s - 1)" :y2="TOP + FRETS * STEP_Y"
-        stroke="currentColor" stroke-width="1" class="text-dim"
-      />
-
-      <!-- Position marker for shapes that start further down the neck. -->
-      <text
-        v-if="shape.baseFret > 1"
-        :x="x(0) - 8" :y="y(1) + 4" text-anchor="end"
-        class="fill-muted font-mono" style="font-size: 10px"
-      >{{ shape.baseFret }}</text>
-
-      <rect
-        v-if="shape.barre"
-        :x="x(shape.barre.from) - 5"
-        :y="y(relative(shape.barre.fret)) - 5"
-        :width="(shape.barre.to - shape.barre.from) * STEP_X + 10"
-        height="10" rx="5"
-        class="fill-accent"
-      />
-      <text
-        v-if="shape.barre"
-        :x="x(shape.barre.from)" :y="y(relative(shape.barre.fret)) + 3"
-        text-anchor="middle" class="fill-on-accent font-mono font-semibold" style="font-size: 8px"
-      >1</text>
-
-      <template v-for="d in dots" :key="'d' + d.i">
-        <circle :cx="x(d.i)" :cy="y(relative(d.fret))" r="5" class="fill-accent" />
+        <rect
+          v-if="shape.barre"
+          :x="x(shape.barre.from) - 6"
+          :y="y(relative(shape.barre.fret)) - 6"
+          :width="(shape.barre.to - shape.barre.from) * STEP_X + 12"
+          height="12" rx="6"
+          class="fill-accent shadow-xs"
+        />
         <text
-          v-if="d.finger"
-          :x="x(d.i)" :y="y(relative(d.fret)) + 3" text-anchor="middle"
-          class="fill-on-accent font-mono font-semibold" style="font-size: 8px"
-        >{{ d.finger }}</text>
-      </template>
+          v-if="shape.barre"
+          :x="x(shape.barre.from)" :y="y(relative(shape.barre.fret)) + 3.5"
+          text-anchor="middle" class="fill-on-accent font-mono font-bold" style="font-size: 9px"
+        >1</text>
+
+        <template v-for="d in dots" :key="'d' + d.i">
+          <circle :cx="x(d.i)" :cy="y(relative(d.fret))" r="5.8" class="fill-accent shadow-xs" />
+          <text
+            v-if="d.finger"
+            :x="x(d.i)" :y="y(relative(d.fret)) + 3.5" text-anchor="middle"
+            class="fill-on-accent font-mono font-bold" style="font-size: 9px"
+          >{{ d.finger }}</text>
+        </template>
       </svg>
-    </button>
+    </div>
 
-    <p class="font-mono text-[11px] tracking-wider text-faint">{{ tab }}</p>
+    <p class="font-mono text-xs font-bold tracking-widest text-muted/90">{{ tab }}</p>
 
-    <!-- Only worth showing when there is somewhere else to go. -->
+    <!-- Position Switcher (< 1/8 > Wider & Clear Buttons) -->
     <div
       v-if="switchable && shape.variants > 1"
-      class="mt-1 flex items-center justify-center gap-1"
+      class="mt-2 w-24 sm:w-28 flex items-center justify-between rounded-full border border-line-soft bg-surface/80 px-2 py-0.5 z-10 shadow-2xs hover:border-accent/40 transition-colors"
+      @click.stop
     >
       <button
         type="button" :aria-label="$t('chord.prevShape')"
-        class="flex h-5 w-5 items-center justify-center rounded text-faint transition-colors hover:bg-raised hover:text-ink"
+        class="flex size-5 items-center justify-center rounded-full text-xs font-bold text-muted transition-colors hover:bg-panel hover:text-accent active:bg-raised outline-none"
         @click.stop="step(-1)"
       >‹</button>
-      <span class="font-mono text-[10px] tabular-nums text-faint">
+
+      <span class="font-mono text-[11px] font-bold tabular-nums text-ink/75 px-1">
         {{ shape.variant + 1 }}/{{ shape.variants }}
       </span>
+
       <button
         type="button" :aria-label="$t('chord.nextShape')"
-        class="flex h-5 w-5 items-center justify-center rounded text-faint transition-colors hover:bg-raised hover:text-ink"
+        class="flex size-5 items-center justify-center rounded-full text-xs font-bold text-muted transition-colors hover:bg-panel hover:text-accent active:bg-raised outline-none"
         @click.stop="step(1)"
       >›</button>
     </div>

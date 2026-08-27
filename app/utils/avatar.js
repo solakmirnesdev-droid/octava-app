@@ -1,32 +1,25 @@
 /**
- * Stand-in portraits for artists with no photograph.
+ * Stand-in portraits for users and artists with no photograph.
  *
- * AI-DECISION: initials in a colour drawn from the name, not a generic icon.
- * All 139 artists shared one grey silhouette, so a list of them read as a page
- * that had failed to load rather than a catalogue. Initials make each row
- * recognisable at a glance and cost nothing to serve.
- *
- * The palette is fixed rather than a free hue, because an arbitrary hue lands
- * on colours that fight the terracotta accent. These eight are muted and warm
- * enough to sit beside it. See AI-NOTES.md §4.
+ * Modern adaptive palette that looks stunning in both light and dark mode
+ * using color-mix with transparency.
  */
 
 const PALETTE = [
-  '#b4472f', // the accent itself
-  '#a8664a', // clay
-  '#8a5a72', // plum
-  '#5b7186', // slate
-  '#7d8257', // olive
-  '#b08442', // ochre
-  '#6d8c76', // sage
-  '#9c5433'  // rust
+  '#3b82f6', // blue / cobalt
+  '#10b981', // emerald
+  '#8b5cf6', // violet
+  '#f59e0b', // amber
+  '#ec4899', // pink
+  '#06b6d4', // cyan
+  '#f97316', // orange
+  '#6366f1'  // indigo
 ];
 
 /**
- * Up to two initials.
- *
- * Bands keep their first two words ("Riblja Čorba" gives RČ) and single names
- * give one letter rather than a padded pair.
+ * Up to two uppercase initials.
+ * Bands keep their first two words ("Riblja Čorba" -> RČ) and single names
+ * give one uppercase letter.
  */
 export function initials(name) {
   if (!name) return '?';
@@ -37,10 +30,6 @@ export function initials(name) {
 
 /**
  * A stable colour for a name.
- *
- * AI-TRAP: this must stay a pure function of the name. Keying it on the id or
- * on list order would repaint an artist every time the data is reseeded, and
- * people recognise these by colour before they read them.
  */
 export function avatarColor(name) {
   let hash = 0;
@@ -48,8 +37,16 @@ export function avatarColor(name) {
   return PALETTE[hash % PALETTE.length];
 }
 
-/** Inline style for the fallback circle: tinted ground, solid letters. */
+/**
+ * Inline style for the fallback circle:
+ * Uses color-mix with transparent so on light mode it is a subtle refined pastel tint,
+ * and on dark mode it is a sleek translucent dark glowing badge with high contrast.
+ */
 export function avatarStyle(name) {
   const color = avatarColor(name);
-  return { backgroundColor: `color-mix(in srgb, ${color} 16%, white)`, color };
+  return {
+    backgroundColor: `color-mix(in srgb, ${color} 18%, transparent)`,
+    color: color,
+    borderColor: `color-mix(in srgb, ${color} 38%, transparent)`
+  };
 }

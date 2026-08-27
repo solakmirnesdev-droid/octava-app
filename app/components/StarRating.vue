@@ -84,45 +84,86 @@ async function submit(value) {
 <template>
   <div
     v-if="rating"
-    class="rounded-xl border border-line bg-panel/70 p-3.5 sm:p-4 backdrop-blur-xs transition-colors"
+    class="relative overflow-hidden rounded-2xl border border-line bg-gradient-to-r from-panel/95 via-panel/80 to-surface/90 p-4 sm:p-5 backdrop-blur-md shadow-xs transition-all"
   >
-    <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-      <!-- Left: Title, Score and Live Feedback/Hint -->
-      <div class="min-w-0">
-        <div class="flex flex-wrap items-center gap-x-2.5 gap-y-1">
-          <span class="text-xs font-semibold uppercase tracking-wider text-faint">
-            {{ $t('rating.title') }}
-          </span>
+    <!-- Background gold star watermark -->
+    <Icon
+      name="material-symbols:star-rounded"
+      class="pointer-events-none absolute -bottom-6 -right-6 select-none text-[120px] text-warn/4"
+      aria-hidden="true"
+    />
 
-          <span v-if="rating.count > 0" class="flex items-center gap-1 font-mono text-xs">
-            <span class="font-bold text-ink">{{ rating.average.toFixed(1) }}</span>
-            <span class="text-faint">/ 5</span>
-            <span class="text-dim">·</span>
-            <span class="text-muted">{{ $t('rating.count', rating.count, { n: rating.count }) }}</span>
-          </span>
-          <span v-else class="text-xs text-faint">
-            — {{ $t('rating.count', 0, { n: 0 }) }}
+    <div class="relative z-10 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-4 lg:gap-6 items-center">
+      <!-- 1. Left Zone: Score Pill, Title & Feedback (4 cols) -->
+      <div class="lg:col-span-4 flex items-center gap-3.5 min-w-0">
+        <div class="flex shrink-0 items-center gap-1.5 rounded-2xl border border-warn/30 bg-warn-soft/80 px-3.5 py-2 text-warn shadow-2xs">
+          <Icon name="material-symbols:star-rounded" class="text-lg" />
+          <span class="font-mono text-lg sm:text-xl font-bold leading-none">
+            {{ rating.count > 0 ? rating.average.toFixed(1) : '–' }}
           </span>
         </div>
 
-        <p class="mt-1 text-xs transition-colors">
-          <span v-if="hovered" class="font-medium text-warn">
-            {{ hoverLabel }}
-          </span>
-          <span v-else-if="isMine" class="font-medium text-accent">
-            {{ $t('rating.yourRating') }}: {{ rating.mine }} / 5
-          </span>
-          <span v-else class="text-muted">
-            {{ $t('rating.hint') }}
-          </span>
-        </p>
+        <div class="min-w-0">
+          <div class="flex items-center gap-2">
+            <h3 class="text-sm font-bold text-ink tracking-tight">
+              {{ $t('rating.title') }}
+            </h3>
+            <span class="rounded-full border border-line-soft bg-surface/70 px-2 py-0.5 text-[10px] font-mono text-faint">
+              {{ rating.count > 0 ? $t('rating.count', rating.count, { n: rating.count }) : '0 ocjena' }}
+            </span>
+          </div>
+
+          <p class="mt-0.5 text-xs text-muted truncate">
+            <span v-if="hovered" class="font-semibold text-warn">
+              {{ hoverLabel }}
+            </span>
+            <span v-else-if="isMine" class="inline-flex items-center gap-1 font-semibold text-accent">
+              <Icon name="material-symbols:check-circle-rounded" class="text-xs" />
+              Tvoja ocjena: {{ rating.mine }} / 5 ★
+            </span>
+            <span v-else>
+              {{ $t('rating.hint') }}
+            </span>
+          </p>
+        </div>
       </div>
 
-      <!-- Right: Interactive Stars Container & Actions -->
-      <div class="flex flex-wrap items-center gap-3 self-start sm:self-auto">
-        <!-- 5 Interactive Stars -->
+      <!-- 2. Middle Zone: Accuracy Quality Badges (4 cols) -->
+      <div class="lg:col-span-4 hidden lg:flex flex-wrap items-center justify-center gap-2 text-[11px] font-medium text-body">
+        <span class="inline-flex items-center gap-1.5 rounded-lg border border-line bg-surface/80 px-2.5 py-1 shadow-2xs">
+          <!-- Musical Key / Tuning Note SVG -->
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="size-3.5 text-accent shrink-0" aria-hidden="true">
+            <path d="M9 18V5l12-2v13" />
+            <circle cx="6" cy="18" r="3" fill="currentColor" />
+            <circle cx="18" cy="16" r="3" fill="currentColor" />
+          </svg>
+          <span>Originalni tonalitet</span>
+        </span>
+
+        <span class="inline-flex items-center gap-1.5 rounded-lg border border-line bg-surface/80 px-2.5 py-1 shadow-2xs">
+          <!-- Document / Lyrics Checkmark SVG -->
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="size-3.5 text-ok shrink-0" aria-hidden="true">
+            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+            <polyline points="14 2 14 8 20 8" />
+            <path d="m9 15 2 2 4-4" />
+          </svg>
+          <span>Tačan tekst</span>
+        </span>
+
+        <span class="inline-flex items-center gap-1.5 rounded-lg border border-line bg-surface/80 px-2.5 py-1 shadow-2xs">
+          <!-- Chords / Harmonic Bars Wave SVG -->
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="size-3.5 text-warn shrink-0" aria-hidden="true">
+            <path d="M4 14v-4m4 7V7m4 12V5m4 10V9m4 4v-2" />
+          </svg>
+          <span>Harmonizacija</span>
+        </span>
+      </div>
+
+      <!-- 3. Right Zone: Interactive Rating Stars & Actions (4 cols) -->
+      <div class="lg:col-span-4 flex items-center justify-start lg:justify-end gap-2.5">
+        <!-- 5 Interactive Star Rating Buttons -->
         <div
-          class="flex items-center gap-0.5 rounded-lg border border-line-strong/50 bg-surface/90 p-1"
+          class="flex items-center gap-0.5 rounded-xl border border-line-strong/40 bg-surface/90 p-1 shadow-2xs"
           role="radiogroup"
           :aria-label="$t('rating.title')"
           @mouseleave="hovered = 0"
@@ -134,43 +175,45 @@ async function submit(value) {
             :aria-checked="rating.mine === star"
             :aria-label="$t('rating.star', { n: star })"
             :disabled="saving || !auth.isAuthenticated"
-            class="group relative flex size-7 items-center justify-center rounded transition-all duration-150 active:scale-90 disabled:cursor-default"
+            class="group relative flex size-8 sm:size-8.5 items-center justify-center rounded-lg transition-colors duration-150 disabled:cursor-default"
             :class="[
               star <= displayed
                 ? (isMine && !hovered ? 'text-accent' : 'text-warn')
                 : 'text-dim hover:text-warn/60',
-              auth.isAuthenticated && 'hover:scale-125 hover:bg-raised'
+              auth.isAuthenticated && 'hover:bg-raised'
             ]"
             @mouseenter="auth.isAuthenticated && (hovered = star)"
             @click="submit(star)"
           >
-            <Icon name="material-symbols:star-rounded" class="text-xl" />
+            <Icon name="material-symbols:star-rounded" class="text-lg sm:text-xl" />
           </button>
         </div>
 
-        <!-- Auth / Reset Action -->
+        <!-- Withdraw / Retract Action if voted -->
+        <button
+          v-if="isMine"
+          type="button"
+          class="inline-flex items-center gap-1 rounded-xl border border-line bg-surface/60 px-2.5 py-2 text-xs text-faint hover:border-danger/40 hover:text-danger transition-colors font-medium shadow-2xs"
+          :title="$t('rating.remove')"
+          @click="submit(rating.mine)"
+        >
+          <Icon name="material-symbols:restart-alt-rounded" class="text-xs" />
+          <span>{{ $t('rating.remove') }}</span>
+        </button>
+
+        <!-- Sign-in prompt if visitor -->
+        <NuxtLink
+          v-else-if="!auth.isAuthenticated"
+          :to="localePath({ path: '/prijava', query: { redirect: route.fullPath } })"
+          class="inline-flex items-center gap-1.5 rounded-xl border border-accent/30 bg-accent-soft px-3 py-2 text-xs font-semibold text-accent hover:bg-accent hover:text-on-accent transition-all shadow-2xs"
+        >
+          <Icon name="material-symbols:login-rounded" class="text-sm" />
+          <span>{{ $t('rating.signInToRate') }}</span>
+        </NuxtLink>
+
+        <!-- Error alert -->
         <div v-if="failed" role="alert" class="text-xs font-medium text-danger">
           {{ $t('rating.failed') }}
-        </div>
-
-        <div v-else-if="isMine">
-          <button
-            type="button"
-            class="text-xs text-faint hover:text-accent hover:underline transition"
-            :title="$t('rating.remove')"
-            @click="submit(rating.mine)"
-          >
-            {{ $t('rating.remove') }}
-          </button>
-        </div>
-
-        <div v-else-if="!auth.isAuthenticated">
-          <NuxtLink
-            :to="localePath({ path: '/prijava', query: { redirect: route.fullPath } })"
-            class="rounded border border-line-strong bg-panel px-2.5 py-1 text-xs text-muted hover:border-accent hover:text-accent transition"
-          >
-            {{ $t('rating.signInToRate') }}
-          </NuxtLink>
         </div>
       </div>
     </div>

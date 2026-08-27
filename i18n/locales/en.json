@@ -127,7 +127,16 @@
     "save": "Save",
     "dismiss": "Dismiss",
     "cancel": "Cancel",
-    "confirm": "Confirm"
+    "confirm": "Confirm",
+    "viewGrid": "Grid",
+    "viewList": "List",
+    "searchPlaceholder": "Search songs...",
+    "sortPopular": "Popular",
+    "sortRating": "Top Rated",
+    "sortTitle": "A–Z",
+    "filterCount": "Showing {count} of {total} songs",
+    "resetFilter": "Reset filter",
+    "noMatchingSongs": "No songs match your search."
   },
   "rating": {
     "title": "Chord accuracy",
@@ -152,11 +161,13 @@
     "retractedToast": "Rating removed"
   },
   "genre": {
+    "rubrics": "Genre",
+    "featuredSongs": "Featured Songs",
     "spotlight": "Genre Spotlight",
     "topArtists": "Top Artists",
     "popularKeys": "Popular Keys",
     "relatedGenres": "Related Genres",
-    "searchPlaceholder": "Filter songs or artists…",
+    "searchPlaceholder": "Filter songs…",
     "songCount": "{n} songs",
     "artistCount": "{n} artists",
     "sortRecent": "Latest",
@@ -211,7 +222,10 @@
     "metronome": "Metronome",
     "metronomeLead": "Set the tempo, press space, and play along.",
     "chordHear": "Press any diagram to hear how it sounds.",
-    "songbook": "Songbook"
+    "songbook": "Songbook",
+    "allCountries": "All countries",
+    "searchCorrected": "Nothing matches {typed}. Showing results for {suggestion} instead.",
+    "chordsInRoot": "Chords in {root}"
   },
   "auth": {
     "signInLead": "Sign in to save songs.",

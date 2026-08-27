@@ -111,13 +111,64 @@ export default defineNuxtConfig({
   icon: {
     mode: 'svg',
     // 'local' reads the @iconify-json packages already installed here.
-    // Naming collections explicitly instead makes the module try to fetch them
-    // from the Iconify service at build time, which silently produced empty
-    // icons: correct size, correct colour, no paths inside.
     serverBundle: 'local',
-    // Scanned from source so client-side navigation has them too, without
-    // a request.
-    clientBundle: { scan: true },
+    // Explicit list + scanning so every navigation and dynamic icon is pre-bundled.
+    clientBundle: {
+      scan: true,
+      icons: [
+        'material-symbols:mic-rounded',
+        'material-symbols:library-music-rounded',
+        'material-symbols:graphic-eq-rounded',
+        'material-symbols:timer-rounded',
+        'material-symbols:note-add-rounded',
+        'material-symbols:favorite-outline-rounded',
+        'material-symbols:favorite-rounded',
+        'material-symbols:star-rounded',
+        'material-symbols:restart-alt-rounded',
+        'material-symbols:search-rounded',
+        'material-symbols:close-rounded',
+        'material-symbols:menu-rounded',
+        'material-symbols:login-rounded',
+        'material-symbols:logout-rounded',
+        'material-symbols:music-note-rounded',
+        'material-symbols:visibility-outline-rounded',
+        'material-symbols:artist-rounded',
+        'material-symbols:language',
+        'material-symbols:brightness-auto-outline',
+        'material-symbols:light-mode-outline',
+        'material-symbols:dark-mode-outline',
+        'material-symbols:category-rounded',
+        'material-symbols:piano-rounded',
+        'material-symbols:local-fire-department-rounded',
+        'material-symbols:play-arrow-rounded',
+        'material-symbols:pause-rounded',
+        'material-symbols:volume-up-outline-rounded',
+        'material-symbols:print-outline-rounded',
+        'material-symbols:grid-view-rounded',
+        'material-symbols:view-list-rounded',
+        'material-symbols:label-outline-rounded',
+        'material-symbols:filter-list-rounded',
+        'material-symbols:location-on-rounded',
+        'material-symbols:history-rounded',
+        'material-symbols:check-circle-rounded',
+        'material-symbols:mic-rounded',
+        'material-symbols:mic-off-rounded',
+        'material-symbols:tune-rounded',
+        'material-symbols:headphones-rounded',
+        'material-symbols:person-rounded',
+        'material-symbols:account-circle-outline-rounded',
+        'material-symbols:badge-outline-rounded',
+        'material-symbols:mail-outline-rounded',
+        'material-symbols:lock-outline-rounded',
+        'material-symbols:upload-rounded',
+        'material-symbols:delete-outline-rounded',
+        'material-symbols:check-rounded',
+        'material-symbols:error-rounded',
+        'material-symbols:warning-rounded',
+        'material-symbols:mail-rounded',
+        'material-symbols:key-rounded'
+      ]
+    },
     // Matches the surrounding text by default; override per use with a class.
     size: '1.25em',
     class: 'align-[-0.15em] shrink-0'

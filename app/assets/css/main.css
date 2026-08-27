@@ -55,9 +55,13 @@
   --font-mono: "JetBrains Mono", ui-monospace, "SF Mono", monospace;
 }
 
+html {
+  font-size: 15px;
+}
+
 :root {
-  /* Follow the operating system until the reader says otherwise. */
-  color-scheme: light dark;
+  /* Default to dark color scheme */
+  color-scheme: dark;
 
   /* Grounds. Warm on both sides — a blue-black would fight the terracotta. */
   --surface: light-dark(#faf8f5, #16130f);

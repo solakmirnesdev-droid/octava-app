@@ -46,19 +46,29 @@ const missing = computed(() => chords.value.filter((c) => !findFingering(c)));
 </script>
 
 <template>
-  <div class="rounded-lg border border-line bg-panel p-4">
-    <div class="grid grid-cols-2 gap-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
+  <div class="rounded-3xl border border-line/75 bg-gradient-to-br from-panel/95 via-panel/80 to-surface/90 p-5 sm:p-6 backdrop-blur-md shadow-sm">
+    <div class="mb-4 flex items-center justify-between">
+      <div class="flex items-center gap-2">
+        <Icon name="material-symbols:grid-view-rounded" class="text-accent text-lg" />
+        <h3 class="text-xs font-bold uppercase tracking-wider text-faint">{{ $t('song.allChords') }}</h3>
+      </div>
+      <span class="text-xs font-mono text-faint">{{ playable.length }} akorda</span>
+    </div>
+
+    <div class="grid grid-cols-2 gap-3 sm:gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
       <div
         v-for="chord in playable" :key="chord"
-        class="flex justify-center rounded border border-line py-2"
+        class="group relative flex flex-col items-center justify-between rounded-2xl border border-line/75 bg-surface/85 p-3.5 sm:p-4 backdrop-blur-md shadow-xs transition-colors duration-200 hover:border-accent/60 hover:bg-panel hover:shadow-md overflow-hidden"
       >
+        <div class="pointer-events-none absolute -right-8 -top-8 size-20 rounded-full bg-accent/5 blur-xl group-hover:bg-accent/15 transition-colors" />
         <ChordDiagram :symbol="chord" />
       </div>
     </div>
 
-    <p v-if="missing.length" class="mt-3 text-xs text-faint">{{ $t('song.noDiagrams') }} <span class="font-mono">{{ missing.join(', ') }}</span>
+    <p v-if="missing.length" class="mt-4 text-xs text-faint border-t border-line-soft pt-3">
+      {{ $t('song.noDiagrams') }} <span class="font-mono text-muted">{{ missing.join(', ') }}</span>
     </p>
-    <p v-if="!playable.length" class="text-sm text-faint">
+    <p v-if="!playable.length" class="text-sm text-faint py-4 text-center">
       {{ $t('song.noChords') }}
     </p>
   </div>

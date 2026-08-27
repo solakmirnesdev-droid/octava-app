@@ -90,12 +90,12 @@ function pluckBuffer(context, frequency, brightness) {
  * their own singing. Raising every string by the capo fret is the whole
  * correction, and it is exact: a capo is a movable nut.
  */
-export function strum(frets, { direction = 'down', volume = 0.7, capo = 0 } = {}) {
+export function strum(frets, { direction = 'down', volume = 0.7, capo = 0, tuning = TUNING } = {}) {
   const context = audio();
   if (!context || !Array.isArray(frets)) return false;
 
   const strings = frets
-    .map((fret, i) => (fret === null ? null : { i, midi: TUNING[i] + capo + fret }))
+    .map((fret, i) => (fret === null ? null : { i, midi: tuning[i] + capo + fret }))
     .filter(Boolean);
   if (!strings.length) return false;
 
@@ -109,7 +109,7 @@ export function strum(frets, { direction = 'down', volume = 0.7, capo = 0 } = {}
 
     const gain = context.createGain();
     // The bass strings carry more energy, so they need less gain to sit level.
-    const level = volume * (0.55 + (5 - string.i) * 0.03);
+    const level = volume * (0.55 + (tuning.length - 1 - string.i) * 0.03);
     const at = start + n * STRUM;
 
     gain.gain.setValueAtTime(0, at);

@@ -37,12 +37,12 @@ async function signOut() {
 <template>
   <button
     type="button"
-    class="flex shrink-0 items-center gap-1.5 rounded text-body hover:bg-raised hover:text-accent"
-    :class="block ? 'w-full px-2 py-2.5 text-left' : 'px-2 py-1.5'"
+    class="flex shrink-0 items-center gap-1.5 rounded-xl border border-transparent text-xs font-semibold text-muted outline-none transition-all duration-150 hover:border-line hover:bg-panel hover:text-ink focus-visible:ring-2 focus-visible:ring-accent/40"
+    :class="block ? 'w-full px-3 py-2.5 text-left' : 'h-8.5 px-2.5'"
     :title="$t('nav.logout')"
     @click="asking = true"
   >
-    <Icon name="material-symbols:logout-rounded" :class="block ? 'text-lg' : ''" />
+    <Icon name="material-symbols:logout-rounded" :class="block ? 'text-lg' : 'text-base'" />
     <span>{{ $t('nav.logout') }}</span>
   </button>
 

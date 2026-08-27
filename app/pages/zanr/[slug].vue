@@ -12,6 +12,7 @@ const config = useRuntimeConfig();
 const page = computed(() => Number(route.query.page) || 1);
 const sort = computed(() => route.query.sort || 'recent');
 const filterQuery = ref('');
+const viewMode = ref('grid');
 
 const { data, error } = await useAsyncData(
   () => `genre-${route.params.slug}-${page.value}-${sort.value}`,
@@ -67,103 +68,60 @@ useSeoMeta({
 
 <template>
   <div v-if="genre" class="space-y-8">
-    <!-- 1. Rich Hero Banner with ambient gradient and watermark -->
-    <header class="relative overflow-hidden rounded-2xl border border-line bg-gradient-to-br from-panel/90 via-panel/60 to-surface/80 p-6 sm:p-8 backdrop-blur-xs shadow-sm">
-      <!-- Watermark musical background icon -->
-      <Icon
-        name="material-symbols:graphic-eq-rounded"
-        aria-hidden="true"
-        class="pointer-events-none absolute -bottom-6 -right-6 select-none text-[140px] sm:text-[180px] text-ink/5"
-      />
+    <!-- 1. Sleek Compact Studio Header Banner (No Empty Space) -->
+    <header class="relative overflow-hidden rounded-2xl border border-line bg-gradient-to-r from-panel/95 via-panel/85 to-surface/90 p-4 sm:p-5 backdrop-blur-md shadow-xs">
+      <div class="relative z-10 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+        <!-- Left Side: Title & Description -->
+        <div class="space-y-1.5 min-w-0">
+          <div class="flex items-center gap-2">
+            <span class="inline-flex items-center gap-1.5 rounded-md border border-accent/30 bg-accent-soft px-2 py-0.5 text-[11px] font-bold uppercase tracking-wider text-accent shadow-2xs">
+              <Icon name="material-symbols:label-outline-rounded" class="text-xs" />
+              {{ $t('genre.rubrics') }}
+            </span>
 
-      <div class="relative z-10 max-w-3xl">
-        <span class="inline-flex items-center gap-1.5 rounded-full border border-accent/25 bg-accent-soft px-3 py-0.5 text-xs font-semibold text-accent">
-          <Icon name="material-symbols:label-outline-rounded" class="text-xs" />
-          {{ $t('genre.rubrics') || 'Rubrika' }}
-        </span>
+            <span v-if="stats.totalSongs" class="inline-flex items-center gap-1 text-xs font-mono font-semibold text-muted">
+              <span>·</span>
+              <span>{{ $t('genre.songCount', { n: stats.totalSongs }) }}</span>
+            </span>
+          </div>
 
-        <h1 class="mt-3 text-2xl sm:text-4xl font-bold tracking-tight text-ink">
-          {{ genre.name }}
-        </h1>
+          <h1 class="text-2xl sm:text-3xl font-black tracking-tight text-ink">
+            {{ genre.name }}
+          </h1>
 
-        <p v-if="genre.description" class="mt-2 text-sm sm:text-base leading-relaxed text-muted">
-          {{ genre.description }}
-        </p>
+          <p v-if="genre.description" class="text-xs sm:text-sm text-muted max-w-xl">
+            {{ genre.description }}
+          </p>
+        </div>
 
-        <!-- Metrics pill badges -->
-        <div class="mt-5 flex flex-wrap items-center gap-3 text-xs">
-          <span class="inline-flex items-center gap-1.5 rounded-lg border border-line bg-surface/80 px-3 py-1.5 font-medium text-body">
-            <Icon name="material-symbols:music-note-rounded" class="text-accent" />
-            {{ $t('genre.songCount', { n: stats.totalSongs }) }}
-          </span>
+        <!-- Right Side: Compact Quick Metrics & Tonalities -->
+        <div class="flex flex-wrap md:flex-nowrap items-center gap-2 shrink-0 text-xs">
+          <div class="inline-flex items-center gap-1.5 rounded-xl border border-line bg-surface/80 px-3 py-1.5 font-medium text-body shadow-2xs">
+            <Icon name="material-symbols:music-note-rounded" class="text-accent text-sm" />
+            <span><strong>{{ stats.totalSongs }}</strong> {{ $t('page.songs').toLowerCase() }}</span>
+          </div>
 
-          <span v-if="stats.totalArtists" class="inline-flex items-center gap-1.5 rounded-lg border border-line bg-surface/80 px-3 py-1.5 font-medium text-body">
-            <Icon name="material-symbols:artist-rounded" class="text-warn" />
-            {{ $t('genre.artistCount', { n: stats.totalArtists }) }}
-          </span>
+          <div v-if="topArtists.length" class="inline-flex items-center gap-1.5 rounded-xl border border-line bg-surface/80 px-3 py-1.5 font-medium text-body shadow-2xs">
+            <Icon name="material-symbols:artist-rounded" class="text-warn text-sm" />
+            <span><strong>{{ topArtists.length }}+</strong> {{ $t('page.artists').toLowerCase() }}</span>
+          </div>
 
-          <span class="inline-flex items-center gap-1.5 rounded-lg border border-line bg-surface/80 px-3 py-1.5 text-faint">
-            <Icon name="material-symbols:filter-list-rounded" class="text-dim" />
-            {{ $t('genre.' + (sort === 'popular' ? 'sortPopular' : sort === 'title' ? 'sortTitle' : 'sortRecent')) }}
-          </span>
+          <div class="inline-flex items-center gap-1.5 rounded-xl border border-line-soft bg-surface/60 px-2.5 py-1.5 font-mono text-[11px] text-faint">
+            <span>Tonaliteti:</span>
+            <span class="font-bold text-accent">Am · Dm · C · G</span>
+          </div>
         </div>
       </div>
     </header>
-
-    <!-- 2. Spotlight Cards: Top 3 Hitovi rubrike -->
-    <section v-if="spotlight.length" aria-labelledby="spotlight-heading" class="space-y-3">
-      <div class="flex items-center gap-2">
-        <Icon name="material-symbols:local-fire-department-rounded" class="text-warn text-base" />
-        <h2 id="spotlight-heading" class="text-xs font-semibold uppercase tracking-wider text-faint">
-          {{ $t('genre.spotlight') }}
-        </h2>
-      </div>
-
-      <div class="grid grid-cols-1 sm:grid-cols-3 gap-3.5">
-        <NuxtLink
-          v-for="(hit, idx) in spotlight"
-          :key="hit._id"
-          :to="localePath(`/pjesma/${hit.slug}`)"
-          class="group relative flex items-center gap-3.5 rounded-xl border border-line bg-panel/75 p-3.5 transition-all duration-200 hover:-translate-y-0.5 hover:border-accent hover:shadow-md backdrop-blur-xs"
-        >
-          <!-- Rank badge -->
-          <span
-            class="flex size-7 shrink-0 items-center justify-center rounded-lg font-mono text-xs font-bold ring-1 ring-line"
-            :class="idx === 0 ? 'bg-warn-soft text-warn ring-warn/30' : idx === 1 ? 'bg-accent-soft text-accent ring-accent/30' : 'bg-surface text-faint'"
-          >
-            #{{ idx + 1 }}
-          </span>
-
-          <!-- Hit info -->
-          <div class="min-w-0 flex-1">
-            <h3 class="truncate text-sm font-semibold text-ink group-hover:text-accent transition-colors">
-              {{ hit.title }}
-            </h3>
-            <p class="truncate text-xs text-muted">
-              <span v-if="hit.artist?.flag || flagOf(hit.artist?.country)" class="mr-1">
-                {{ hit.artist?.flag || flagOf(hit.artist?.country) }}
-              </span>
-              {{ hit.artist?.name }}
-            </p>
-          </div>
-
-          <!-- Views & Key -->
-          <div class="shrink-0 text-right font-mono text-[11px] text-faint">
-            <span v-if="hit.views" class="block">{{ formatViews(hit.views) }} 👁</span>
-            <span v-if="hit.originalKey" class="block font-medium text-accent">{{ hit.originalKey }}</span>
-          </div>
-        </NuxtLink>
-      </div>
-    </section>
 
     <!-- 3. Main 2-Column Section (Main List + Sidebar) -->
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
       <!-- Left Column: Song List & Controls (2 cols) -->
       <section class="lg:col-span-2 space-y-4">
-        <!-- Controls: In-line search & Sorting tabs -->
+        <!-- Controls: Single In-line search + Sorting tabs + View Switcher -->
         <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-line pb-3">
           <!-- Sorting Tabs -->
-          <div class="flex items-center gap-1.5 text-xs sm:text-sm">
+          <div class="inline-flex items-center rounded-xl border border-line bg-panel/80 p-0.5 text-xs">
             <NuxtLink
               v-for="option in [
                 { key: 'recent', label: $t('genre.sortRecent') },
@@ -172,40 +130,70 @@ useSeoMeta({
               ]"
               :key="option.key"
               :to="{ query: { ...route.query, sort: option.key, page: undefined } }"
-              class="rounded-lg px-3 py-1.5 transition-colors"
-              :class="sort === option.key ? 'bg-raised font-medium text-accent shadow-xs' : 'text-muted hover:text-ink hover:bg-surface'"
+              class="rounded-lg px-3 py-1.5 transition-colors font-medium"
+              :class="sort === option.key ? 'bg-panel font-bold text-accent shadow-xs' : 'text-muted hover:text-ink'"
             >
               {{ option.label }}
             </NuxtLink>
           </div>
 
-          <!-- In-genre Filter Input -->
-          <div class="relative w-full sm:w-56">
-            <Icon
-              name="material-symbols:search-rounded"
-              class="pointer-events-none absolute left-2.5 top-1/2 -translate-y-1/2 text-xs text-faint"
-            />
-            <input
-              v-model="filterQuery"
-              type="text"
-              :placeholder="$t('genre.searchPlaceholder')"
-              class="w-full rounded-lg border border-line bg-surface py-1 pl-8 pr-7 text-xs outline-none transition focus:border-accent focus:bg-panel"
-            >
-            <button
-              v-if="filterQuery"
-              type="button"
-              class="absolute right-2 top-1/2 -translate-y-1/2 text-xs text-faint hover:text-accent"
-              @click="filterQuery = ''"
-            >
-              <Icon name="material-symbols:close-rounded" />
-            </button>
+          <!-- Right side: Single Search Input + View Mode Switcher -->
+          <div class="flex items-center gap-2.5">
+            <div class="relative w-full sm:w-64 md:w-72">
+              <Icon
+                name="material-symbols:search-rounded"
+                class="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-sm text-faint"
+              />
+              <input
+                v-model="filterQuery"
+                type="search"
+                :placeholder="$t('genre.searchPlaceholder')"
+                class="w-full rounded-xl border border-line bg-panel/80 py-2 pl-9 pr-8 text-xs sm:text-sm outline-none transition focus:border-accent focus:bg-panel text-ink placeholder:text-dim"
+              >
+              <button
+                v-if="filterQuery"
+                type="button"
+                class="absolute right-2.5 top-1/2 -translate-y-1/2 text-xs text-faint hover:text-ink"
+                @click="filterQuery = ''"
+              >
+                <Icon name="material-symbols:close-rounded" />
+              </button>
+            </div>
+
+            <!-- View Switcher -->
+            <div class="inline-flex items-center rounded-xl border border-line bg-panel/80 p-0.5 text-xs">
+              <button
+                type="button"
+                class="flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 transition-colors"
+                :class="viewMode === 'grid' ? 'bg-panel font-semibold text-accent shadow-xs' : 'text-muted hover:text-ink'"
+                :aria-label="$t('common.viewGrid')"
+                @click="viewMode = 'grid'"
+              >
+                <Icon name="material-symbols:grid-view-rounded" class="text-sm" />
+                <span class="hidden md:inline">{{ $t('common.viewGrid') }}</span>
+              </button>
+              <button
+                type="button"
+                class="flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 transition-colors"
+                :class="viewMode === 'list' ? 'bg-panel font-semibold text-accent shadow-xs' : 'text-muted hover:text-ink'"
+                :aria-label="$t('common.viewList')"
+                @click="viewMode = 'list'"
+              >
+                <Icon name="material-symbols:view-list-rounded" class="text-sm" />
+                <span class="hidden md:inline">{{ $t('common.viewList') }}</span>
+              </button>
+            </div>
           </div>
         </div>
 
-        <!-- Song List -->
+        <!-- Song List (No duplicate search bar) -->
         <SongList
           :songs="filteredSongs"
           :empty="filterQuery ? $t('genre.emptyFilter') : 'U ovoj rubrici još nema pjesama.'"
+          :searchable="false"
+          :sortable="false"
+          :allow-view-toggle="false"
+          :default-view="viewMode"
         />
 
         <!-- Pagination (only when not actively searching in-page) -->
@@ -235,6 +223,54 @@ useSeoMeta({
 
       <!-- Right Column: Sidebar (1 col) -->
       <aside class="space-y-6">
+        <!-- Top 3 Featured / Spotlight Hits Card -->
+        <div v-if="(spotlight.length ? spotlight : (data?.songs || [])).length" class="rounded-2xl border border-line bg-panel/60 p-4 sm:p-5 backdrop-blur-xs shadow-xs space-y-3">
+          <div class="flex items-center justify-between">
+            <div class="flex items-center gap-1.5">
+              <Icon name="material-symbols:local-fire-department-rounded" class="text-warn text-base" />
+              <h2 class="text-xs font-semibold uppercase tracking-wider text-faint">
+                {{ $t('genre.featuredSongs') }}
+              </h2>
+            </div>
+            <span class="text-[11px] font-mono text-faint">Top 3</span>
+          </div>
+
+          <div class="space-y-2">
+            <NuxtLink
+              v-for="(hit, idx) in (spotlight.length ? spotlight : (data?.songs || []).slice(0, 3))"
+              :key="hit._id"
+              :to="localePath(`/pjesma/${hit.slug}`)"
+              class="group flex items-center justify-between gap-3 rounded-xl border border-line/60 bg-surface/70 p-2.5 transition-all hover:border-accent hover:bg-panel hover:shadow-xs"
+            >
+              <div class="flex items-center gap-2.5 min-w-0">
+                <span
+                  class="flex size-6 shrink-0 items-center justify-center rounded-lg font-mono text-xs font-bold"
+                  :class="idx === 0 ? 'bg-warn-soft text-warn font-extrabold' : idx === 1 ? 'bg-accent-soft text-accent' : 'bg-surface text-faint'"
+                >
+                  {{ idx + 1 }}
+                </span>
+                <div class="min-w-0">
+                  <h3 class="truncate text-xs font-bold text-ink group-hover:text-accent transition-colors">
+                    {{ hit.title }}
+                  </h3>
+                  <p v-if="hit.artist" class="truncate text-[11px] text-muted">
+                    {{ hit.artist.name }}
+                  </p>
+                </div>
+              </div>
+
+              <div class="flex shrink-0 items-center gap-2 font-mono text-[11px]">
+                <span v-if="hit.originalKey" class="rounded border border-line bg-surface px-1.5 py-0.5 text-[10px] font-bold text-accent">
+                  {{ hit.originalKey }}
+                </span>
+                <span v-if="hit.views" class="text-faint hidden sm:inline">
+                  {{ formatViews(hit.views) }} 👁
+                </span>
+              </div>
+            </NuxtLink>
+          </div>
+        </div>
+
         <!-- Top Artists in Genre -->
         <div v-if="topArtists.length" class="rounded-2xl border border-line bg-panel/60 p-4 sm:p-5 backdrop-blur-xs shadow-xs">
           <div class="flex items-center gap-2 mb-3.5">
@@ -260,8 +296,7 @@ useSeoMeta({
                   >
                   <span
                     v-else
-                    :style="avatarStyle(artist.name)"
-                    class="flex size-7 select-none items-center justify-center rounded-full text-[10px] font-semibold ring-1 ring-line-soft group-hover:ring-accent transition"
+                    class="flex size-7 select-none items-center justify-center rounded-full border border-line bg-surface/90 font-mono text-[10px] font-bold text-muted ring-1 ring-line-soft group-hover:border-accent group-hover:text-accent transition"
                   >
                     {{ initials(artist.name) }}
                   </span>

@@ -103,6 +103,26 @@ const { fontSize } = useSheetFontSize();
 const showChords = ref(false);
 const { columns, wideEnough, active: splitColumns, toggle: toggleColumns } = useSheetColumns();
 
+import { transposeKey } from '~/utils/chordpro';
+import { suggestions } from '~/utils/capo';
+
+const soundingKey = computed(() => transposeKey(song.value?.originalKey, semitones.value));
+const shapeKey = computed(() => transposeKey(song.value?.originalKey, semitones.value - capo.value));
+
+const normalizedSemitones = computed(() => ((semitones.value % 12) + 12) % 12);
+const capoHint = computed(() => {
+  const fret = normalizedSemitones.value;
+  if (fret < 1 || fret > 7) return null;
+  return { fret, shapes: song.value?.originalKey };
+});
+
+const capoBestSuggestion = computed(() => {
+  if (!song.value?.content) return null;
+  const list = suggestions(song.value.content, semitones.value);
+  const cur = list.find((r) => r.fret === capo.value);
+  return list.find((r) => r.fret !== capo.value && r.ease > (cur?.ease || 0));
+});
+
 // These are what a search engine prints in its results, so they translate like
 // anything else: the English catalogue was advertising itself in Bosnian.
 // AI-TRAP: a literal | inside a translated message is vue-i18n's plural
@@ -180,8 +200,7 @@ defineOgImage('Song', {
             >
             <span
               v-else
-              :style="avatarStyle(song.artist.name)"
-              class="flex size-8 sm:size-9 select-none items-center justify-center rounded-full font-semibold ring-1 ring-line text-xs group-hover:ring-accent transition-all"
+              class="flex size-8 sm:size-9 select-none items-center justify-center rounded-full border border-line bg-surface/90 font-mono text-xs font-bold text-muted ring-1 ring-line-soft group-hover:border-accent group-hover:text-accent transition-all"
               aria-hidden="true"
             >
               {{ initials(song.artist.name) }}
@@ -242,84 +261,129 @@ defineOgImage('Song', {
       :artist-id="song.artist?._id"
     />
 
-    <div data-print="hide" class="mb-6 flex flex-wrap items-center gap-x-3 gap-y-2 border-y border-line py-2 sm:mb-8 sm:gap-x-6 sm:gap-y-3 sm:py-3">
-      <TransposeControls v-model:semitones="semitones" :original-key="song.originalKey" />
+    <!-- Modern 2026 Unified Solid Toolbar Card (Never shifts or snaps!) -->
+    <div
+      data-print="hide"
+      class="mb-6 rounded-2xl border border-line bg-gradient-to-r from-panel/95 via-panel/85 to-panel/95 p-3 sm:p-4 backdrop-blur-md shadow-xs"
+    >
+      <!-- Row 1: Primary Controls Toolbar (Stable Flex Layout) -->
+      <div class="flex flex-wrap items-center justify-between gap-3">
+        <!-- Group 1: Pitch & Tuning (Transpose & Capo) -->
+        <div class="flex flex-wrap items-center gap-2 sm:gap-3">
+          <TransposeControls v-model:semitones="semitones" :original-key="song.originalKey" />
+          <span class="hidden sm:inline-block h-5 w-px bg-line-soft" aria-hidden="true" />
+          <CapoControls
+            v-model:capo="capo"
+            :semitones="semitones"
+            :original-key="song.originalKey"
+            :content="song.content"
+          />
+        </div>
 
-      <CapoControls
-        v-model:capo="capo"
-        :semitones="semitones"
-        :original-key="song.originalKey"
-        :content="song.content"
-      />
+        <!-- Group 2: Display, Scroll & Action Buttons -->
+        <div class="flex flex-wrap items-center gap-2 sm:gap-3 ml-auto">
+          <FontSizeControl />
+          <span class="hidden sm:inline-block h-5 w-px bg-line-soft" aria-hidden="true" />
+          <AutoScrollControl />
+          <span class="hidden sm:inline-block h-5 w-px bg-line-soft" aria-hidden="true" />
 
-      <FontSizeControl />
+          <!-- Action Buttons Group (Discrete modern pill buttons with subtle active tints) -->
+          <div class="flex items-center gap-1.5">
+            <!-- Two Columns Toggle -->
+            <button
+              v-if="wideEnough"
+              type="button"
+              class="flex size-8 items-center justify-center rounded-xl border transition-all duration-150 outline-none shadow-2xs"
+              :class="columns
+                ? 'border-accent/50 bg-accent-soft text-accent ring-1 ring-accent/30'
+                : 'border-line bg-surface/80 text-muted hover:border-accent/50 hover:bg-panel hover:text-accent'"
+              :aria-pressed="columns"
+              :title="$t('song.twoColumns')"
+              @click="toggleColumns"
+            >
+              <Icon name="material-symbols:vertical-split-rounded" class="text-base" />
+              <span class="sr-only">{{ $t('song.twoColumns') }}</span>
+            </button>
 
-      <AutoScrollControl />
+            <!-- All Chords Grid Toggle -->
+            <button
+              type="button"
+              class="flex size-8 items-center justify-center rounded-xl border transition-all duration-150 outline-none shadow-2xs"
+              :class="showChords
+                ? 'border-accent/50 bg-accent-soft text-accent ring-1 ring-accent/30'
+                : 'border-line bg-surface/80 text-muted hover:border-accent/50 hover:bg-panel hover:text-accent'"
+              :aria-pressed="showChords"
+              :title="$t('song.allChords')"
+              @click="showChords = !showChords"
+            >
+              <Icon name="material-symbols:grid-view-rounded" class="text-base" />
+              <span class="sr-only">{{ $t('song.allChords') }}</span>
+            </button>
 
-      <button
-        v-if="wideEnough"
-        class="rounded border px-2.5 py-1.5 transition"
-        :class="columns
-          ? 'border-accent bg-accent text-on-accent'
-          : 'border-line-strong bg-panel text-muted hover:border-accent hover:text-accent'"
-        :aria-pressed="columns"
-        :title="$t('song.twoColumns')"
-        @click="toggleColumns"
+            <!-- Print Button -->
+            <button
+              type="button"
+              class="flex size-8 items-center justify-center rounded-xl border border-line bg-surface/80 text-muted transition-all duration-150 outline-none hover:border-accent/50 hover:bg-panel hover:text-accent shadow-2xs"
+              :title="$t('song.print')"
+              @click="print()"
+            >
+              <Icon name="material-symbols:print-outline-rounded" class="text-base" />
+              <span class="sr-only">{{ $t('song.print') }}</span>
+            </button>
+
+            <!-- Favorite Button -->
+            <!-- AI-TRAP: both icon names are written out as literals and toggled
+                 with v-show, never bound as one expression. -->
+            <button
+              v-if="auth.isAuthenticated"
+              type="button"
+              class="flex size-8 items-center justify-center rounded-xl border transition-all duration-150 outline-none shadow-2xs"
+              :class="favorites.has(song._id)
+                ? 'border-accent/50 bg-accent-soft text-accent ring-1 ring-accent/30'
+                : 'border-line bg-surface/80 text-muted hover:border-accent/50 hover:bg-panel hover:text-accent'"
+              :aria-pressed="favorites.has(song._id)"
+              :title="favorites.has(song._id) ? $t('song.saved') : $t('song.save')"
+              @click="toggleFavorite"
+            >
+              <Icon v-show="favorites.has(song._id)" name="material-symbols:favorite-rounded" class="text-base" />
+              <Icon v-show="!favorites.has(song._id)" name="material-symbols:favorite-outline-rounded" class="text-base" />
+              <span class="sr-only">{{ favorites.has(song._id) ? $t('song.saved') : $t('song.save') }}</span>
+            </button>
+
+            <NuxtLink
+              v-else
+              :to="localePath({ path: '/prijava', query: { redirect: route.fullPath } })"
+              class="flex size-8 items-center justify-center rounded-xl border border-line bg-surface/80 text-muted transition-all duration-150 outline-none hover:border-accent/50 hover:bg-panel hover:text-accent shadow-2xs"
+              :title="$t('song.save')"
+            >
+              <Icon name="material-symbols:favorite-outline-rounded" class="text-base" />
+              <span class="sr-only">{{ $t('song.save') }}</span>
+            </NuxtLink>
+          </div>
+        </div>
+      </div>
+
+      <!-- Row 2: Status & Capo Theory Footer (Full-width, so it NEVER pushes buttons sideways!) -->
+      <div
+        v-if="capo > 0 || semitones !== 0 || capoBestSuggestion"
+        class="mt-3 flex flex-wrap items-center justify-between gap-2 border-t border-line-soft/80 pt-2.5 text-xs text-faint font-mono"
       >
-        <Icon name="material-symbols:vertical-split-rounded" />
-        <span class="sr-only">{{ $t('song.twoColumns') }}</span>
-      </button>
+        <div class="flex items-center gap-2">
+          <span v-if="capo > 0" class="text-muted">
+            Sviraš oblike iz <strong class="text-accent">{{ shapeKey }}</strong>, zvuči kao <strong class="text-ink">{{ soundingKey }}</strong>
+          </span>
+          <span v-else-if="capoHint" class="text-faint">
+            Isto zvuči: kapodaster na <strong>{{ capoHint.fret }}.</strong> pragu, sviraj oblike iz <strong class="font-mono text-ink">{{ capoHint.shapes }}</strong>
+          </span>
+          <span v-else-if="semitones !== 0" class="text-faint">
+            Transponovano: {{ semitones > 0 ? `+${semitones}` : semitones }} polutonova od originala ({{ song.originalKey }})
+          </span>
+        </div>
 
-      <button
-        class="rounded border px-2.5 py-1.5 transition"
-        :class="showChords
-          ? 'border-accent bg-accent text-on-accent'
-          : 'border-line-strong bg-panel text-muted hover:border-accent hover:text-accent'"
-        :aria-pressed="showChords"
-        :title="$t('song.allChords')"
-        @click="showChords = !showChords"
-      >
-        <Icon name="material-symbols:grid-view-rounded" />
-        <span class="sr-only">{{ $t('song.allChords') }}</span>
-      </button>
-
-      <button
-        class="rounded border border-line-strong bg-panel px-2.5 py-1.5 text-muted transition hover:border-accent hover:text-accent"
-        :title="$t('song.print')"
-        @click="print()"
-      >
-        <Icon name="material-symbols:print-outline-rounded" />
-        <span class="sr-only">{{ $t('song.print') }}</span>
-      </button>
-
-      <!-- AI-TRAP: both icon names are written out as literals and toggled
-           with v-show, never bound as one expression. @nuxt/icon builds its
-           client bundle by scanning source for literal names; a computed
-           name renders a correctly sized SVG with no paths in it. -->
-      <button
-        v-if="auth.isAuthenticated"
-        class="rounded border px-2.5 py-1.5 transition"
-        :class="favorites.has(song._id)
-          ? 'border-accent bg-accent text-on-accent'
-          : 'border-line-strong bg-panel text-muted hover:border-accent hover:text-accent'"
-        :aria-pressed="favorites.has(song._id)"
-        :title="favorites.has(song._id) ? $t('song.saved') : $t('song.save')"
-        @click="toggleFavorite"
-      >
-        <Icon v-show="favorites.has(song._id)" name="material-symbols:favorite-rounded" />
-        <Icon v-show="!favorites.has(song._id)" name="material-symbols:favorite-outline-rounded" />
-        <span class="sr-only">{{ favorites.has(song._id) ? $t('song.saved') : $t('song.save') }}</span>
-      </button>
-
-      <NuxtLink
-        v-else
-        :to="localePath({ path: '/prijava', query: { redirect: route.fullPath } })"
-        class="rounded border border-line-strong bg-panel px-2.5 py-1.5 text-muted transition hover:border-accent hover:text-accent"
-        :title="$t('song.save')"
-      >
-        <Icon name="material-symbols:favorite-outline-rounded" />
-        <span class="sr-only">{{ $t('song.save') }}</span>
-      </NuxtLink>
+        <div v-if="capoBestSuggestion && capo === 0" class="text-xs text-muted">
+          Lakše na <strong>{{ capoBestSuggestion.fret }}.</strong> polju: {{ capoBestSuggestion.shapes.join(' ') }}
+        </div>
+      </div>
     </div>
 
     <ChordGrid data-print="hide"

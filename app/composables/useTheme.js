@@ -16,15 +16,14 @@ export const THEME_KEY = 'octava-theme';
 export const THEMES = ['system', 'light', 'dark'];
 
 export function useTheme() {
-  // useState rather than a module-level ref: a module-level one is shared
-  // between requests on the server and would leak one reader's choice to the next.
-  const mode = useState(THEME_KEY, () => 'system');
+  // Default to dark mode
+  const mode = useState(THEME_KEY, () => 'dark');
 
   const apply = (value, animate) => {
     const el = document.documentElement;
 
     if (animate) el.classList.add('theme-switching');
-    if (value === 'system') el.removeAttribute('data-theme');
+    if (value === 'system') el.setAttribute('data-theme', 'dark');
     else el.setAttribute('data-theme', value);
 
     if (animate) {
@@ -54,8 +53,9 @@ export function useTheme() {
     // The inline script in app.vue has already set the attribute before paint;
     // this only brings the Vue side into agreement with it.
     try {
-      const stored = localStorage.getItem(THEME_KEY);
+      const stored = localStorage.getItem(THEME_KEY) || 'dark';
       if (THEMES.includes(stored)) mode.value = stored;
+      else apply('dark', false);
     } catch {
       // ignored, as above
     }

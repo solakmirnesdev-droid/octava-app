@@ -9,23 +9,9 @@ const emit = defineEmits(['update:semitones']);
 
 const open = ref(false);
 
-/**
- * Local mirror of the prop.
- *
- * Stepping computed straight from props.semitones drops updates when two
- * clicks land in the same tick: the second one reads the value the first has
- * not written back yet, so +2 then +1 lands on +1 rather than +3. Holding the
- * value locally and syncing the prop back keeps rapid stepping additive.
- */
 const value = ref(props.semitones);
 watch(() => props.semitones, (next) => { value.value = next; });
 
-/**
- * Transposition wraps at twelve: +7 and -5 produce identical chords, so there
- * are only twelve distinct destinations no matter how wide the range looks.
- * Offsets past the tritone are shown as their negative twin, because "-5" is
- * the shorter way to say the same thing.
- */
 const signed = (offset) => (offset > 6 ? offset - 12 : offset);
 
 const keys = computed(() =>
@@ -38,27 +24,11 @@ const keys = computed(() =>
 
 const currentKey = computed(() => transposeKey(props.originalKey, value.value));
 
-/** 0-11, regardless of which direction the user travelled to get here. */
-const normalized = computed(() => ((value.value % 12) + 12) % 12);
-
 const offsetLabel = computed(() =>
-  value.value === 0 ? 'original' : (value.value > 0 ? '+' : '') + value.value
+  value.value === 0 ? 'orig' : (value.value > 0 ? '+' : '') + value.value
 );
 
-/**
- * A capo raises pitch, so any transposition upward can be played with the
- * original shapes by capoing that many frets. Past the seventh fret the frets
- * are too narrow for comfortable chording, so the hint stops being useful.
- */
-const capoHint = computed(() => {
-  const fret = normalized.value;
-  if (fret < 1 || fret > 7) return null;
-  return { fret, shapes: props.originalKey };
-});
-
 function set(next) {
-  // Wrap rather than clamp: stepping past the end lands on the next key round
-  // the circle, which is where the chords actually go.
   value.value = next > 11 ? next - 12 : next < -11 ? next + 12 : next;
   emit('update:semitones', value.value);
 }
@@ -72,62 +42,81 @@ function pick(offset) {
 </script>
 
 <template>
-  <div class="flex flex-col gap-1.5">
-    <div class="flex flex-wrap items-center gap-2">
-      <span class="hidden text-xs font-medium uppercase tracking-wide text-faint sm:inline">{{ $t('song.key') }}</span>
+  <div class="relative">
+    <div class="flex items-center gap-1.5 sm:gap-2">
+      <span class="hidden text-xs font-semibold uppercase tracking-wider text-faint md:inline">
+        {{ $t('song.key') }}
+      </span>
 
-      <div class="flex items-center overflow-hidden rounded border border-line-strong bg-panel">
-        <button class="px-2.5 py-1.5 text-sm font-medium hover:bg-raised hover:text-accent"
-                :title="$t('song.semitonesDown', { n: 2 }, 2)" @click="shift(-2)">−2</button>
-        <button class="border-l border-line px-2.5 py-1.5 text-sm font-medium hover:bg-raised hover:text-accent"
-                :title="$t('song.semitonesDown', { n: 1 }, 1)" @click="shift(-1)">−1</button>
+      <div class="inline-flex items-center rounded-xl border border-line bg-surface/90 p-0.5 shadow-2xs">
+        <button
+          type="button"
+          class="rounded-lg px-2 py-1 text-xs font-bold text-muted hover:bg-panel hover:text-accent transition-colors"
+          :title="$t('song.semitonesDown', { n: 2 }, 2)"
+          @click="shift(-2)"
+        >−2</button>
+        <button
+          type="button"
+          class="rounded-lg px-2 py-1 text-xs font-bold text-muted hover:bg-panel hover:text-accent transition-colors"
+          :title="$t('song.semitonesDown', { n: 1 }, 1)"
+          @click="shift(-1)"
+        >−1</button>
 
         <button
-          class="min-w-[4.75rem] border-x border-line px-2 py-1.5 text-center hover:bg-raised"
+          type="button"
+          class="min-w-[4rem] sm:min-w-[4.5rem] rounded-lg px-2 py-1 text-center transition-colors"
+          :class="open ? 'bg-panel text-accent shadow-xs' : 'text-ink hover:bg-panel'"
           :title="$t('song.chooseKey')"
           :aria-expanded="open"
           @click="open = !open"
         >
-          <span class="block font-mono text-sm font-semibold leading-none">{{ currentKey || '—' }}</span>
-          <span class="mt-0.5 block text-[10px] leading-none text-faint">{{ offsetLabel }}</span>
+          <span class="block font-mono text-xs sm:text-sm font-extrabold leading-tight">{{ currentKey || '—' }}</span>
+          <span class="block font-mono text-[9px] leading-tight text-faint">{{ offsetLabel }}</span>
         </button>
 
-        <button class="px-2.5 py-1.5 text-sm font-medium hover:bg-raised hover:text-accent"
-                :title="$t('song.semitonesUp', { n: 1 }, 1)" @click="shift(1)">+1</button>
-        <button class="border-l border-line px-2.5 py-1.5 text-sm font-medium hover:bg-raised hover:text-accent"
-                :title="$t('song.semitonesUp', { n: 2 }, 2)" @click="shift(2)">+2</button>
+        <button
+          type="button"
+          class="rounded-lg px-2 py-1 text-xs font-bold text-muted hover:bg-panel hover:text-accent transition-colors"
+          :title="$t('song.semitonesUp', { n: 1 }, 1)"
+          @click="shift(1)"
+        >+1</button>
+        <button
+          type="button"
+          class="rounded-lg px-2 py-1 text-xs font-bold text-muted hover:bg-panel hover:text-accent transition-colors"
+          :title="$t('song.semitonesUp', { n: 2 }, 2)"
+          @click="shift(2)"
+        >+2</button>
       </div>
 
       <button
         v-if="value !== 0"
         type="button"
-        class="flex size-8 items-center justify-center rounded-lg border border-line bg-surface/70 text-muted transition hover:border-accent hover:bg-panel hover:text-accent"
+        class="flex size-7 sm:size-8 items-center justify-center rounded-lg border border-line bg-surface/70 text-muted transition hover:border-accent hover:bg-panel hover:text-accent shadow-2xs"
         :title="$t('song.backToOriginal', { key: originalKey })"
         :aria-label="$t('song.backToOriginal', { key: originalKey })"
         @click="set(0)"
       >
-        <Icon name="material-symbols:restart-alt-rounded" class="text-base" />
+        <Icon name="material-symbols:restart-alt-rounded" class="text-sm sm:text-base" />
       </button>
     </div>
 
-    <!-- All twelve destinations. There is no thirteenth: the interval wraps. -->
-    <div v-if="open" class="flex flex-wrap gap-1 rounded border border-line bg-panel p-2">
+    <!-- Absolute positioned 12-key dropdown overlay (Never causes layout shift!) -->
+    <div
+      v-if="open"
+      class="absolute left-0 top-full mt-2 z-30 grid grid-cols-4 gap-1 rounded-2xl border border-line bg-panel p-2.5 shadow-xl backdrop-blur-md min-w-[220px]"
+    >
       <button
         v-for="key in keys" :key="key.offset"
-        class="min-w-[3.25rem] rounded px-2 py-1 text-center hover:bg-accent-soft"
-        :class="key.shift === value ? 'bg-ink text-on-ink hover:bg-ink' : ''"
+        type="button"
+        class="rounded-lg p-1.5 text-center transition-all"
+        :class="key.shift === value ? 'bg-accent text-on-accent font-bold shadow-xs' : 'hover:bg-surface text-muted hover:text-ink'"
         @click="pick(key.offset)"
       >
-        <span class="block font-mono text-sm font-semibold leading-none">{{ key.name }}</span>
-        <span class="mt-0.5 block text-[10px] leading-none opacity-50">
-          {{ key.shift === 0 ? 'original' : (key.shift > 0 ? '+' : '') + key.shift }}
+        <span class="block font-mono text-xs font-bold">{{ key.name }}</span>
+        <span class="block text-[9px] opacity-70">
+          {{ key.shift === 0 ? 'orig' : (key.shift > 0 ? '+' : '') + key.shift }}
         </span>
       </button>
     </div>
-
-    <i18n-t keypath="song.sameSound" tag="p" v-if="capoHint" class="text-xs text-faint" scope="global">
-        <template #fret><strong>{{ capoHint.fret }}</strong></template>
-        <template #key><strong class="font-mono">{{ capoHint.shapes }}</strong></template>
-      </i18n-t>
   </div>
 </template>
