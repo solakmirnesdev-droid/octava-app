@@ -13,10 +13,11 @@ definePageMeta({ layout: false });
 const username = ref('');
 const email = ref('');
 const password = ref('');
+const country = ref('');
 const auth = useAuthStore();
 
 async function submit() {
-  if (await auth.register(email.value, password.value, username.value, turnstileToken.value)) {
+  if (await auth.register(email.value, password.value, username.value, turnstileToken.value, country.value)) {
     await navigateTo(localePath('/'));
   }
 }
@@ -41,6 +42,14 @@ useSeoMeta({ title: t('meta.registerTitle'), robots: 'noindex, nofollow' });
         id="email" v-model="email" type="email" required autocomplete="username" inputmode="email"
         class="mb-4 w-full rounded border border-line-strong bg-panel px-3 py-2 outline-none focus:border-accent"
       />
+
+      <label for="country" class="mb-1 block text-sm font-medium">
+        {{ $t('auth.country') }}
+        <span class="ml-1 font-normal text-faint">{{ $t('auth.optional') }}</span>
+      </label>
+      <!-- Optional, and said so. Asking is worth a flag beside their reviews;
+           requiring it is a form people abandon at the last field. -->
+      <CountrySelect id="country" v-model="country" class="mb-4" />
 
       <PasswordField
         id="password" v-model="password"
@@ -74,7 +83,7 @@ useSeoMeta({ title: t('meta.registerTitle'), robots: 'noindex, nofollow' });
         <span class="h-px flex-1 bg-sunken" />{{ $t('auth.or') }}<span class="h-px flex-1 bg-sunken" />
       </div>
       <GoogleSignIn @signed-in="onGoogle" @failed="googleError = $t('auth.googleFailed')" />
-      <p v-if="googleError" class="mt-2 text-sm text-rose-700">{{ googleError }}</p>
+      <p v-if="googleError" class="mt-2 text-sm text-danger">{{ googleError }}</p>
     </div>
 
   </div>

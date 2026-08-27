@@ -19,7 +19,11 @@
     "closeMenu": "Close menu",
     "clear": "Clear",
     "searching": "Searching…",
-    "noResultsFor": "No results for “{q}”"
+    "noResultsFor": "No results for “{q}”",
+    "profile": "Profile",
+    "logoutTitle": "Sign out",
+    "logoutBody": "You'll be signed out of {name}. Your saved songs stay where they are.",
+    "loggedOut": "You are signed out."
   },
   "song": {
     "key": "Key",
@@ -82,7 +86,9 @@
     "versionNoRating": "no ratings",
     "versionRating": "{rating} ({n})",
     "listen": "Listen to the original",
-    "videoLabel": "Recording of the song"
+    "videoLabel": "Recording of the song",
+    "seeReviews": "See ratings and reviews",
+    "beFirstToRate": "Be the first to rate"
   },
   "footer": {
     "rubrics": "Genres",
@@ -113,7 +119,11 @@
     "songCount": "no songs | {n} song | {n} songs",
     "genre": "category",
     "backHome": "Back to the home page",
-    "close": "Close"
+    "close": "Close",
+    "save": "Save",
+    "dismiss": "Dismiss",
+    "cancel": "Cancel",
+    "confirm": "Confirm"
   },
   "rating": {
     "title": "Chord accuracy",
@@ -186,7 +196,9 @@
     "signInWithNew": "Sign in with your new password.",
     "goToSignIn": "Go to sign in →",
     "or": "or",
-    "googleFailed": "Google sign-in failed."
+    "googleFailed": "Google sign-in failed.",
+    "country": "Country",
+    "optional": "(optional)"
   },
   "meta": {
     "chordsTitle": "Guitar chords — every fingering {'|'} Octava",
@@ -211,7 +223,8 @@
     "termsTitle": "Terms of use {'|'} Octava",
     "termsDesc": "The rules for using Octava: your account, what you post, and how to report a copyright concern.",
     "loginTitle": "Sign in {'|'} Octava",
-    "registerTitle": "Sign up {'|'} Octava"
+    "registerTitle": "Sign up {'|'} Octava",
+    "profileTitle": "My profile {'|'} Octava"
   },
   "about": {
     "title": "About",
@@ -343,7 +356,7 @@
     "cancel": "Cancel",
     "saving": "Saving…",
     "remove": "Remove",
-    "removeConfirm": "Remove this review? The comments under it go with it.",
+    "removeConfirm": "Any comments under it go with it.",
     "signIn": "Sign in to write a review",
     "tooShort": "A review needs at least 3 characters.",
     "failed": "Posting failed.",
@@ -352,9 +365,45 @@
     "noComments": "No comments yet.",
     "commentPlaceholder": "Reply…",
     "reply": "Reply",
-    "removeComment": "Remove this comment?",
+    "removeComment": "The comment is deleted and cannot be brought back.",
     "signInToReply": "Sign in to reply",
     "loadMore": "Load more",
-    "hiddenNotice": "Your review has been hidden by the editors."
+    "hiddenNotice": "Your review has been hidden by the editors.",
+    "yoursTag": "yours",
+    "removeTitle": "Remove your review?",
+    "removeCommentTitle": "Remove this comment?"
+  },
+  "profile": {
+    "title": "My profile",
+    "photo": "Photo",
+    "choosePhoto": "Choose a photo",
+    "removePhoto": "Remove",
+    "photoHint": "Any image — we shrink it and convert it to WebP before sending.",
+    "details": "Details",
+    "shownAs": "Shown as",
+    "email": "Email address",
+    "newEmail": "New address",
+    "confirmPassword": "Confirm with your password",
+    "whyPassword": "We ask for your password so nobody at your open browser can change the address.",
+    "changeEmail": "Change address",
+    "password": "Password",
+    "currentPassword": "Current password",
+    "repeatPassword": "Repeat new password",
+    "mismatch": "The passwords do not match.",
+    "changePassword": "Change password",
+    "forgotHint": "Don't remember the current one?",
+    "saved": "Your details were saved.",
+    "avatarSaved": "Photo set.",
+    "emailSaved": "Address changed.",
+    "passwordSaved": "Password changed. Other sessions were signed out.",
+    "unverified": "unverified",
+    "countryNone": "No country",
+    "countryNearby": "Region",
+    "countryAll": "All countries"
+  },
+  "artist": {
+    "origin": "From",
+    "active": "Active",
+    "website": "Website"
   }
 }

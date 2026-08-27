@@ -85,6 +85,7 @@ export default defineNuxtConfig({
       'pretraga':        { bs: '/pretraga',        en: '/search' },
       'zatrazi':         { bs: '/zatrazi',         en: '/request' },
       'sacuvano':        { bs: '/sacuvano',        en: '/saved' },
+      'profil':          { bs: '/profil',         en: '/profile' },
       'prijava':         { bs: '/prijava',         en: '/login' },
       'registracija':    { bs: '/registracija',    en: '/register' },
       'o-nama':          { bs: '/o-nama',          en: '/about' },

@@ -19,7 +19,11 @@
     "closeMenu": "Zatvori meni",
     "clear": "Očisti",
     "searching": "Traženje…",
-    "noResultsFor": "Nema rezultata za „{q}\""
+    "noResultsFor": "Nema rezultata za „{q}\"",
+    "profile": "Profil",
+    "logoutTitle": "Odjava",
+    "logoutBody": "Odjavljujemo te s naloga {name}. Sačuvane pjesme ostaju i čekaju te kad se vratiš.",
+    "loggedOut": "Odjavljen si."
   },
   "song": {
     "key": "Tonalitet",
@@ -82,7 +86,9 @@
     "versionNoRating": "bez ocjena",
     "versionRating": "{rating} ({n})",
     "listen": "Poslušaj original",
-    "videoLabel": "Snimak pjesme"
+    "videoLabel": "Snimak pjesme",
+    "seeReviews": "Pogledaj ocjene i recenzije",
+    "beFirstToRate": "Budi prvi koji ocjenjuje"
   },
   "footer": {
     "rubrics": "Rubrike",
@@ -113,7 +119,11 @@
     "songCount": "bez pjesama | {n} pjesma | {n} pjesme | {n} pjesama",
     "genre": "rubrika",
     "backHome": "Nazad na početnu",
-    "close": "Zatvori"
+    "close": "Zatvori",
+    "save": "Spasi",
+    "dismiss": "Zatvori",
+    "cancel": "Odustani",
+    "confirm": "Potvrdi"
   },
   "rating": {
     "title": "Tačnost akorada",
@@ -186,7 +196,9 @@
     "signInWithNew": "Prijavi se novom lozinkom.",
     "goToSignIn": "Idi na prijavu →",
     "or": "ili",
-    "googleFailed": "Google prijava nije uspjela."
+    "googleFailed": "Google prijava nije uspjela.",
+    "country": "Država",
+    "optional": "(neobavezno)"
   },
   "meta": {
     "chordsTitle": "Akordi za gitaru — svi hvatovi {'|'} Octava",
@@ -211,7 +223,8 @@
     "termsTitle": "Uslovi korištenja {'|'} Octava",
     "termsDesc": "Pravila korištenja Octave: nalog, sadržaj koji objavljuješ, i kako prijaviti autorska prava.",
     "loginTitle": "Prijava {'|'} Octava",
-    "registerTitle": "Registracija {'|'} Octava"
+    "registerTitle": "Registracija {'|'} Octava",
+    "profileTitle": "Moj profil {'|'} Octava"
   },
   "about": {
     "title": "O nama",
@@ -343,7 +356,7 @@
     "cancel": "Odustani",
     "saving": "Spašavam…",
     "remove": "Ukloni",
-    "removeConfirm": "Ukloniti recenziju? Komentari ispod nje idu s njom.",
+    "removeConfirm": "Komentari ispod nje idu s njom.",
     "signIn": "Prijavi se da napišeš recenziju",
     "tooShort": "Recenzija mora imati bar 3 znaka.",
     "failed": "Objavljivanje nije uspjelo.",
@@ -352,9 +365,45 @@
     "noComments": "Još nema komentara.",
     "commentPlaceholder": "Odgovori…",
     "reply": "Odgovori",
-    "removeComment": "Ukloniti komentar?",
+    "removeComment": "Komentar se briše i ne može se vratiti.",
     "signInToReply": "Prijavi se da odgovoriš",
     "loadMore": "Učitaj još",
-    "hiddenNotice": "Tvoja recenzija je sakrivena od strane uredništva."
+    "hiddenNotice": "Tvoja recenzija je sakrivena od strane uredništva.",
+    "yoursTag": "tvoja",
+    "removeTitle": "Ukloniti recenziju?",
+    "removeCommentTitle": "Ukloniti komentar?"
+  },
+  "profile": {
+    "title": "Moj profil",
+    "photo": "Slika",
+    "choosePhoto": "Izaberi sliku",
+    "removePhoto": "Ukloni",
+    "photoHint": "Bilo koja slika — smanjujemo je i pretvaramo u WebP prije slanja.",
+    "details": "Podaci",
+    "shownAs": "Prikazuje se kao",
+    "email": "Email adresa",
+    "newEmail": "Nova adresa",
+    "confirmPassword": "Potvrdi lozinkom",
+    "whyPassword": "Tražimo lozinku da niko s tvog otvorenog preglednika ne može promijeniti adresu.",
+    "changeEmail": "Promijeni adresu",
+    "password": "Lozinka",
+    "currentPassword": "Trenutna lozinka",
+    "repeatPassword": "Ponovi novu lozinku",
+    "mismatch": "Lozinke se ne poklapaju.",
+    "changePassword": "Promijeni lozinku",
+    "forgotHint": "Ne sjećaš se trenutne?",
+    "saved": "Podaci su spašeni.",
+    "avatarSaved": "Slika je postavljena.",
+    "emailSaved": "Adresa je promijenjena.",
+    "passwordSaved": "Lozinka je promijenjena. Ostale sesije su odjavljene.",
+    "unverified": "nepotvrđena",
+    "countryNone": "Bez države",
+    "countryNearby": "Region",
+    "countryAll": "Sve države"
+  },
+  "artist": {
+    "origin": "Porijeklo",
+    "active": "Aktivan",
+    "website": "Stranica"
   }
 }

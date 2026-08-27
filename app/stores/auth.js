@@ -29,8 +29,8 @@ export const useAuthStore = defineStore('auth', () => {
   const login = (email, password) =>
     submit('/auth/login', { email, password }, 'Prijava nije uspjela.');
 
-  const register = (email, password, username, turnstileToken) =>
-    submit('/auth/register', { email, password, username, turnstileToken }, 'Registracija nije uspjela.');
+  const register = (email, password, username, turnstileToken, country = '') =>
+    submit('/auth/register', { email, password, username, turnstileToken, country }, 'Registracija nije uspjela.');
 
   async function fetchMe() {
     const { $api } = useNuxtApp();
@@ -42,14 +42,85 @@ export const useAuthStore = defineStore('auth', () => {
     }
   }
 
-  async function logout() {
+  /**
+   * Signs out, and says so.
+   *
+   * AI-NOTE: the notice is set before navigating, so it is already in place
+   * when the home page paints. Without it the only visible change was a header
+   * losing two links, which people read as a page reload rather than as having
+   * been signed out.
+   */
+  async function logout(message = 'Odjavljen si.') {
     const { $api } = useNuxtApp();
     try {
       await $api('/auth/logout', { method: 'POST' });
     } finally {
       user.value = null;
+      useNotice().say(message);
       await navigateTo('/');
     }
+  }
+
+  /* ------------------------------------------------------------------ profil */
+
+  /** Shared shape for the profile calls: they all hand back the updated user. */
+  async function patch(path, body, fallbackMessage, method = 'PATCH') {
+    const { $api } = useNuxtApp();
+    loading.value = true;
+    error.value = null;
+    try {
+      const data = await $api(path, { method, body });
+      if (data?.user) user.value = data.user;
+      return true;
+    } catch (err) {
+      error.value = err.data?.message || fallbackMessage;
+      return false;
+    } finally {
+      loading.value = false;
+    }
+  }
+
+  const updateProfile = (fields) =>
+    patch('/me', fields, 'Spašavanje nije uspjelo.');
+
+  const changeEmail = (email, password) =>
+    patch('/me/email', { email, password }, 'Promjena adrese nije uspjela.');
+
+  const changePassword = (currentPassword, newPassword) =>
+    patch('/me/password', { currentPassword, newPassword }, 'Promjena lozinke nije uspjela.');
+
+  /**
+   * Uploads a portrait as raw bytes.
+   *
+   * AI-TRAP: the body is a Blob and the Content-Type says image/webp, so this
+   * cannot go through the JSON helpers above — $api would stringify the blob
+   * into "[object Blob]" and the server would reject it as not being WebP,
+   * which reads like a broken file rather than a broken request.
+   */
+  async function uploadAvatar(blob) {
+    const { $api } = useNuxtApp();
+    loading.value = true;
+    error.value = null;
+    try {
+      await $api('/me/avatar', {
+        method: 'POST',
+        body: blob,
+        headers: { 'Content-Type': 'image/webp' }
+      });
+      await fetchMe();
+      return true;
+    } catch (err) {
+      error.value = err.data?.message || 'Slanje slike nije uspjelo.';
+      return false;
+    } finally {
+      loading.value = false;
+    }
+  }
+
+  async function deleteAvatar() {
+    const ok = await patch('/me/avatar', undefined, 'Uklanjanje slike nije uspjelo.', 'DELETE');
+    if (ok) await fetchMe();
+    return ok;
   }
 
   /**
@@ -64,5 +135,9 @@ export const useAuthStore = defineStore('auth', () => {
     error.value = null;
   }
 
-  return { user, loading, error, isAuthenticated, login, register, fetchMe, logout, adopt };
+  return {
+    user, loading, error, isAuthenticated,
+    login, register, fetchMe, logout, adopt,
+    updateProfile, changeEmail, changePassword, uploadAvatar, deleteAvatar
+  };
 });
