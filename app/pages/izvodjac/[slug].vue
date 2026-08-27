@@ -16,6 +16,12 @@ if (error.value) {
   throw createError({ statusCode: 404, statusMessage: t('meta.artistNotFound'), fatal: true });
 }
 
+const auth = useAuthStore();
+const favorites = useFavoritesStore();
+
+// Only the signed-in case needs the list; a visitor sees a link to sign in.
+if (auth.isAuthenticated) await useAsyncData('favorites-artist', () => favorites.load());
+
 const artist = computed(() => data.value?.artist);
 
 useSeoMeta({
@@ -51,6 +57,32 @@ useSeoMeta({
           <p class="mt-1 text-sm text-faint">
             {{ $t('common.songCount', { n: artist.songs?.length || 0 }, artist.songs?.length || 0) }}
           </p>
+
+          <!-- AI-TRAP: both icon names are written out as literals and toggled
+               with v-show, never bound as one expression. @nuxt/icon builds its
+               client bundle by scanning source for literal names; a computed
+               name renders a correctly sized SVG with no paths in it. -->
+          <button
+            v-if="auth.isAuthenticated"
+            class="mt-2 flex items-center gap-1.5 rounded border border-line-strong px-2.5 py-1 text-sm transition-colors"
+            :class="favorites.hasArtist(artist._id)
+              ? 'border-accent text-accent'
+              : 'text-muted hover:border-accent hover:text-accent'"
+            @click="favorites.toggleArtist(artist._id)"
+          >
+            <Icon v-show="favorites.hasArtist(artist._id)" name="material-symbols:favorite-rounded" />
+            <Icon v-show="!favorites.hasArtist(artist._id)" name="material-symbols:favorite-outline-rounded" />
+            {{ favorites.hasArtist(artist._id) ? $t('artist.saved') : $t('artist.save') }}
+          </button>
+
+          <NuxtLink
+            v-else
+            :to="localePath({ path: '/prijava', query: { redirect: route.fullPath } })"
+            class="mt-2 flex items-center gap-1.5 text-sm text-faint hover:text-accent"
+          >
+            <Icon name="material-symbols:favorite-outline-rounded" />
+            {{ $t('artist.save') }}
+          </NuxtLink>
         </div>
       </div>
 

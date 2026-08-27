@@ -178,7 +178,10 @@
     "chordSearchLabel": "Traži akord",
     "chordSearchClear": "Poništi",
     "chordSearchCount": "nema akorda | {n} akord | {n} akorda | {n} akorda",
-    "chordSearchEmpty": "Nema akorda za „{query}\". Probaj Am, C#m7 ili sus4."
+    "chordSearchEmpty": "Nema akorda za „{query}\". Probaj Am, C#m7 ili sus4.",
+    "saved": "Sačuvano",
+    "savedArtists": "Izvođači",
+    "savedEmpty": "Još nemaš sačuvanih pjesama."
   },
   "auth": {
     "signInLead": "Prijavi se da sačuvaš pjesme.",
@@ -229,7 +232,8 @@
     "termsDesc": "Pravila korištenja Octave: nalog, sadržaj koji objavljuješ, i kako prijaviti autorska prava.",
     "loginTitle": "Prijava {'|'} Octava",
     "registerTitle": "Registracija {'|'} Octava",
-    "profileTitle": "Moj profil {'|'} Octava"
+    "profileTitle": "Moj profil {'|'} Octava",
+    "savedTitle": "Sačuvano {'|'} Octava"
   },
   "about": {
     "title": "O nama",
@@ -410,6 +414,8 @@
   "artist": {
     "origin": "Porijeklo",
     "active": "Aktivan",
-    "website": "Stranica"
+    "website": "Stranica",
+    "save": "Sačuvaj izvođača",
+    "saved": "Sačuvan"
   }
 }

@@ -178,7 +178,10 @@
     "chordSearchLabel": "Find a chord",
     "chordSearchClear": "Clear",
     "chordSearchCount": "no chords | {n} chord | {n} chords",
-    "chordSearchEmpty": "Nothing matches \"{query}\". Try Am, C#m7 or sus4."
+    "chordSearchEmpty": "Nothing matches \"{query}\". Try Am, C#m7 or sus4.",
+    "saved": "Saved",
+    "savedArtists": "Artists",
+    "savedEmpty": "You haven't saved any songs yet."
   },
   "auth": {
     "signInLead": "Sign in to save songs.",
@@ -229,7 +232,8 @@
     "termsDesc": "The rules for using Octava: your account, what you post, and how to report a copyright concern.",
     "loginTitle": "Sign in {'|'} Octava",
     "registerTitle": "Sign up {'|'} Octava",
-    "profileTitle": "My profile {'|'} Octava"
+    "profileTitle": "My profile {'|'} Octava",
+    "savedTitle": "Saved {'|'} Octava"
   },
   "about": {
     "title": "About",
@@ -410,6 +414,8 @@
   "artist": {
     "origin": "From",
     "active": "Active",
-    "website": "Website"
+    "website": "Website",
+    "save": "Save artist",
+    "saved": "Saved"
   }
 }
