@@ -79,60 +79,60 @@ async function send() {
       class="text-xs text-faint hover:text-accent"
     >{{ $t('song.reportSignIn') }}</NuxtLink>
 
-    <div
-      v-if="open"
-      class="fixed inset-0 z-40 flex items-center justify-center bg-black/40 px-4"
-      @click.self="open = false"
+    <!-- Two states in one dialog: the form, and the thank-you that replaces it.
+         The button row changes with them, which is what the #actions slot is for. -->
+    <AppModal
+      v-model="open"
+      :title="done ? '' : $t('song.reportTitle')"
+      :dismissible="!sending"
     >
-      <div class="w-full max-w-sm rounded-lg bg-panel p-5 shadow-xl">
-        <template v-if="!done">
-          <h2 class="text-sm font-semibold">{{ $t('song.reportTitle') }}</h2>
-
-          <div class="mt-3 space-y-1.5">
-            <label
-              v-for="k in KINDS" :key="k"
-              class="flex cursor-pointer items-center gap-2 rounded px-2 py-2 text-sm hover:bg-raised"
-            >
-              <input v-model="kind" type="radio" :value="k" name="report-kind" class="accent-accent">
-              <span>{{ $t(labelFor(k)) }}</span>
-            </label>
-          </div>
-
-          <label class="mt-3 block">
-            <span class="text-xs font-medium text-muted">
-              {{ $t('song.reportNote') }}
-              <span v-if="kind !== 'other'" class="font-normal text-faint">{{ $t('page.optional') }}</span>
-            </span>
-            <textarea
-              v-model="note" rows="3" maxlength="1000"
-              class="mt-1 w-full rounded border border-line-strong px-3 py-2 text-sm outline-none focus:border-accent"
-              :placeholder="$t('song.reportNoteHint')"
-            />
+      <template v-if="!done">
+        <div class="space-y-1.5">
+          <label
+            v-for="k in KINDS" :key="k"
+            class="flex cursor-pointer items-center gap-2 rounded px-2 py-2 text-sm hover:bg-raised"
+          >
+            <input v-model="kind" type="radio" :value="k" name="report-kind" class="accent-accent">
+            <span>{{ $t(labelFor(k)) }}</span>
           </label>
+        </div>
 
-          <p v-if="error" class="mt-2 text-sm text-rose-700">{{ error }}</p>
+        <label class="mt-3 block">
+          <span class="text-xs font-medium text-muted">
+            {{ $t('song.reportNote') }}
+            <span v-if="kind !== 'other'" class="font-normal text-faint">{{ $t('page.optional') }}</span>
+          </span>
+          <textarea
+            v-model="note" rows="3" maxlength="1000"
+            class="mt-1 w-full rounded border border-line-strong bg-panel px-3 py-2 text-sm outline-none focus:border-accent"
+            :placeholder="$t('song.reportNoteHint')"
+          />
+        </label>
 
-          <div class="mt-4 flex justify-end gap-2 text-sm">
-            <button class="rounded px-3 py-1.5 text-muted hover:text-accent" @click="open = false">
-              {{ $t('song.cancel') }}
-            </button>
-            <button
-              class="rounded bg-accent px-3 py-1.5 text-on-accent disabled:opacity-40"
-              :disabled="!canSend"
-              @click="send"
-            >{{ sending ? $t('song.reportSending') : $t('song.reportSend') }}</button>
-          </div>
+        <p v-if="error" class="mt-2 text-sm text-danger">{{ error }}</p>
+      </template>
+
+      <p v-else class="text-sm">{{ $t('song.reportThanks') }}</p>
+
+      <template #actions>
+        <template v-if="!done">
+          <button
+            type="button" class="rounded px-4 py-2 text-sm text-muted hover:text-ink"
+            @click="open = false"
+          >{{ $t('song.cancel') }}</button>
+          <button
+            type="button"
+            class="rounded bg-accent px-4 py-2 text-sm font-medium text-on-accent disabled:opacity-40"
+            :disabled="!canSend" @click="send"
+          >{{ sending ? $t('song.reportSending') : $t('song.reportSend') }}</button>
         </template>
 
-        <template v-else>
-          <p class="text-sm">{{ $t('song.reportThanks') }}</p>
-          <div class="mt-4 flex justify-end">
-            <button class="rounded bg-accent px-3 py-1.5 text-sm text-on-accent" @click="open = false">
-              {{ $t('common.close') }}
-            </button>
-          </div>
-        </template>
-      </div>
-    </div>
+        <button
+          v-else type="button"
+          class="rounded bg-ink px-4 py-2 text-sm font-medium text-on-ink hover:bg-accent"
+          @click="open = false"
+        >{{ $t('common.close') }}</button>
+      </template>
+    </AppModal>
   </div>
 </template>

@@ -86,6 +86,7 @@ const itemClass =
 
 <template>
   <div class="min-h-screen bg-surface text-ink">
+    <SiteNotice />
     <LanguageSuggestion data-print="hide" />
 
     <header class="sticky top-0 z-10 border-b border-line bg-surface/90 backdrop-blur">
@@ -142,6 +143,17 @@ const itemClass =
           </NuxtLink>
 
           <NuxtLink
+            v-if="auth.isAuthenticated" :to="localePath('/profil')"
+            :class="itemClass" active-class="text-accent" :title="$t('nav.profile')"
+          >
+            <UserAvatar
+              :name="auth.user?.username || '?'" :user-id="auth.user?.id"
+              :has-avatar="auth.user?.hasAvatar" size="sm"
+            />
+            <span>{{ $t('nav.profile') }}</span>
+          </NuxtLink>
+
+          <NuxtLink
             v-if="!auth.isAuthenticated" :to="localePath('/prijava')"
             :class="itemClass" :title="$t('nav.login')"
           >
@@ -149,10 +161,7 @@ const itemClass =
             <span>{{ $t('nav.login') }}</span>
           </NuxtLink>
 
-          <button v-else type="button" :class="itemClass" :title="$t('nav.logout')" @click="auth.logout()">
-            <Icon name="material-symbols:logout-rounded" />
-            <span>{{ $t('nav.logout') }}</span>
-          </button>
+          <LogoutButton v-else />
         </nav>
       </div>
 
@@ -180,6 +189,23 @@ const itemClass =
             <span>{{ $t('nav.saved') }}</span>
           </NuxtLink>
 
+
+          <NuxtLink
+
+            v-if="auth.isAuthenticated" :to="localePath('/profil')"
+
+            class="flex items-center gap-3 rounded px-2 py-2.5 text-body hover:bg-raised hover:text-accent"
+
+            active-class="text-accent"
+
+          >
+
+            <Icon name="material-symbols:account-circle-outline" class="text-lg" />
+
+            <span>{{ $t('nav.profile') }}</span>
+
+          </NuxtLink>
+
           <NuxtLink
             v-if="!auth.isAuthenticated" :to="localePath('/prijava')"
             class="flex items-center gap-3 rounded px-2 py-2.5 text-body hover:bg-raised hover:text-accent"
@@ -188,14 +214,7 @@ const itemClass =
             <span>{{ $t('nav.login') }}</span>
           </NuxtLink>
 
-          <button
-            v-else type="button"
-            class="flex items-center gap-3 rounded px-2 py-2.5 text-left text-body hover:bg-raised hover:text-accent"
-            @click="auth.logout()"
-          >
-            <Icon name="material-symbols:logout-rounded" class="text-lg" />
-            <span>{{ $t('nav.logout') }}</span>
-          </button>
+          <LogoutButton v-else block />
 
           <div class="mt-1 flex items-center gap-1 border-t border-line px-2 pt-2">
             <LanguageSwitcher />

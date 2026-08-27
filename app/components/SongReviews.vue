@@ -81,9 +81,10 @@ async function submit() {
     posting.value = false;
   }
 }
+const removing = ref(false);
+
 
 async function remove() {
-  if (!confirm(t('reviews.removeConfirm'))) return;
   await $api(`/reviews/${mine.value._id}`, { method: 'DELETE' });
   mine.value = null;
   await load(1);
@@ -98,7 +99,7 @@ const when = (iso) => new Date(iso).toLocaleDateString(locale.value);
 </script>
 
 <template>
-  <section class="mt-10 border-t border-line pt-6">
+  <section id="recenzije" class="mt-10 border-t border-line pt-6">
     <header class="mb-4 flex flex-wrap items-baseline gap-x-3">
       <h2 class="text-lg font-semibold tracking-tight">{{ $t('reviews.title') }}</h2>
       <span class="text-sm text-faint">{{ $t('reviews.count', { n: total }, total) }}</span>
@@ -112,7 +113,7 @@ const when = (iso) => new Date(iso).toLocaleDateString(locale.value);
           class="w-full rounded border border-line-strong bg-panel px-3 py-2 text-sm outline-none focus:border-accent"
           :placeholder="$t('reviews.placeholder')"
         />
-        <p v-if="error" class="mt-1 text-sm text-rose-700">{{ error }}</p>
+        <p v-if="error" class="mt-1 text-sm text-danger">{{ error }}</p>
         <div class="mt-2 flex gap-2">
           <button
             class="rounded bg-accent px-3 py-1.5 text-sm text-on-accent disabled:opacity-40"
@@ -123,25 +124,47 @@ const when = (iso) => new Date(iso).toLocaleDateString(locale.value);
         </div>
       </form>
 
+      <!--
+        The reader's own review, shaped exactly like everyone else's.
+
+        AI-DECISION: this used to be a card headed "Your review" with no portrait and
+        no name — which is the one review on the page where the author is already
+        known, but it also made it look like a different kind of thing than the rest
+        of the list. Now it matches, and a small tag carries the "yours" part.
+      -->
       <div v-else-if="mine" class="rounded border border-accent/30 bg-accent/[0.03] px-4 py-3">
-        <div class="flex flex-wrap items-baseline gap-x-2 text-sm">
-          <span class="font-medium">{{ $t('reviews.yours') }}</span>
-          <span class="text-xs text-faint">{{ when(mine.createdAt) }}</span>
-          <span v-if="mine.editedAt" class="text-xs text-faint">· {{ $t('reviews.edited') }}</span>
-          <span class="ml-auto flex gap-3">
-            <button class="py-3.5 -my-3.5 text-xs text-faint hover:text-accent" @click="startWriting">
-              {{ $t('reviews.edit') }}
-            </button>
-            <button class="py-3.5 -my-3.5 text-xs text-faint hover:text-rose-700" @click="remove">
-              {{ $t('reviews.remove') }}
-            </button>
-          </span>
+        <div class="flex gap-3">
+          <UserAvatar
+            :name="auth.user?.username || '?'" :user-id="auth.user?.id"
+            :has-avatar="auth.user?.hasAvatar" :flag="auth.user?.flag || ''"
+          />
+
+          <div class="min-w-0 flex-1">
+            <div class="flex flex-wrap items-baseline gap-x-2 text-sm">
+              <span class="font-medium">{{ auth.user?.username }}</span>
+              <span class="rounded bg-accent-soft px-1.5 py-0.5 text-[10px] font-medium text-accent">
+                {{ $t('reviews.yoursTag') }}
+              </span>
+              <span class="text-xs text-faint">{{ when(mine.createdAt) }}</span>
+              <span v-if="mine.editedAt" class="text-xs text-faint">· {{ $t('reviews.edited') }}</span>
+
+              <span class="ml-auto flex gap-3">
+                <button class="-my-3.5 py-3.5 text-xs text-faint hover:text-accent" @click="startWriting">
+                  {{ $t('reviews.edit') }}
+                </button>
+                <button class="-my-3.5 py-3.5 text-xs text-faint hover:text-danger" @click="removing = true">
+                  {{ $t('reviews.remove') }}
+                </button>
+              </span>
+            </div>
+
+            <p class="mt-1.5 whitespace-pre-wrap text-sm text-ink">{{ mine.body }}</p>
+            <ReviewComments
+              :review-id="mine._id" :count="mine.commentCount"
+              @changed="(d) => adjustCount(mine, d)"
+            />
+          </div>
         </div>
-        <p class="mt-1.5 whitespace-pre-wrap text-sm text-ink">{{ mine.body }}</p>
-        <ReviewComments
-          :review-id="mine._id" :count="mine.commentCount"
-          @changed="(d) => adjustCount(mine, d)"
-        />
       </div>
 
       <button
@@ -163,13 +186,22 @@ const when = (iso) => new Date(iso).toLocaleDateString(locale.value);
 
     <ul v-else class="space-y-5">
       <li v-for="r in others" :key="r._id" class="border-b border-line-soft pb-5 last:border-0">
-        <div class="flex flex-wrap items-baseline gap-x-2 text-sm">
-          <span class="font-medium">{{ r.author }}</span>
-          <span class="text-xs text-faint">{{ when(r.createdAt) }}</span>
-          <span v-if="r.editedAt" class="text-xs text-faint">· {{ $t('reviews.edited') }}</span>
+        <div class="flex gap-3">
+          <UserAvatar
+            :name="r.author || '?'" :user-id="r.authorId"
+            :has-avatar="r.authorHasAvatar" :flag="r.authorFlag || ''"
+          />
+
+          <div class="min-w-0 flex-1">
+            <div class="flex flex-wrap items-baseline gap-x-2 text-sm">
+              <span class="font-medium">{{ r.author }}</span>
+              <span class="text-xs text-faint">{{ when(r.createdAt) }}</span>
+              <span v-if="r.editedAt" class="text-xs text-faint">· {{ $t('reviews.edited') }}</span>
+            </div>
+            <p class="mt-1 whitespace-pre-wrap text-sm text-ink">{{ r.body }}</p>
+            <ReviewComments :review-id="r._id" :count="r.commentCount" @changed="(d) => adjustCount(r, d)" />
+          </div>
         </div>
-        <p class="mt-1 whitespace-pre-wrap text-sm text-ink">{{ r.body }}</p>
-        <ReviewComments :review-id="r._id" :count="r.commentCount" @changed="(d) => adjustCount(r, d)" />
       </li>
     </ul>
 
@@ -179,5 +211,15 @@ const when = (iso) => new Date(iso).toLocaleDateString(locale.value);
       :disabled="loading"
       @click="load(page + 1)"
     >{{ loading ? $t('common.loading') : $t('reviews.loadMore') }}</button>
-  </section>
+  
+    <AppModal
+      v-model="removing"
+      :title="$t('reviews.removeTitle')"
+      :description="$t('reviews.removeConfirm')"
+      :confirm-label="$t('reviews.remove')"
+      :cancel-label="$t('common.cancel')"
+      tone="danger"
+      @confirm="removing = false; remove()"
+    />
+</section>
 </template>

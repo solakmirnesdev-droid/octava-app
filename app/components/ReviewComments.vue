@@ -58,8 +58,10 @@ async function post() {
   }
 }
 
+/** Held while the dialog is up; cleared whichever way it closes. */
+const pendingRemoval = ref(null);
+
 async function remove(comment) {
-  if (!confirm(t('reviews.removeComment'))) return;
   await $api(`/comments/${comment._id}`, { method: 'DELETE' });
   items.value = items.value.filter((c) => c._id !== comment._id);
   emit('changed', -1);
@@ -84,18 +86,27 @@ const when = (iso) => new Date(iso).toLocaleDateString(locale.value);
       <p v-else-if="!items.length" class="text-xs text-faint">{{ $t('reviews.noComments') }}</p>
 
       <ul v-else class="space-y-3">
-        <li v-for="c in items" :key="c._id" class="text-sm">
-          <div class="flex flex-wrap items-baseline gap-x-2">
-            <span class="font-medium">{{ c.author }}</span>
-            <span class="text-xs text-faint">{{ when(c.createdAt) }}</span>
-            <span v-if="c.editedAt" class="text-xs text-faint">· {{ $t('reviews.edited') }}</span>
-            <button
-              v-if="c.mine"
-              class="ml-auto py-3.5 -my-3.5 text-xs text-faint hover:text-rose-700"
-              @click="remove(c)"
-            >{{ $t('reviews.remove') }}</button>
+        <li v-for="c in items" :key="c._id" class="flex gap-2.5 text-sm">
+          <!-- Smaller than the review's: a comment is a reply, and matching
+               sizes would make the thread read as a list of equals. -->
+          <UserAvatar
+            :name="c.author || '?'" :user-id="c.authorId"
+            :has-avatar="c.authorHasAvatar" :flag="c.authorFlag || ''" size="sm"
+          />
+
+          <div class="min-w-0 flex-1">
+            <div class="flex flex-wrap items-baseline gap-x-2">
+              <span class="font-medium">{{ c.author }}</span>
+              <span class="text-xs text-faint">{{ when(c.createdAt) }}</span>
+              <span v-if="c.editedAt" class="text-xs text-faint">· {{ $t('reviews.edited') }}</span>
+              <button
+                v-if="c.mine"
+                class="ml-auto py-3.5 -my-3.5 text-xs text-faint hover:text-danger"
+                @click="pendingRemoval = c"
+              >{{ $t('reviews.remove') }}</button>
+            </div>
+            <p class="mt-0.5 whitespace-pre-wrap text-ink">{{ c.body }}</p>
           </div>
-          <p class="mt-0.5 whitespace-pre-wrap text-ink">{{ c.body }}</p>
         </li>
       </ul>
 
@@ -117,5 +128,16 @@ const when = (iso) => new Date(iso).toLocaleDateString(locale.value);
         class="mt-3 inline-block text-xs text-faint hover:text-accent"
       >{{ $t('reviews.signInToReply') }}</NuxtLink>
     </div>
+
+    <AppModal
+      :model-value="Boolean(pendingRemoval)"
+      :title="$t('reviews.removeCommentTitle')"
+      :description="$t('reviews.removeComment')"
+      :confirm-label="$t('reviews.remove')"
+      :cancel-label="$t('common.cancel')"
+      tone="danger"
+      @update:model-value="(open) => { if (!open) pendingRemoval = null; }"
+      @confirm="() => { const c = pendingRemoval; pendingRemoval = null; remove(c); }"
+    />
   </div>
 </template>
