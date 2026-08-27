@@ -32,7 +32,7 @@ useSeoMeta({ title: t('meta.forgotTitle'), robots: 'noindex, nofollow' });
       <NuxtLink :to="localePath('/')" class="text-2xl font-semibold tracking-tight">Octava</NuxtLink>
 
       <template v-if="!sent">
-        <p class="mt-1 mb-8 text-sm text-black/50">
+        <p class="mt-1 mb-8 text-sm text-muted">
           {{ $t('auth.resetLead') }}
         </p>
 
@@ -41,7 +41,7 @@ useSeoMeta({ title: t('meta.forgotTitle'), robots: 'noindex, nofollow' });
           <input
             id="email" v-model="email" type="email" required autocomplete="username"
             autofocus inputmode="email"
-            class="mb-6 w-full rounded border border-black/15 bg-white px-3 py-2 outline-none focus:border-accent"
+            class="mb-6 w-full rounded border border-line-strong bg-panel px-3 py-2 outline-none focus:border-accent"
           />
 
           <TurnstileWidget v-model="turnstileToken" />
@@ -49,25 +49,25 @@ useSeoMeta({ title: t('meta.forgotTitle'), robots: 'noindex, nofollow' });
 
           <button
             type="submit" :disabled="sending"
-            class="w-full rounded bg-ink py-2.5 font-medium text-white hover:bg-accent disabled:opacity-50"
+            class="w-full rounded bg-ink py-2.5 font-medium text-on-ink hover:bg-accent disabled:opacity-50"
           >
             {{ sending ? 'Šaljem…' : 'Pošalji link' }}
           </button>
         </form>
       </template>
 
-      <div v-else class="mt-6 rounded border border-black/10 bg-white p-5">
+      <div v-else class="mt-6 rounded border border-line bg-panel p-5">
         <!-- i18n-t rather than a plain key: the address stays inside its own
                  <strong>, and the sentence can put it wherever the language needs. -->
-            <i18n-t keypath="auth.resetSent" tag="p" class="text-sm text-black/70" scope="global">
+            <i18n-t keypath="auth.resetSent" tag="p" class="text-sm text-body" scope="global">
               <template #email><strong>{{ email }}</strong></template>
             </i18n-t>
-        <p class="mt-2 text-xs text-black/45">
+        <p class="mt-2 text-xs text-faint">
           {{ $t('auth.resetValid') }}
         </p>
       </div>
 
-      <p class="mt-6 text-center text-sm text-black/50">
+      <p class="mt-6 text-center text-sm text-muted">
         <NuxtLink :to="localePath('/prijava')" class="text-accent hover:underline">{{ $t('auth.backToSignIn') }}</NuxtLink>
       </p>
     </div>

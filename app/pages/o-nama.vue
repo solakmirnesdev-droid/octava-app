@@ -22,22 +22,22 @@ useSeoMeta({
   <article class="mx-auto max-w-2xl">
     <h1 class="text-2xl font-semibold tracking-tight">{{ $t('about.title') }}</h1>
 
-    <p class="mt-4 text-black/70">{{ $t('about.lead') }}</p>
+    <p class="mt-4 text-body">{{ $t('about.lead') }}</p>
 
     <h2 class="mt-8 text-lg font-semibold">{{ $t('about.whyTitle') }}</h2>
-    <p class="mt-2 text-black/70">{{ $t('about.why') }}</p>
+    <p class="mt-2 text-body">{{ $t('about.why') }}</p>
 
     <h2 class="mt-8 text-lg font-semibold">{{ $t('about.notationTitle') }}</h2>
     <!-- i18n-t, not a plain key: the note names keep their monospace, and the
          sentence around them is free to reorder in translation. -->
-    <i18n-t keypath="about.notation" tag="p" class="mt-2 text-black/70" scope="global">
+    <i18n-t keypath="about.notation" tag="p" class="mt-2 text-body" scope="global">
       <template #h><strong class="font-mono">H</strong></template>
       <template #sharp><span class="font-mono">A#</span></template>
       <template #flat><span class="font-mono">B♭</span></template>
     </i18n-t>
 
     <h2 class="mt-8 text-lg font-semibold">{{ $t('about.toolsTitle') }}</h2>
-    <ul class="mt-2 space-y-2 text-black/70">
+    <ul class="mt-2 space-y-2 text-body">
       <li>
         <i18n-t keypath="about.tunerDesc" scope="global">
           <template #link>
@@ -65,13 +65,13 @@ useSeoMeta({
     </ul>
 
     <h2 class="mt-8 text-lg font-semibold">{{ $t('about.contentTitle') }}</h2>
-    <i18n-t keypath="about.content" tag="p" class="mt-2 text-black/70" scope="global">
+    <i18n-t keypath="about.content" tag="p" class="mt-2 text-body" scope="global">
       <template #request>
         <NuxtLink :to="localePath('/zatrazi')" class="text-accent hover:underline">{{ $t('about.requestVerb') }}</NuxtLink>
       </template>
     </i18n-t>
 
-    <p v-if="data?.counts?.songs" class="mt-8 font-mono text-sm text-black/45">
+    <p v-if="data?.counts?.songs" class="mt-8 font-mono text-sm text-faint">
       {{ $t('about.counts', { songs: data.counts.songs, artists: data.counts.artists, genres: data.counts.genres }) }}
     </p>
   </article>

@@ -71,42 +71,42 @@ const when = (iso) => new Date(iso).toLocaleDateString(locale.value);
 <template>
   <div class="mt-2">
     <button
-      class="py-3.5 -my-3.5 text-xs text-black/45 hover:text-accent"
+      class="py-3.5 -my-3.5 text-xs text-faint hover:text-accent"
       :aria-expanded="open"
       @click="toggle"
     >
       {{ open ? $t('reviews.hideComments') : $t('reviews.commentCount', { n: count }, count) }}
     </button>
 
-    <div v-if="open" class="mt-3 border-l-2 border-black/10 pl-4">
-      <p v-if="loading" class="text-xs text-black/40">{{ $t('common.loading') }}</p>
+    <div v-if="open" class="mt-3 border-l-2 border-line pl-4">
+      <p v-if="loading" class="text-xs text-faint">{{ $t('common.loading') }}</p>
 
-      <p v-else-if="!items.length" class="text-xs text-black/40">{{ $t('reviews.noComments') }}</p>
+      <p v-else-if="!items.length" class="text-xs text-faint">{{ $t('reviews.noComments') }}</p>
 
       <ul v-else class="space-y-3">
         <li v-for="c in items" :key="c._id" class="text-sm">
           <div class="flex flex-wrap items-baseline gap-x-2">
             <span class="font-medium">{{ c.author }}</span>
-            <span class="text-xs text-black/35">{{ when(c.createdAt) }}</span>
-            <span v-if="c.editedAt" class="text-xs text-black/30">· {{ $t('reviews.edited') }}</span>
+            <span class="text-xs text-faint">{{ when(c.createdAt) }}</span>
+            <span v-if="c.editedAt" class="text-xs text-faint">· {{ $t('reviews.edited') }}</span>
             <button
               v-if="c.mine"
-              class="ml-auto py-3.5 -my-3.5 text-xs text-black/35 hover:text-rose-700"
+              class="ml-auto py-3.5 -my-3.5 text-xs text-faint hover:text-rose-700"
               @click="remove(c)"
             >{{ $t('reviews.remove') }}</button>
           </div>
-          <p class="mt-0.5 whitespace-pre-wrap text-black/75">{{ c.body }}</p>
+          <p class="mt-0.5 whitespace-pre-wrap text-ink">{{ c.body }}</p>
         </li>
       </ul>
 
       <form v-if="auth.isAuthenticated" class="mt-3 flex gap-2" @submit.prevent="post">
         <input
           v-model="draft" maxlength="2000"
-          class="min-w-0 flex-1 rounded border border-black/15 px-3 py-1.5 text-sm outline-none focus:border-accent"
+          class="min-w-0 flex-1 rounded border border-line-strong px-3 py-1.5 text-sm outline-none focus:border-accent"
           :placeholder="$t('reviews.commentPlaceholder')"
         >
         <button
-          class="shrink-0 rounded bg-accent px-3 py-1.5 text-sm text-white disabled:opacity-40"
+          class="shrink-0 rounded bg-accent px-3 py-1.5 text-sm text-on-accent disabled:opacity-40"
           :disabled="!draft.trim() || posting"
         >{{ posting ? $t('reviews.saving') : $t('reviews.reply') }}</button>
       </form>
@@ -114,7 +114,7 @@ const when = (iso) => new Date(iso).toLocaleDateString(locale.value);
       <NuxtLink
         v-else
         :to="localePath({ path: '/prijava', query: { redirect: route.fullPath } })"
-        class="mt-3 inline-block text-xs text-black/45 hover:text-accent"
+        class="mt-3 inline-block text-xs text-faint hover:text-accent"
       >{{ $t('reviews.signInToReply') }}</NuxtLink>
     </div>
   </div>

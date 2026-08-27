@@ -255,6 +255,12 @@
     "noContact": "Ovdje treba stajati adresa na koju se šalju zahtjevi vezani za podatke. Dok je nema, korisnik nema način da ostvari prava navedena iznad.",
     "disclaimer": "Ovaj tekst opisuje kako sajt stvarno radi, ali nije pravni savjet. Prije puštanja u rad neka ga pregleda neko ko se time bavi."
   },
+  "theme": {
+    "switch": "Tema: {mode}",
+    "system": "sistemska",
+    "light": "svijetla",
+    "dark": "tamna"
+  },
   "chord": {
     "major": "dur",
     "minor": "mol",
@@ -267,7 +273,28 @@
     "aug": "prekomjerni",
     "sixth": "sekstakord",
     "minor6": "mol 6",
-    "add9": "add9"
+    "add9": "add9",
+    "fifth": "kvinta",
+    "minorMajor7": "mol veliki 7",
+    "dim7": "umanjeni 7",
+    "halfDim": "polumanjeni",
+    "augSeventh": "prekomjerni 7",
+    "sevenSus4": "7sus4",
+    "minorAdd9": "mol add9",
+    "ninth": "nonakord",
+    "major9": "veliki 9",
+    "minor9": "mol 9",
+    "eleventh": "undecima",
+    "minor11": "mol 11",
+    "thirteenth": "tercdecima",
+    "sevenFlat9": "7 sa b9",
+    "sevenSharp9": "7 sa #9",
+    "shapeCount": "oblik {n} od {total}",
+    "nextShape": "sljedeći oblik",
+    "prevShape": "prethodni oblik",
+    "position": "pozicija",
+    "openStrings": "prazne žice",
+    "barreAt": "barre na {fret}. pragu"
   },
   "terms": {
     "title": "Uslovi korištenja",

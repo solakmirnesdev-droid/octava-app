@@ -44,13 +44,13 @@ function remember(choice) {
 <template>
   <div
     v-if="visible && suggested"
-    class="border-b border-black/10 bg-accent/5"
+    class="border-b border-line bg-accent/5"
     role="region"
     :aria-label="$t('language.switch')"
   >
     <div class="mx-auto flex max-w-5xl flex-wrap items-center gap-3 px-5 py-2 text-sm">
       <Icon name="material-symbols:language" class="text-accent" />
-      <span class="text-black/70">{{ $t('language.suggestion') }}</span>
+      <span class="text-body">{{ $t('language.suggestion') }}</span>
 
       <NuxtLink
         :to="switchLocalePath(suggested.code)"
@@ -60,7 +60,7 @@ function remember(choice) {
         {{ $t('language.viewIn') }}
       </NuxtLink>
 
-      <button class="ml-auto text-xs text-black/40 hover:text-accent" @click="remember(locale)">
+      <button class="ml-auto text-xs text-faint hover:text-accent" @click="remember(locale)">
         {{ $t('language.dismiss') }}
       </button>
     </div>

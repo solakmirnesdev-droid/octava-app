@@ -1,11 +1,133 @@
 @import "tailwindcss";
 
-@theme {
-  --color-ink: #12100f;
-  --color-surface: #faf8f5;
-  --color-accent: #b4472f;
+/*
+ * Colour is semantic, never literal.
+ *
+ * AI-DECISION: components name the *role* a colour plays — `text-muted`,
+ * `border-line`, `bg-panel` — and this file decides what that role looks like in
+ * each theme. Before this, 541 uses of `text-black/40` and friends were spread
+ * across 39 files, and dark mode was impossible: `text-black/40` compiles to a
+ * literal `rgb(0 0 0 / 0.4)` that no variable can flip. See AI-NOTES.md §4.
+ *
+ * The switch itself is `light-dark()`, so each token is stated once rather than
+ * duplicated under a media query and again under a class. Which half applies is
+ * decided by `color-scheme` on :root — `light dark` follows the operating
+ * system, and an explicit choice pins it. That means the system preference works
+ * with no JavaScript at all, and nothing can flash the wrong theme on first
+ * paint.
+ *
+ * AI-TRAP: every token below except the surfaces and the solids is deliberately
+ * *translucent*. `bg-raised` sits on cards and on the page ground alike and has
+ * to composite with whatever is underneath; making it opaque would look right in
+ * one place and wrong in the other. It also keeps light mode pixel-identical to
+ * what it was before the tokens existed.
+ */
+@theme inline {
+  --color-surface: var(--surface);
+  --color-panel: var(--panel);
+  --color-raised: var(--raised);
+  --color-sunken: var(--sunken);
+
+  --color-line-soft: var(--line-soft);
+  --color-line: var(--line);
+  --color-line-strong: var(--line-strong);
+
+  --color-ink: var(--text-strong);
+  --color-body: var(--text-body);
+  --color-muted: var(--text-muted);
+  --color-faint: var(--text-faint);
+  --color-dim: var(--text-dim);
+  --color-on-ink: var(--on-ink);
+
+  --color-accent: var(--accent);
+  --color-accent-soft: var(--accent-soft);
+  --color-on-accent: var(--on-accent);
+
   --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
   --font-mono: "JetBrains Mono", ui-monospace, "SF Mono", monospace;
+}
+
+:root {
+  /* Follow the operating system until the reader says otherwise. */
+  color-scheme: light dark;
+
+  /* Grounds. Warm on both sides — a blue-black would fight the terracotta. */
+  --surface: light-dark(#faf8f5, #16130f);
+  --panel: light-dark(#ffffff, #1e1a16);
+  --raised: light-dark(rgb(0 0 0 / 0.05), rgb(255 255 255 / 0.07));
+  --sunken: light-dark(rgb(0 0 0 / 0.10), rgb(255 255 255 / 0.12));
+
+  /* Hairlines, in the three weights the components actually use. */
+  --line-soft: light-dark(rgb(0 0 0 / 0.05), rgb(255 255 255 / 0.07));
+  --line: light-dark(rgb(0 0 0 / 0.10), rgb(255 255 255 / 0.13));
+  --line-strong: light-dark(rgb(0 0 0 / 0.15), rgb(255 255 255 / 0.20));
+
+  /*
+   * The text ladder, strongest first.
+   *
+   * AI-DECISION: the light half is tuned to WCAG AA, not to taste. On #faf8f5
+   * nothing below 0.538 opacity clears 4.5:1, and `faint` used to sit at 0.40 —
+   * 2.83:1, carrying real content at 85 sites. Raising it forced the whole
+   * ladder up, because 0.54 and the old `muted` 0.55 are the same colour.
+   *
+   * The cost is a visibly darker light mode and less separation between the
+   * steps: 8.97 / 6.57 / 4.53 rather than 8.97 / 4.69 / 2.83. That is the trade,
+   * and it was made deliberately — a hierarchy nobody can read is not one.
+   *
+   * AI-TRAP: `text-dim` is 1.83:1 and does NOT pass. It is for furniture only —
+   * dividers, empty stars, an inactive icon. Never put words a reader needs into
+   * it; use `text-faint`.
+   *
+   * Dark values carry slightly more opacity than their light counterparts: light
+   * text on a dark ground reads dimmer than dark text on a light one at the same
+   * figure.
+   */
+  --text-strong: light-dark(#12100f, #f5f1ec);
+  --text-body: light-dark(rgb(0 0 0 / 0.72), rgb(255 255 255 / 0.80));
+  --text-muted: light-dark(rgb(0 0 0 / 0.64), rgb(255 255 255 / 0.62));
+  --text-faint: light-dark(rgb(0 0 0 / 0.54), rgb(255 255 255 / 0.46));
+  --text-dim: light-dark(rgb(0 0 0 / 0.25), rgb(255 255 255 / 0.30));
+
+  /*
+   * Solid fills and what goes on top of them. These come in pairs because both
+   * halves have to invert together: `bg-ink` becomes near-white in dark mode, so
+   * a hard-coded `text-white` on it would vanish.
+   */
+  --on-ink: light-dark(#ffffff, #16130f);
+
+  /*
+   * The terracotta lightens in dark mode. #b4472f against #16130f is 2.6:1,
+   * which fails for text; #e2795c reaches 5.3:1. Its companion darkens to match.
+   */
+  --accent: light-dark(#b4472f, #e2795c);
+  --accent-soft: light-dark(rgb(180 71 47 / 0.10), rgb(226 121 92 / 0.16));
+  --on-accent: light-dark(#ffffff, #1a1310);
+}
+
+/* An explicit choice pins the scheme; `light-dark()` follows it from there. */
+[data-theme="light"] {
+  color-scheme: light;
+}
+
+[data-theme="dark"] {
+  color-scheme: dark;
+}
+
+/*
+ * Only the act of switching animates.
+ *
+ * AI-TRAP: a permanent global transition on colour makes every hover and every
+ * route change feel laggy, and can catch the first paint. The toggle adds this
+ * class, waits, and takes it off again.
+ */
+@media (prefers-reduced-motion: no-preference) {
+  html.theme-switching,
+  html.theme-switching *,
+  html.theme-switching *::before,
+  html.theme-switching *::after {
+    transition: background-color 180ms ease, border-color 180ms ease,
+      color 180ms ease, fill 180ms ease, stroke 180ms ease;
+  }
 }
 
 /*
@@ -45,9 +167,14 @@ button:disabled {
     display: none !important;
   }
 
-  /* Backgrounds cost ink and gain nothing on white paper. */
+  /*
+   * Paper has no dark mode. Pinning the scheme makes every light-dark() token
+   * resolve to its light half, so a reader printing at night still gets black
+   * on white rather than a page of toner.
+   */
   :root,
   body {
+    color-scheme: light !important;
     background: #fff !important;
     color: #000 !important;
   }

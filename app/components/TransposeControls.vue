@@ -74,33 +74,33 @@ function pick(offset) {
 <template>
   <div class="flex flex-col gap-1.5">
     <div class="flex flex-wrap items-center gap-2">
-      <span class="hidden text-xs font-medium uppercase tracking-wide text-black/40 sm:inline">{{ $t('song.key') }}</span>
+      <span class="hidden text-xs font-medium uppercase tracking-wide text-faint sm:inline">{{ $t('song.key') }}</span>
 
-      <div class="flex items-center overflow-hidden rounded border border-black/15 bg-white">
-        <button class="px-2.5 py-1.5 text-sm font-medium hover:bg-black/5 hover:text-accent"
+      <div class="flex items-center overflow-hidden rounded border border-line-strong bg-panel">
+        <button class="px-2.5 py-1.5 text-sm font-medium hover:bg-raised hover:text-accent"
                 :title="$t('song.semitonesDown', { n: 2 }, 2)" @click="shift(-2)">−2</button>
-        <button class="border-l border-black/10 px-2.5 py-1.5 text-sm font-medium hover:bg-black/5 hover:text-accent"
+        <button class="border-l border-line px-2.5 py-1.5 text-sm font-medium hover:bg-raised hover:text-accent"
                 :title="$t('song.semitonesDown', { n: 1 }, 1)" @click="shift(-1)">−1</button>
 
         <button
-          class="min-w-[4.75rem] border-x border-black/10 px-2 py-1.5 text-center hover:bg-black/5"
+          class="min-w-[4.75rem] border-x border-line px-2 py-1.5 text-center hover:bg-raised"
           :title="$t('song.chooseKey')"
           :aria-expanded="open"
           @click="open = !open"
         >
           <span class="block font-mono text-sm font-semibold leading-none">{{ currentKey || '—' }}</span>
-          <span class="mt-0.5 block text-[10px] leading-none text-black/40">{{ offsetLabel }}</span>
+          <span class="mt-0.5 block text-[10px] leading-none text-faint">{{ offsetLabel }}</span>
         </button>
 
-        <button class="px-2.5 py-1.5 text-sm font-medium hover:bg-black/5 hover:text-accent"
+        <button class="px-2.5 py-1.5 text-sm font-medium hover:bg-raised hover:text-accent"
                 :title="$t('song.semitonesUp', { n: 1 }, 1)" @click="shift(1)">+1</button>
-        <button class="border-l border-black/10 px-2.5 py-1.5 text-sm font-medium hover:bg-black/5 hover:text-accent"
+        <button class="border-l border-line px-2.5 py-1.5 text-sm font-medium hover:bg-raised hover:text-accent"
                 :title="$t('song.semitonesUp', { n: 2 }, 2)" @click="shift(2)">+2</button>
       </div>
 
       <button
         v-if="value !== 0"
-        class="text-xs text-black/40 underline hover:text-accent"
+        class="text-xs text-faint underline hover:text-accent"
         @click="set(0)"
       >
         vrati na {{ originalKey }}
@@ -108,11 +108,11 @@ function pick(offset) {
     </div>
 
     <!-- All twelve destinations. There is no thirteenth: the interval wraps. -->
-    <div v-if="open" class="flex flex-wrap gap-1 rounded border border-black/10 bg-white p-2">
+    <div v-if="open" class="flex flex-wrap gap-1 rounded border border-line bg-panel p-2">
       <button
         v-for="key in keys" :key="key.offset"
-        class="min-w-[3.25rem] rounded px-2 py-1 text-center hover:bg-accent/10"
-        :class="key.shift === value ? 'bg-ink text-white hover:bg-ink' : ''"
+        class="min-w-[3.25rem] rounded px-2 py-1 text-center hover:bg-accent-soft"
+        :class="key.shift === value ? 'bg-ink text-on-ink hover:bg-ink' : ''"
         @click="pick(key.offset)"
       >
         <span class="block font-mono text-sm font-semibold leading-none">{{ key.name }}</span>
@@ -122,7 +122,7 @@ function pick(offset) {
       </button>
     </div>
 
-    <i18n-t keypath="song.sameSound" tag="p" v-if="capoHint" class="text-xs text-black/45" scope="global">
+    <i18n-t keypath="song.sameSound" tag="p" v-if="capoHint" class="text-xs text-faint" scope="global">
         <template #fret><strong>{{ capoHint.fret }}</strong></template>
         <template #key><strong class="font-mono">{{ capoHint.shapes }}</strong></template>
       </i18n-t>

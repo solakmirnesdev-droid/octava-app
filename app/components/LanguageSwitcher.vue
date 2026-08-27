@@ -11,7 +11,7 @@ const other = computed(() => locales.value.find((l) => l.code !== locale.value))
   <NuxtLink
     v-if="other"
     :to="switchLocalePath(other.code)"
-    class="flex shrink-0 items-center gap-1.5 rounded px-2 py-1.5 text-black/70 hover:bg-black/5 hover:text-accent"
+    class="flex shrink-0 items-center gap-1.5 rounded px-2 py-1.5 text-body hover:bg-raised hover:text-accent"
     :hreflang="other.language"
     :title="other.name"
   >

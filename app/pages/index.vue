@@ -19,16 +19,16 @@ useSeoMeta({
 <template>
   <section class="mb-12">
     <h1 class="text-3xl font-semibold tracking-tight">{{ $t('page.homeTitle') }}</h1>
-    <p class="mt-2 text-black/60">{{ $t('page.homeLead') }}</p>
+    <p class="mt-2 text-muted">{{ $t('page.homeLead') }}</p>
   </section>
 
   <section class="mb-10">
-    <h2 class="mb-2 text-sm font-semibold uppercase tracking-wide text-black/40">{{ $t('page.popular') }}</h2>
+    <h2 class="mb-2 text-sm font-semibold uppercase tracking-wide text-faint">{{ $t('page.popular') }}</h2>
     <SongList :songs="data?.popular || []" empty="Još nema objavljenih pjesama." />
   </section>
 
   <section>
-    <h2 class="mb-2 text-sm font-semibold uppercase tracking-wide text-black/40">{{ $t('page.recent') }}</h2>
+    <h2 class="mb-2 text-sm font-semibold uppercase tracking-wide text-faint">{{ $t('page.recent') }}</h2>
     <SongList :songs="data?.recent || []" empty="Još nema objavljenih pjesama." />
   </section>
 </template>

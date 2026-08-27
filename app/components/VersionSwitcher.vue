@@ -36,7 +36,7 @@ const scoreOf = (a) => (a.ratingCount ? Number(a.rating).toFixed(1) : null);
 
 <template>
   <div v-if="many" class="mb-6">
-    <p class="mb-2 text-xs font-medium uppercase tracking-wide text-black/40">
+    <p class="mb-2 text-xs font-medium uppercase tracking-wide text-faint">
       {{ $t('song.versions') }}
     </p>
 
@@ -47,12 +47,12 @@ const scoreOf = (a) => (a.ratingCount ? Number(a.rating).toFixed(1) : null);
         class="rounded border px-3 py-2 text-left text-sm transition"
         :class="String(a._id) === String(current)
           ? 'border-accent bg-accent/[0.06] text-accent'
-          : 'border-black/15 bg-white text-black/70 hover:border-accent hover:text-accent'"
+          : 'border-line-strong bg-panel text-body hover:border-accent hover:text-accent'"
         :aria-pressed="String(a._id) === String(current)"
         @click="select(a._id)"
       >
         <span class="block font-medium">{{ a.label }}</span>
-        <span class="mt-0.5 block text-xs text-black/45">
+        <span class="mt-0.5 block text-xs text-faint">
           {{ a.originalKey }}<template v-if="a.capo"> · {{ $t('song.capo') }} {{ a.capo }}</template>
           ·
           <template v-if="scoreOf(a)">

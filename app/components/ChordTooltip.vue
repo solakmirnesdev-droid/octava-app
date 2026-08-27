@@ -80,7 +80,7 @@ watch(() => props.anchor, place);
     <div
       ref="el"
       :style="style"
-      class="z-30 rounded-lg border border-black/10 bg-white p-2 shadow-lg"
+      class="z-30 rounded-lg border border-line bg-panel p-2 shadow-lg"
       @mouseenter="emit('keep')"
       @mouseleave="emit('leave')"
     >

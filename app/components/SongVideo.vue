@@ -25,7 +25,7 @@ const embed = computed(() =>
 
 <template>
   <section class="mt-8">
-    <div class="relative aspect-video w-full overflow-hidden rounded-lg bg-black/5">
+    <div class="relative aspect-video w-full overflow-hidden rounded-lg bg-raised">
       <iframe
         v-if="playing"
         :src="embed"
@@ -58,6 +58,6 @@ const embed = computed(() =>
       </button>
     </div>
 
-    <p class="mt-1.5 text-xs text-black/40">{{ $t('song.listen') }}</p>
+    <p class="mt-1.5 text-xs text-faint">{{ $t('song.listen') }}</p>
   </section>
 </template>

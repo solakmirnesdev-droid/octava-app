@@ -13,23 +13,23 @@ defineProps({
 </script>
 
 <template>
-  <p v-if="!songs.length" class="text-sm text-black/50">{{ empty }}</p>
+  <p v-if="!songs.length" class="text-sm text-muted">{{ empty }}</p>
 
-  <ul v-else class="divide-y divide-black/5">
+  <ul v-else class="divide-y divide-line-soft">
     <li v-for="song in songs" :key="song._id">
       <NuxtLink
         :to="localePath(`/pjesma/${song.slug}`)"
         class="flex items-baseline gap-3 py-3 hover:text-accent"
       >
         <span class="min-w-0 truncate font-medium">{{ song.title }}</span>
-        <span v-if="showArtist" class="truncate text-sm text-black/50">{{ song.artist?.name }}</span>
+        <span v-if="showArtist" class="truncate text-sm text-muted">{{ song.artist?.name }}</span>
 
         <RatingStars
           class="ml-auto self-center"
           :value="song.rating || 0"
           :count="song.ratingCount || 0"
         />
-        <span class="w-8 shrink-0 text-right font-mono text-xs text-black/40">{{ song.originalKey }}</span>
+        <span class="w-8 shrink-0 text-right font-mono text-xs text-faint">{{ song.originalKey }}</span>
       </NuxtLink>
     </li>
   </ul>

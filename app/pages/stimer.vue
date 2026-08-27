@@ -37,21 +37,21 @@ useSeoMeta({
   <div class="mx-auto max-w-xl">
     <header class="mb-8">
       <h1 class="text-2xl font-semibold tracking-tight">{{ $t('page.tuner') }}</h1>
-      <i18n-t keypath="page.tuningLead" tag="p" class="mb-6 text-sm text-black/60" scope="global">
+      <i18n-t keypath="page.tuningLead" tag="p" class="mb-6 text-sm text-muted" scope="global">
         <template #tuning><span class="font-mono">E A D G H E</span></template>
       </i18n-t>
     </header>
 
-    <div class="rounded-lg border border-black/10 bg-white p-6">
+    <div class="rounded-lg border border-line bg-panel p-6">
       <div v-if="!listening" class="py-8 text-center">
         <button
-          class="rounded bg-ink px-6 py-3 font-medium text-white hover:bg-accent"
+          class="rounded bg-ink px-6 py-3 font-medium text-on-ink hover:bg-accent"
           @click="start"
         >
           {{ $t('page.micOn') }}
         </button>
         <p v-if="error" role="alert" class="mt-4 text-sm text-accent">{{ error }}</p>
-        <p v-else class="mt-4 text-xs text-black/40">
+        <p v-else class="mt-4 text-xs text-faint">
           {{ $t('page.micPrivacy') }}
         </p>
       </div>
@@ -60,18 +60,18 @@ useSeoMeta({
         <div class="mb-2 text-center">
           <p class="font-mono text-5xl font-semibold leading-none" :class="inTune ? 'text-green-600' : 'text-ink'">
             {{ reading ? reading.note : '—' }}<span
-              v-if="reading" class="align-super text-xl text-black/30"
+              v-if="reading" class="align-super text-xl text-dim"
             >{{ reading.octave }}</span>
           </p>
           <p v-if="verdict" class="mt-2 text-sm font-medium" :class="verdict.tone">{{ verdict.text }}</p>
-          <p v-else class="mt-2 text-sm text-black/35">{{ $t('page.playString') }}</p>
+          <p v-else class="mt-2 text-sm text-faint">{{ $t('page.playString') }}</p>
         </div>
 
         <!-- Cent scale. Centre is in tune; the shaded band is the tolerance. -->
         <div class="relative mt-6 h-16">
-          <div class="absolute inset-x-0 top-7 h-px bg-black/10" />
+          <div class="absolute inset-x-0 top-7 h-px bg-sunken" />
           <div class="absolute left-1/2 top-4 h-8 w-[10%] -translate-x-1/2 rounded bg-green-600/10" />
-          <div class="absolute left-1/2 top-3 h-10 w-px -translate-x-1/2 bg-black/25" />
+          <div class="absolute left-1/2 top-3 h-10 w-px -translate-x-1/2 bg-line-strong" />
 
           <div
             v-if="reading"
@@ -80,12 +80,12 @@ useSeoMeta({
             :style="{ left: needle + '%' }"
           />
 
-          <span class="absolute left-0 top-12 font-mono text-[10px] text-black/30">−50</span>
-          <span class="absolute left-1/2 top-12 -translate-x-1/2 font-mono text-[10px] text-black/30">0</span>
-          <span class="absolute right-0 top-12 font-mono text-[10px] text-black/30">+50</span>
+          <span class="absolute left-0 top-12 font-mono text-[10px] text-faint">−50</span>
+          <span class="absolute left-1/2 top-12 -translate-x-1/2 font-mono text-[10px] text-dim">0</span>
+          <span class="absolute right-0 top-12 font-mono text-[10px] text-faint">+50</span>
         </div>
 
-        <p class="mt-2 text-center font-mono text-xs text-black/40">
+        <p class="mt-2 text-center font-mono text-xs text-faint">
           <template v-if="reading">
             {{ reading.cents > 0 ? '+' : '' }}{{ reading.cents }} centi ·
             {{ reading.frequency.toFixed(1) }} Hz
@@ -94,7 +94,7 @@ useSeoMeta({
         </p>
 
         <button
-          class="mt-6 w-full rounded border border-black/15 py-2 text-sm hover:border-accent"
+          class="mt-6 w-full rounded border border-line-strong py-2 text-sm hover:border-accent"
           @click="stop"
         >
           {{ $t('page.stop') }}
@@ -109,15 +109,15 @@ useSeoMeta({
         v-for="(string, i) in STRINGS" :key="i"
         class="flex-1 rounded border py-2 text-center transition"
         :class="nearestString && nearestString.frequency === string.frequency
-          ? (inTune ? 'border-green-600 bg-green-600/10' : 'border-accent bg-accent/10')
-          : 'border-black/10'"
+          ? (inTune ? 'border-green-600 bg-green-600/10' : 'border-accent bg-accent-soft')
+          : 'border-line'"
       >
         <span class="block font-mono text-sm font-semibold">{{ string.label }}</span>
-        <span class="block text-[10px] text-black/35">{{ string.frequency }}</span>
+        <span class="block text-[10px] text-faint">{{ string.frequency }}</span>
       </div>
     </div>
 
-    <p class="mt-6 text-xs text-black/40">
+    <p class="mt-6 text-xs text-faint">
       Radi najbolje u tihoj prostoriji. Ako očitanje skače, odsviraj žicu jače
       i pusti je da odzvoni prije nego pogledaš.
     </p>

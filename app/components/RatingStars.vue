@@ -27,7 +27,7 @@ const formatted = computed(() => props.value.toFixed(1));
     :title="rated ? $t('rating.average', { average: formatted }) : $t('rating.count', { n: 0 }, 0)"
   >
     <span class="relative inline-block leading-none" aria-hidden="true">
-      <span class="flex text-black/15">
+      <span class="flex text-dim">
         <Icon v-for="i in 5" :key="`e${i}`" name="material-symbols:star-rounded" class="text-sm" />
       </span>
 
@@ -41,7 +41,7 @@ const formatted = computed(() => props.value.toFixed(1));
       </span>
     </span>
 
-    <span v-if="showNumber" class="font-mono text-xs" :class="rated ? 'text-black/55' : 'text-black/25'">
+    <span v-if="showNumber" class="font-mono text-xs" :class="rated ? 'text-muted' : 'text-dim'">
       {{ rated ? formatted : '—' }}
     </span>
 

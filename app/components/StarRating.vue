@@ -78,8 +78,8 @@ async function submit(value) {
           :disabled="saving || !auth.isAuthenticated"
           class="px-0.5 transition disabled:cursor-default"
           :class="star <= displayed
-            ? (isMine || hovered ? 'text-accent' : 'text-black/35')
-            : 'text-black/15'"
+            ? (isMine || hovered ? 'text-accent' : 'text-faint')
+            : 'text-dim'"
           @mouseenter="auth.isAuthenticated && (hovered = star)"
           @click="submit(star)"
         >
@@ -87,7 +87,7 @@ async function submit(value) {
         </button>
       </div>
 
-      <span class="text-xs text-black/45">
+      <span class="text-xs text-faint">
         <template v-if="rating.count">
           {{ $t('rating.average', { average: rating.average }) }}
           · {{ $t('rating.count', rating.count, { n: rating.count }) }}
@@ -98,20 +98,20 @@ async function submit(value) {
 
     <p v-if="failed" role="alert" class="text-xs text-accent">{{ $t('rating.failed') }}</p>
 
-    <p v-else-if="!auth.isAuthenticated" class="text-xs text-black/35">
+    <p v-else-if="!auth.isAuthenticated" class="text-xs text-faint">
       <NuxtLink
         :to="localePath({ path: '/prijava', query: { redirect: route.fullPath } })"
         class="hover:text-accent hover:underline"
       >{{ $t('rating.signInToRate') }}</NuxtLink>
     </p>
 
-    <p v-else-if="isMine" class="text-xs text-black/35">
+    <p v-else-if="isMine" class="text-xs text-faint">
       {{ $t('rating.yourRating') }}: {{ rating.mine }} ·
       <button class="hover:text-accent hover:underline" @click="submit(rating.mine)">
         {{ $t('rating.remove') }}
       </button>
     </p>
 
-    <p v-else class="text-xs text-black/35">{{ $t('rating.hint') }}</p>
+    <p v-else class="text-xs text-faint">{{ $t('rating.hint') }}</p>
   </div>
 </template>

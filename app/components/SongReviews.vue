@@ -98,10 +98,10 @@ const when = (iso) => new Date(iso).toLocaleDateString(locale.value);
 </script>
 
 <template>
-  <section class="mt-10 border-t border-black/10 pt-6">
+  <section class="mt-10 border-t border-line pt-6">
     <header class="mb-4 flex flex-wrap items-baseline gap-x-3">
       <h2 class="text-lg font-semibold tracking-tight">{{ $t('reviews.title') }}</h2>
-      <span class="text-sm text-black/45">{{ $t('reviews.count', { n: total }, total) }}</span>
+      <span class="text-sm text-faint">{{ $t('reviews.count', { n: total }, total) }}</span>
     </header>
 
     <!-- Your own, first and set apart: it is the one you can act on. -->
@@ -109,16 +109,16 @@ const when = (iso) => new Date(iso).toLocaleDateString(locale.value);
       <form v-if="editing" @submit.prevent="submit">
         <textarea
           v-model="draft" rows="4" maxlength="4000" autofocus
-          class="w-full rounded border border-black/15 bg-white px-3 py-2 text-sm outline-none focus:border-accent"
+          class="w-full rounded border border-line-strong bg-panel px-3 py-2 text-sm outline-none focus:border-accent"
           :placeholder="$t('reviews.placeholder')"
         />
         <p v-if="error" class="mt-1 text-sm text-rose-700">{{ error }}</p>
         <div class="mt-2 flex gap-2">
           <button
-            class="rounded bg-accent px-3 py-1.5 text-sm text-white disabled:opacity-40"
+            class="rounded bg-accent px-3 py-1.5 text-sm text-on-accent disabled:opacity-40"
             :disabled="posting || draft.trim().length < 3"
           >{{ posting ? $t('reviews.saving') : (mine ? $t('reviews.save') : $t('reviews.post')) }}</button>
-          <button type="button" class="rounded px-3 py-1.5 text-sm text-black/60 hover:text-accent"
+          <button type="button" class="rounded px-3 py-1.5 text-sm text-muted hover:text-accent"
                   @click="editing = false">{{ $t('reviews.cancel') }}</button>
         </div>
       </form>
@@ -126,18 +126,18 @@ const when = (iso) => new Date(iso).toLocaleDateString(locale.value);
       <div v-else-if="mine" class="rounded border border-accent/30 bg-accent/[0.03] px-4 py-3">
         <div class="flex flex-wrap items-baseline gap-x-2 text-sm">
           <span class="font-medium">{{ $t('reviews.yours') }}</span>
-          <span class="text-xs text-black/35">{{ when(mine.createdAt) }}</span>
-          <span v-if="mine.editedAt" class="text-xs text-black/30">· {{ $t('reviews.edited') }}</span>
+          <span class="text-xs text-faint">{{ when(mine.createdAt) }}</span>
+          <span v-if="mine.editedAt" class="text-xs text-faint">· {{ $t('reviews.edited') }}</span>
           <span class="ml-auto flex gap-3">
-            <button class="py-3.5 -my-3.5 text-xs text-black/45 hover:text-accent" @click="startWriting">
+            <button class="py-3.5 -my-3.5 text-xs text-faint hover:text-accent" @click="startWriting">
               {{ $t('reviews.edit') }}
             </button>
-            <button class="py-3.5 -my-3.5 text-xs text-black/45 hover:text-rose-700" @click="remove">
+            <button class="py-3.5 -my-3.5 text-xs text-faint hover:text-rose-700" @click="remove">
               {{ $t('reviews.remove') }}
             </button>
           </span>
         </div>
-        <p class="mt-1.5 whitespace-pre-wrap text-sm text-black/80">{{ mine.body }}</p>
+        <p class="mt-1.5 whitespace-pre-wrap text-sm text-ink">{{ mine.body }}</p>
         <ReviewComments
           :review-id="mine._id" :count="mine.commentCount"
           @changed="(d) => adjustCount(mine, d)"
@@ -146,7 +146,7 @@ const when = (iso) => new Date(iso).toLocaleDateString(locale.value);
 
       <button
         v-else
-        class="rounded border border-black/15 bg-white px-3 py-1.5 text-sm hover:border-accent hover:text-accent"
+        class="rounded border border-line-strong bg-panel px-3 py-1.5 text-sm hover:border-accent hover:text-accent"
         @click="startWriting"
       >{{ $t('reviews.write') }}</button>
     </div>
@@ -154,28 +154,28 @@ const when = (iso) => new Date(iso).toLocaleDateString(locale.value);
     <NuxtLink
       v-else
       :to="localePath({ path: '/prijava', query: { redirect: route.fullPath } })"
-      class="mb-6 inline-block text-sm text-black/50 hover:text-accent"
+      class="mb-6 inline-block text-sm text-muted hover:text-accent"
     >{{ $t('reviews.signIn') }}</NuxtLink>
 
-    <p v-if="loading && !items.length" class="text-sm text-black/40">{{ $t('common.loading') }}</p>
+    <p v-if="loading && !items.length" class="text-sm text-faint">{{ $t('common.loading') }}</p>
 
-    <p v-else-if="!total" class="text-sm text-black/45">{{ $t('reviews.empty') }}</p>
+    <p v-else-if="!total" class="text-sm text-faint">{{ $t('reviews.empty') }}</p>
 
     <ul v-else class="space-y-5">
-      <li v-for="r in others" :key="r._id" class="border-b border-black/5 pb-5 last:border-0">
+      <li v-for="r in others" :key="r._id" class="border-b border-line-soft pb-5 last:border-0">
         <div class="flex flex-wrap items-baseline gap-x-2 text-sm">
           <span class="font-medium">{{ r.author }}</span>
-          <span class="text-xs text-black/35">{{ when(r.createdAt) }}</span>
-          <span v-if="r.editedAt" class="text-xs text-black/30">· {{ $t('reviews.edited') }}</span>
+          <span class="text-xs text-faint">{{ when(r.createdAt) }}</span>
+          <span v-if="r.editedAt" class="text-xs text-faint">· {{ $t('reviews.edited') }}</span>
         </div>
-        <p class="mt-1 whitespace-pre-wrap text-sm text-black/80">{{ r.body }}</p>
+        <p class="mt-1 whitespace-pre-wrap text-sm text-ink">{{ r.body }}</p>
         <ReviewComments :review-id="r._id" :count="r.commentCount" @changed="(d) => adjustCount(r, d)" />
       </li>
     </ul>
 
     <button
       v-if="page < pages"
-      class="mt-5 rounded border border-black/15 px-3 py-1.5 text-sm hover:border-accent hover:text-accent disabled:opacity-40"
+      class="mt-5 rounded border border-line-strong px-3 py-1.5 text-sm hover:border-accent hover:text-accent disabled:opacity-40"
       :disabled="loading"
       @click="load(page + 1)"
     >{{ loading ? $t('common.loading') : $t('reviews.loadMore') }}</button>

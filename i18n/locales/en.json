@@ -255,6 +255,12 @@
     "noContact": "An address for data requests belongs here. Until there is one, a reader has no way to exercise any of the rights above.",
     "disclaimer": "This text describes how the site actually works, but it is not legal advice. Have someone qualified review it before launch."
   },
+  "theme": {
+    "switch": "Theme: {mode}",
+    "system": "system",
+    "light": "light",
+    "dark": "dark"
+  },
   "chord": {
     "major": "major",
     "minor": "minor",
@@ -267,7 +273,28 @@
     "aug": "augmented",
     "sixth": "sixth",
     "minor6": "minor 6th",
-    "add9": "add9"
+    "add9": "add9",
+    "fifth": "power chord",
+    "minorMajor7": "minor major 7th",
+    "dim7": "diminished 7th",
+    "halfDim": "half-diminished",
+    "augSeventh": "augmented 7th",
+    "sevenSus4": "7sus4",
+    "minorAdd9": "minor add9",
+    "ninth": "ninth",
+    "major9": "major 9th",
+    "minor9": "minor 9th",
+    "eleventh": "eleventh",
+    "minor11": "minor 11th",
+    "thirteenth": "thirteenth",
+    "sevenFlat9": "7 flat 9",
+    "sevenSharp9": "7 sharp 9",
+    "shapeCount": "shape {n} of {total}",
+    "nextShape": "next shape",
+    "prevShape": "previous shape",
+    "position": "position",
+    "openStrings": "open strings",
+    "barreAt": "barre at fret {fret}"
   },
   "terms": {
     "title": "Terms of use",

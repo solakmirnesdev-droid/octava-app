@@ -38,7 +38,7 @@ const strength = computed(() => {
       <label :for="id" class="text-sm font-medium">{{ label }}</label>
       <button
         type="button"
-        class="text-xs text-black/45 hover:text-accent"
+        class="text-xs text-faint hover:text-accent"
         :aria-pressed="revealed"
         @click="revealed = !revealed"
       >
@@ -53,15 +53,15 @@ const strength = computed(() => {
       :autocomplete="autocomplete"
       :minlength="minlength || undefined"
       required
-      class="w-full rounded border border-black/15 bg-white px-3 py-2 outline-none focus:border-accent"
+      class="w-full rounded border border-line-strong bg-panel px-3 py-2 outline-none focus:border-accent"
       @input="$emit('update:modelValue', $event.target.value)"
     />
 
     <div v-if="showStrength && strength" class="mt-1.5 flex items-center gap-2">
-      <div class="h-1 flex-1 overflow-hidden rounded-full bg-black/10">
+      <div class="h-1 flex-1 overflow-hidden rounded-full bg-sunken">
         <div class="h-full rounded-full transition-all" :class="strength.tone" :style="{ width: strength.width }" />
       </div>
-      <span class="text-xs text-black/45">{{ strength.label }}</span>
+      <span class="text-xs text-faint">{{ strength.label }}</span>
     </div>
   </div>
 </template>

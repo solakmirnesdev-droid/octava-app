@@ -16,10 +16,28 @@ const head = useLocaleHead();
  */
 defineOgImage('Default');
 
+/**
+ * Pins an explicitly chosen theme before anything is painted.
+ *
+ * AI-NOTE: this is *only* for an explicit override. The system preference needs
+ * no JavaScript at all — main.css sets `color-scheme: light dark`, so
+ * `light-dark()` already resolves the right half on the server-rendered HTML.
+ * This runs in the head, ahead of the body, so a reader who picked dark on a
+ * light machine never sees a white flash on the way in.
+ */
 useHead(() => ({
   htmlAttrs: head.value.htmlAttrs,
   link: head.value.link,
-  meta: head.value.meta
+  meta: head.value.meta,
+  script: [
+    {
+      key: 'theme',
+      tagPosition: 'head',
+      innerHTML:
+        "try{var t=localStorage.getItem('octava-theme');" +
+        "if(t==='light'||t==='dark')document.documentElement.setAttribute('data-theme',t)}catch(e){}"
+    }
+  ]
 }));
 </script>
 

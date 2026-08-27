@@ -35,37 +35,37 @@ useSeoMeta({
   <nav class="mb-4 flex flex-wrap gap-1">
     <NuxtLink
       :to="{ query: { ...route.query, letter: undefined, page: undefined } }"
-      class="rounded px-2 py-1 text-sm hover:bg-black/5"
-      :class="!letter ? 'bg-ink text-white hover:bg-ink' : ''"
+      class="rounded px-2 py-1 text-sm hover:bg-raised"
+      :class="!letter ? 'bg-ink text-on-ink hover:bg-ink' : ''"
     >{{ $t('page.allFilter') }}</NuxtLink>
 
     <template v-for="char in ALPHABET" :key="char">
       <NuxtLink
         v-if="available.has(char)"
         :to="{ query: { ...route.query, letter: char, page: undefined } }"
-        class="rounded px-2 py-1 font-mono text-sm hover:bg-black/5"
-        :class="letter === char ? 'bg-ink text-white hover:bg-ink' : ''"
+        class="rounded px-2 py-1 font-mono text-sm hover:bg-raised"
+        :class="letter === char ? 'bg-ink text-on-ink hover:bg-ink' : ''"
       >{{ char }}</NuxtLink>
-      <span v-else class="cursor-default px-2 py-1 font-mono text-sm text-black/15">{{ char }}</span>
+      <span v-else class="cursor-default px-2 py-1 font-mono text-sm text-dim">{{ char }}</span>
     </template>
   </nav>
 
-  <nav class="mb-6 flex flex-wrap gap-1.5 border-b border-black/10 pb-4">
+  <nav class="mb-6 flex flex-wrap gap-1.5 border-b border-line pb-4">
     <NuxtLink
       :to="{ query: { ...route.query, genre: undefined, page: undefined } }"
       class="rounded-full border px-3 py-1 text-xs"
-      :class="!genre ? 'border-accent bg-accent/10 text-accent' : 'border-black/15 text-black/60 hover:border-accent'"
+      :class="!genre ? 'border-accent bg-accent-soft text-accent' : 'border-line-strong text-muted hover:border-accent'"
     >{{ $t('page.allRubrics') }}</NuxtLink>
 
     <NuxtLink
       v-for="g in genreData?.genres || []" :key="g._id"
       :to="{ query: { ...route.query, genre: g.slug, page: undefined } }"
       class="rounded-full border px-3 py-1 text-xs"
-      :class="genre === g.slug ? 'border-accent bg-accent/10 text-accent' : 'border-black/15 text-black/60 hover:border-accent'"
+      :class="genre === g.slug ? 'border-accent bg-accent-soft text-accent' : 'border-line-strong text-muted hover:border-accent'"
     >{{ g.name }}</NuxtLink>
   </nav>
 
-  <p v-if="!data?.artists?.length" class="text-sm text-black/50">
+  <p v-if="!data?.artists?.length" class="text-sm text-muted">
     {{ $t('page.noArtists') }}
   </p>
 
@@ -73,10 +73,10 @@ useSeoMeta({
     <li v-for="artist in data.artists" :key="artist._id">
       <NuxtLink
         :to="localePath(`/izvodjac/${artist.slug}`)"
-        class="block rounded border border-black/10 bg-white px-4 py-3 hover:border-accent"
+        class="block rounded border border-line bg-panel px-4 py-3 hover:border-accent"
       >
         <span class="block font-medium">{{ artist.name }}</span>
-        <span class="block text-xs text-black/50">{{ artist.songCount || 0 }} pjesama</span>
+        <span class="block text-xs text-muted">{{ artist.songCount || 0 }} pjesama</span>
       </NuxtLink>
     </li>
   </ul>

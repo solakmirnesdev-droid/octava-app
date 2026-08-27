@@ -81,14 +81,14 @@ const browse = [
 ];
 
 const itemClass =
-  'flex shrink-0 items-center gap-1.5 rounded px-2 py-1.5 text-black/70 hover:bg-black/5 hover:text-accent';
+  'flex shrink-0 items-center gap-1.5 rounded px-2 py-1.5 text-body hover:bg-raised hover:text-accent';
 </script>
 
 <template>
   <div class="min-h-screen bg-surface text-ink">
     <LanguageSuggestion data-print="hide" />
 
-    <header class="sticky top-0 z-10 border-b border-black/10 bg-surface/90 backdrop-blur">
+    <header class="sticky top-0 z-10 border-b border-line bg-surface/90 backdrop-blur">
       <div class="mx-auto flex max-w-5xl items-center gap-x-3 px-5 py-2.5 sm:gap-x-4 sm:py-3">
         <NuxtLink :to="localePath('/')" class="shrink-0 text-lg font-semibold tracking-tight">Octava</NuxtLink>
 
@@ -99,7 +99,7 @@ const itemClass =
              before and after hydration. -->
         <button
           type="button"
-          class="-mr-2 flex size-11 shrink-0 items-center justify-center rounded text-black/70 hover:bg-black/5 hover:text-accent sm:hidden"
+          class="-mr-2 flex size-11 shrink-0 items-center justify-center rounded text-body hover:bg-raised hover:text-accent sm:hidden"
           :aria-label="menuOpen ? $t('nav.closeMenu') : $t('nav.openMenu')"
           :aria-expanded="menuOpen"
           aria-controls="mobile-menu"
@@ -123,7 +123,9 @@ const itemClass =
             <span>{{ $t(item.key) }}</span>
           </NuxtLink>
 
-          <span class="mx-1 h-5 w-px shrink-0 bg-black/10" aria-hidden="true" />
+          <span class="mx-1 h-5 w-px shrink-0 bg-sunken" aria-hidden="true" />
+
+          <ThemeSwitcher />
 
           <LanguageSwitcher />
 
@@ -156,22 +158,22 @@ const itemClass =
 
       <!-- The drawer. In flow rather than overlaid, so it pushes the page down
            instead of covering it and needs no scroll lock or focus trap. -->
-      <div v-show="menuOpen" id="mobile-menu" class="border-t border-black/5 sm:hidden">
+      <div v-show="menuOpen" id="mobile-menu" class="border-t border-line-soft sm:hidden">
         <nav class="mx-auto grid max-w-5xl gap-0.5 px-3 py-2 text-sm">
           <NuxtLink
             v-for="item in browse" :key="item.to" :to="localePath(item.to)"
-            class="flex items-center gap-3 rounded px-2 py-2.5 text-black/70 hover:bg-black/5 hover:text-accent"
+            class="flex items-center gap-3 rounded px-2 py-2.5 text-body hover:bg-raised hover:text-accent"
             active-class="text-accent"
           >
             <Icon :name="item.icon" class="text-lg" />
             <span>{{ $t(item.key) }}</span>
           </NuxtLink>
 
-          <span class="my-1 h-px bg-black/10" aria-hidden="true" />
+          <span class="my-1 h-px bg-sunken" aria-hidden="true" />
 
           <NuxtLink
             v-if="auth.isAuthenticated" :to="localePath('/sacuvano')"
-            class="flex items-center gap-3 rounded px-2 py-2.5 text-black/70 hover:bg-black/5 hover:text-accent"
+            class="flex items-center gap-3 rounded px-2 py-2.5 text-body hover:bg-raised hover:text-accent"
             active-class="text-accent"
           >
             <Icon name="material-symbols:favorite-outline-rounded" class="text-lg" />
@@ -180,7 +182,7 @@ const itemClass =
 
           <NuxtLink
             v-if="!auth.isAuthenticated" :to="localePath('/prijava')"
-            class="flex items-center gap-3 rounded px-2 py-2.5 text-black/70 hover:bg-black/5 hover:text-accent"
+            class="flex items-center gap-3 rounded px-2 py-2.5 text-body hover:bg-raised hover:text-accent"
           >
             <Icon name="material-symbols:login-rounded" class="text-lg" />
             <span>{{ $t('nav.login') }}</span>
@@ -188,15 +190,16 @@ const itemClass =
 
           <button
             v-else type="button"
-            class="flex items-center gap-3 rounded px-2 py-2.5 text-left text-black/70 hover:bg-black/5 hover:text-accent"
+            class="flex items-center gap-3 rounded px-2 py-2.5 text-left text-body hover:bg-raised hover:text-accent"
             @click="auth.logout()"
           >
             <Icon name="material-symbols:logout-rounded" class="text-lg" />
             <span>{{ $t('nav.logout') }}</span>
           </button>
 
-          <div class="mt-1 border-t border-black/10 px-2 pt-2">
+          <div class="mt-1 flex items-center gap-1 border-t border-line px-2 pt-2">
             <LanguageSwitcher />
+            <ThemeSwitcher />
           </div>
         </nav>
       </div>
@@ -204,7 +207,7 @@ const itemClass =
       <!-- Wrapping this list costs three rows on a phone, which is most of what
            is left after the header. One scrollable row keeps every rubric
            reachable at a fraction of the height. -->
-      <div class="border-t border-black/5">
+      <div class="border-t border-line-soft">
         <div
           class="mx-auto flex max-w-5xl items-center gap-x-4 gap-y-1 overflow-x-auto px-5 py-1.5 text-sm
                  [-ms-overflow-style:none] [scrollbar-width:none] sm:flex-wrap sm:overflow-visible sm:py-2
@@ -213,16 +216,16 @@ const itemClass =
           <NuxtLink
             v-for="g in genreData?.grouped?.region || []" :key="g._id"
             :to="localePath(`/zanr/${g.slug}`)"
-            class="shrink-0 font-medium text-black/70 hover:text-accent"
+            class="shrink-0 font-medium text-body hover:text-accent"
             active-class="text-accent"
           >{{ g.name }}</NuxtLink>
 
-          <span v-if="genreData?.grouped?.region?.length" class="shrink-0 text-black/15">|</span>
+          <span v-if="genreData?.grouped?.region?.length" class="shrink-0 text-dim">|</span>
 
           <NuxtLink
             v-for="g in genreData?.grouped?.style || []" :key="g._id"
             :to="localePath(`/zanr/${g.slug}`)"
-            class="shrink-0 text-black/50 hover:text-accent"
+            class="shrink-0 text-muted hover:text-accent"
             active-class="text-accent"
           >{{ g.name }}</NuxtLink>
         </div>

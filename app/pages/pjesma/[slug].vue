@@ -125,7 +125,7 @@ defineOgImage('Song', {
   <article v-if="song">
     <header class="mb-6">
       <h1 class="text-2xl font-semibold tracking-tight">{{ song.title }}</h1>
-      <NuxtLink :to="localePath(`/izvodjac/${song.artist?.slug}`)" class="text-black/60 hover:text-accent">
+      <NuxtLink :to="localePath(`/izvodjac/${song.artist?.slug}`)" class="text-muted hover:text-accent">
         {{ song.artist?.name }}
       </NuxtLink>
 
@@ -133,7 +133,7 @@ defineOgImage('Song', {
         <li v-for="genre in song.genres" :key="genre._id">
           <NuxtLink
             :to="localePath(`/zanr/${genre.slug}`)"
-            class="rounded-full border border-black/15 px-2.5 py-0.5 text-xs text-black/60 hover:border-accent hover:text-accent"
+            class="rounded-full border border-line-strong px-2.5 py-0.5 text-xs text-muted hover:border-accent hover:text-accent"
           >{{ genre.name }}</NuxtLink>
         </li>
       </ul>
@@ -141,7 +141,7 @@ defineOgImage('Song', {
       <!-- Both were already in the payload and neither was ever shown. The
            difficulty tells a beginner whether to attempt this at all; the view
            count is the only signal on the page that other people play it. -->
-      <p v-if="difficultyKey || viewsLabel" class="mt-2.5 flex flex-wrap items-center gap-x-2.5 gap-y-1 text-xs text-black/50">
+      <p v-if="difficultyKey || viewsLabel" class="mt-2.5 flex flex-wrap items-center gap-x-2.5 gap-y-1 text-xs text-muted">
         <span
           v-if="difficultyKey"
           class="rounded-full border px-2 py-0.5 font-medium"
@@ -172,7 +172,7 @@ defineOgImage('Song', {
       :arrangement-id="song.arrangementId"
     />
 
-    <div data-print="hide" class="mb-6 flex flex-wrap items-center gap-x-3 gap-y-2 border-y border-black/10 py-2 sm:mb-8 sm:gap-x-6 sm:gap-y-3 sm:py-3">
+    <div data-print="hide" class="mb-6 flex flex-wrap items-center gap-x-3 gap-y-2 border-y border-line py-2 sm:mb-8 sm:gap-x-6 sm:gap-y-3 sm:py-3">
       <TransposeControls v-model:semitones="semitones" :original-key="song.originalKey" />
 
       <FontSizeControl />
@@ -183,8 +183,8 @@ defineOgImage('Song', {
         v-if="wideEnough"
         class="rounded border px-2.5 py-1.5 transition"
         :class="columns
-          ? 'border-accent bg-accent text-white'
-          : 'border-black/15 bg-white text-black/60 hover:border-accent hover:text-accent'"
+          ? 'border-accent bg-accent text-on-accent'
+          : 'border-line-strong bg-panel text-muted hover:border-accent hover:text-accent'"
         :aria-pressed="columns"
         :title="$t('song.twoColumns')"
         @click="toggleColumns"
@@ -196,8 +196,8 @@ defineOgImage('Song', {
       <button
         class="rounded border px-2.5 py-1.5 transition"
         :class="showChords
-          ? 'border-accent bg-accent text-white'
-          : 'border-black/15 bg-white text-black/60 hover:border-accent hover:text-accent'"
+          ? 'border-accent bg-accent text-on-accent'
+          : 'border-line-strong bg-panel text-muted hover:border-accent hover:text-accent'"
         :aria-pressed="showChords"
         :title="$t('song.allChords')"
         @click="showChords = !showChords"
@@ -206,13 +206,13 @@ defineOgImage('Song', {
         <span class="sr-only">{{ $t('song.allChords') }}</span>
       </button>
 
-      <span v-if="song.capo" class="order-last text-sm text-black/60 sm:order-none">
+      <span v-if="song.capo" class="order-last text-sm text-muted sm:order-none">
         {{ $t('song.capo') }}: {{ $t('song.capoFret', { n: song.capo }) }}
       </span>
 
       <button
 
-        class="rounded border border-black/15 bg-white px-2.5 py-1.5 text-black/60 transition hover:border-accent hover:text-accent"
+        class="rounded border border-line-strong bg-panel px-2.5 py-1.5 text-muted transition hover:border-accent hover:text-accent"
 
         :title="$t('song.print')"
 
@@ -235,7 +235,7 @@ defineOgImage('Song', {
         <Icon :name="favorites.has(song._id) ? 'material-symbols:favorite-rounded' : 'material-symbols:favorite-outline-rounded'" />
         {{ favorites.has(song._id) ? $t('song.saved') : $t('song.save') }}
       </button>
-      <NuxtLink v-else :to="localePath('/prijava')" class="ml-auto flex items-center gap-1 text-sm text-black/40 hover:text-accent">
+      <NuxtLink v-else :to="localePath('/prijava')" class="ml-auto flex items-center gap-1 text-sm text-faint hover:text-accent">
         <Icon name="material-symbols:favorite-outline-rounded" />
         {{ $t('song.save') }}
       </NuxtLink>
