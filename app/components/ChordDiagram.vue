@@ -1,5 +1,6 @@
 <script setup>
 import { findFingering, fingerNumbers } from '~/utils/chordEngine';
+import { strum, canPlay } from '~/utils/chordAudio';
 
 const props = defineProps({
   symbol: { type: String, required: true },
@@ -8,6 +9,31 @@ const props = defineProps({
 });
 
 const variant = ref(0);
+
+/**
+ * Hearing the shape is half of learning it.
+ *
+ * AI-NOTE: the audio context is built inside this handler rather than at setup,
+ * because browsers refuse to start audio outside a user gesture — one created on
+ * page load arrives suspended and the first click is silent.
+ */
+// Resolved on the client only: window does not exist while this renders on the
+// server, and guessing wrong would either hide the control from everyone or
+// offer a button that does nothing.
+const audible = ref(false);
+onMounted(() => { audible.value = canPlay(); });
+
+const ringing = ref(false);
+let timer = null;
+
+function play() {
+  if (!strum(shape.value.frets)) return;
+  ringing.value = true;
+  window.clearTimeout(timer);
+  timer = window.setTimeout(() => { ringing.value = false; }, 700);
+}
+
+onBeforeUnmount(() => window.clearTimeout(timer));
 
 // A different chord under the same component is a different set of positions,
 // so the switcher has to start over rather than keep an index into the old one.
@@ -64,7 +90,19 @@ const step = (by) => {
     </p>
     <p v-if="shape.formula" class="mb-1 font-mono text-[10px] text-faint">{{ shape.formula }}</p>
 
-    <svg :width="132" :height="TOP + FRETS * STEP_Y + 14" class="mx-auto overflow-visible">
+    <!-- The diagram is the control: clicking it strums the shape. A button
+         wrapper rather than a click handler on the svg, so it is reachable by
+         keyboard and announces itself. -->
+    <button
+      type="button"
+      class="mx-auto block rounded transition-colors"
+      :class="ringing ? 'bg-accent-soft' : 'hover:bg-raised'"
+      :disabled="!audible"
+      :title="audible ? $t('chord.hear', { name: shape.name }) : ''"
+      :aria-label="$t('chord.hear', { name: shape.name })"
+      @click.stop="play"
+    >
+      <svg :width="132" :height="TOP + FRETS * STEP_Y + 14" class="overflow-visible">
       <!-- Open and muted markers sit above the nut. -->
       <template v-for="(fret, i) in shape.frets" :key="'m' + i">
         <text
@@ -120,7 +158,8 @@ const step = (by) => {
           class="fill-on-accent font-mono font-semibold" style="font-size: 8px"
         >{{ d.finger }}</text>
       </template>
-    </svg>
+      </svg>
+    </button>
 
     <p class="font-mono text-[11px] tracking-wider text-faint">{{ tab }}</p>
 

@@ -307,7 +307,8 @@
     "prevShape": "previous shape",
     "position": "position",
     "openStrings": "open strings",
-    "barreAt": "barre at fret {fret}"
+    "barreAt": "barre at fret {fret}",
+    "hear": "Hear {name}"
   },
   "terms": {
     "title": "Terms of use",

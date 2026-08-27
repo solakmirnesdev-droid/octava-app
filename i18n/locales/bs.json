@@ -307,7 +307,8 @@
     "prevShape": "prethodni oblik",
     "position": "pozicija",
     "openStrings": "prazne žice",
-    "barreAt": "barre na {fret}. pragu"
+    "barreAt": "barre na {fret}. pragu",
+    "hear": "Poslušaj {name}"
   },
   "terms": {
     "title": "Uslovi korištenja",
