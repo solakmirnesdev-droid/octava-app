@@ -63,6 +63,36 @@ useSeoMeta({
         </li>
       </ul>
 
+      <!-- The three facts a reader actually wants beside a name on a songbook.
+           Each one is optional, and the block disappears entirely when none is
+           set rather than showing a list of dashes. -->
+      <dl v-if="artist.origin || artist.activeFrom || artist.website" class="mt-4 space-y-1.5 text-sm">
+        <div v-if="artist.origin" class="flex gap-2">
+          <dt class="w-20 shrink-0 text-faint">{{ $t('artist.origin') }}</dt>
+          <dd class="text-muted">{{ artist.origin }}</dd>
+        </div>
+
+        <div v-if="artist.activeFrom" class="flex gap-2">
+          <dt class="w-20 shrink-0 text-faint">{{ $t('artist.active') }}</dt>
+          <dd class="font-mono text-muted">
+            {{ artist.activeFrom }}<span v-if="artist.activeTo">–{{ artist.activeTo }}</span>
+            <span v-else class="text-faint">–</span>
+          </dd>
+        </div>
+
+        <div v-if="artist.website" class="flex gap-2">
+          <dt class="w-20 shrink-0 text-faint">{{ $t('artist.website') }}</dt>
+          <dd class="min-w-0">
+            <!-- noopener because it is a link somebody typed into the dashboard,
+                 and nofollow because we are not vouching for wherever it goes. -->
+            <a
+              :href="artist.website" target="_blank" rel="noopener nofollow"
+              class="block truncate text-accent hover:underline"
+            >{{ artist.website.replace(/^https?:\/\//, '') }}</a>
+          </dd>
+        </div>
+      </dl>
+
       <p v-if="artist.bio" class="mt-4 text-sm leading-relaxed text-muted">{{ artist.bio }}</p>
     </aside>
 
