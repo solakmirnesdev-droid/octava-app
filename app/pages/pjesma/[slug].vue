@@ -287,7 +287,7 @@ defineOgImage('Song', {
           <AutoScrollControl />
           <span class="hidden sm:inline-block h-5 w-px bg-line-soft" aria-hidden="true" />
 
-          <!-- Action Buttons Group (Discrete modern pill buttons with subtle active tints) -->
+          <!-- Action Buttons Group (Realistic Studio Icons) -->
           <div class="flex items-center gap-1.5">
             <!-- Two Columns Toggle -->
             <button
@@ -301,11 +301,17 @@ defineOgImage('Song', {
               :title="$t('song.twoColumns')"
               @click="toggleColumns"
             >
-              <Icon name="material-symbols:vertical-split-rounded" class="text-base" />
+              <!-- Realistic 2-column page layout with text column lines -->
+              <svg viewBox="0 0 24 24" class="size-4 shrink-0" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="3" y="3.5" width="18" height="17" rx="2" stroke-width="1.6" />
+                <path d="M12 3.5v17" stroke-width="1.4" stroke-dasharray="2 2" opacity="0.6" />
+                <path d="M6 7.5h3.5M6 11h3.5M6 14.5h2.5" stroke-width="1.4" />
+                <path d="M14.5 7.5h3.5M14.5 11h3.5M14.5 14.5h2.5" stroke-width="1.4" />
+              </svg>
               <span class="sr-only">{{ $t('song.twoColumns') }}</span>
             </button>
 
-            <!-- All Chords Grid Toggle -->
+            <!-- All Chords Grid Toggle (Realistic Fretboard Diagram) -->
             <button
               type="button"
               class="flex size-8 items-center justify-center rounded-xl border transition-all duration-150 outline-none shadow-2xs"
@@ -316,24 +322,28 @@ defineOgImage('Song', {
               :title="$t('song.allChords')"
               @click="showChords = !showChords"
             >
-              <Icon name="material-symbols:grid-view-rounded" class="text-base" />
+              <ChordIcon size="1.2em" />
               <span class="sr-only">{{ $t('song.allChords') }}</span>
             </button>
 
-            <!-- Print Button -->
+            <!-- Print Button (Realistic Studio Printer) -->
             <button
               type="button"
               class="flex size-8 items-center justify-center rounded-xl border border-line bg-surface/80 text-muted transition-all duration-150 outline-none hover:border-accent/50 hover:bg-panel hover:text-accent shadow-2xs"
               :title="$t('song.print')"
               @click="print()"
             >
-              <Icon name="material-symbols:print-outline-rounded" class="text-base" />
+              <svg viewBox="0 0 24 24" class="size-4 shrink-0" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M6 9V3.5h12V9" stroke-width="1.5" />
+                <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2" />
+                <rect x="6" y="14" width="12" height="6.5" rx="1" fill="currentColor" fill-opacity="0.12" />
+                <path d="M9 16.5h6M9 18.5h4" stroke-width="1.2" />
+                <circle cx="18" cy="11.5" r="1" fill="currentColor" />
+              </svg>
               <span class="sr-only">{{ $t('song.print') }}</span>
             </button>
 
-            <!-- Favorite Button -->
-            <!-- AI-TRAP: both icon names are written out as literals and toggled
-                 with v-show, never bound as one expression. -->
+            <!-- Favorite Button (Realistic Smooth Heart) -->
             <button
               v-if="auth.isAuthenticated"
               type="button"
@@ -345,8 +355,9 @@ defineOgImage('Song', {
               :title="favorites.has(song._id) ? $t('song.saved') : $t('song.save')"
               @click="toggleFavorite"
             >
-              <Icon v-show="favorites.has(song._id)" name="material-symbols:favorite-rounded" class="text-base" />
-              <Icon v-show="!favorites.has(song._id)" name="material-symbols:favorite-outline-rounded" class="text-base" />
+              <svg viewBox="0 0 24 24" class="size-4 shrink-0" :fill="favorites.has(song._id) ? 'currentColor' : 'none'" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M19.5 12.572l-7.5 7.428l-7.5 -7.428a5 5 0 1 1 7.5 -6.566a5 5 0 1 1 7.5 6.572" />
+              </svg>
               <span class="sr-only">{{ favorites.has(song._id) ? $t('song.saved') : $t('song.save') }}</span>
             </button>
 
@@ -356,7 +367,9 @@ defineOgImage('Song', {
               class="flex size-8 items-center justify-center rounded-xl border border-line bg-surface/80 text-muted transition-all duration-150 outline-none hover:border-accent/50 hover:bg-panel hover:text-accent shadow-2xs"
               :title="$t('song.save')"
             >
-              <Icon name="material-symbols:favorite-outline-rounded" class="text-base" />
+              <svg viewBox="0 0 24 24" class="size-4 shrink-0" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M19.5 12.572l-7.5 7.428l-7.5 -7.428a5 5 0 1 1 7.5 -6.566a5 5 0 1 1 7.5 6.572" />
+              </svg>
               <span class="sr-only">{{ $t('song.save') }}</span>
             </NuxtLink>
           </div>
@@ -458,5 +471,8 @@ defineOgImage('Song', {
 
 
     <RelatedSongs data-print="hide" :slug="song.slug" />
+
+    <!-- Floating Interactive Dancing Metronome Companion (Right Side) -->
+    <DancingMetronome />
   </article>
 </template>

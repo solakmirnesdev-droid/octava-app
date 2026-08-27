@@ -77,8 +77,8 @@ function playChord(symbol) {
 <template>
   <!-- Chords and lyrics scale together, so column alignment survives any size. -->
   <div
-    class="font-mono leading-tight"
-    :class="columns ? 'columns-2 gap-10 [column-rule:1px_solid_rgb(0_0_0/0.08)]' : ''"
+    class="font-mono leading-tight transition-all"
+    :class="columns ? 'columns-2 max-w-3xl gap-8 md:gap-12 [column-rule:1px_solid_var(--color-line-soft)]' : 'max-w-2xl'"
     :style="{ fontSize: fontSize + 'px' }"
   >
     <template v-for="(line, i) in lines" :key="i">
