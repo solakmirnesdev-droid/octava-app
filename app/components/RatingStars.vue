@@ -19,7 +19,10 @@ const props = defineProps({
   showNumber: { type: Boolean, default: true },
   /** Given a song, the stars become a vote rather than a picture. */
   slug: { type: String, default: '' },
-  arrangementId: { type: String, default: '' }
+  arrangementId: { type: String, default: '' },
+  songTitle: { type: String, default: '' },
+  artistName: { type: String, default: '' },
+  artistId: { type: String, default: '' }
 });
 
 const emit = defineEmits(['rated']);
@@ -30,6 +33,7 @@ const auth = useAuthStore();
 // happens to survive, but the same pattern in a non-lazy position is a 500 on
 // the page and nothing at build time — it has already cost a session once.
 const { t } = useI18n();
+const { show: showToast } = useToast();
 
 const hovered = ref(0);
 const mine = ref(0);
@@ -54,17 +58,27 @@ async function submit(value) {
 
   // Optimistic: the star should answer the tap, not the round trip.
   const previous = mine.value;
-  mine.value = previous === value ? 0 : value;
+  const wasMine = previous === value;
+  mine.value = wasMine ? 0 : value;
 
   try {
     // Sending the same value again withdraws it, so the control is its own
     // undo rather than needing a separate one.
-    const method = previous === value ? 'DELETE' : 'POST';
+    const method = wasMine ? 'DELETE' : 'POST';
     const result = await $api(`/songs/${props.slug}/rating`, {
       method,
       body: { value, arrangementId: props.arrangementId || undefined }
     });
     emit('rated', result.rating);
+
+    showToast({
+      title: props.songTitle || props.slug,
+      artistName: props.artistName,
+      artistId: props.artistId,
+      type: 'rating',
+      ratingValue: wasMine ? null : value,
+      message: wasMine ? t('rating.retractedToast') : t('rating.ratedToast', { n: value })
+    });
   } catch {
     mine.value = previous;
   } finally {

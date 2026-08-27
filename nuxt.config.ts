@@ -83,6 +83,7 @@ export default defineNuxtConfig({
       'akordi/index':    { bs: '/akordi',          en: '/chords' },
       'stimer':          { bs: '/stimer',          en: '/tuner' },
       'metronom':        { bs: '/metronom',        en: '/metronome' },
+      'pjesmarica':      { bs: '/pjesmarica',      en: '/songbook' },
       'pretraga':        { bs: '/pretraga',        en: '/search' },
       'zatrazi':         { bs: '/zatrazi',         en: '/request' },
       'sacuvano':        { bs: '/sacuvano',        en: '/saved' },

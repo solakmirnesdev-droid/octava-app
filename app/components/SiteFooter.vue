@@ -17,7 +17,7 @@ const year = new Date().getFullYear();
 
 <template>
   <footer class="mt-16 border-t border-line bg-panel/60">
-    <div class="mx-auto max-w-5xl px-5 py-12">
+    <div class="mx-auto max-w-7xl px-5 py-12">
       <div class="grid gap-10 sm:grid-cols-2 lg:grid-cols-4">
         <!-- Brand. The counts are here because they are the honest measure of
              what the site is, and they read as a reason to trust it. -->

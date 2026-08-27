@@ -16,6 +16,7 @@ export function useToast() {
     hasImage = false,
     message = '',
     type = 'song',
+    ratingValue = null,
     duration = 4000
   }) {
     toast.value = {
@@ -25,7 +26,8 @@ export function useToast() {
       artistId,
       hasImage,
       message,
-      type
+      type,
+      ratingValue
     };
 
     if (import.meta.client) {

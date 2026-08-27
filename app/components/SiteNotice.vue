@@ -22,7 +22,7 @@ watch(() => route.fullPath, (to, from) => {
         ? 'border-ok/25 bg-ok-soft text-ok'
         : 'border-line bg-raised text-body'"
     >
-      <div class="mx-auto flex max-w-5xl items-center gap-3">
+      <div class="mx-auto flex max-w-7xl items-center gap-3">
         <span>{{ notice.message }}</span>
         <button
           class="ml-auto -my-2 py-2 text-xs opacity-70 hover:opacity-100"

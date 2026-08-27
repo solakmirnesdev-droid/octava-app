@@ -100,10 +100,13 @@ function pick(offset) {
 
       <button
         v-if="value !== 0"
-        class="text-xs text-faint underline hover:text-accent"
+        type="button"
+        class="flex size-8 items-center justify-center rounded-lg border border-line bg-surface/70 text-muted transition hover:border-accent hover:bg-panel hover:text-accent"
+        :title="$t('song.backToOriginal', { key: originalKey })"
+        :aria-label="$t('song.backToOriginal', { key: originalKey })"
         @click="set(0)"
       >
-        vrati na {{ originalKey }}
+        <Icon name="material-symbols:restart-alt-rounded" class="text-base" />
       </button>
     </div>
 

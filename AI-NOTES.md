@@ -111,6 +111,53 @@ word (it is a translation key — see §6), or add a locale key to one catalogue
 
 ## 5. Decision log
 
+### 2026-08-27 — A capo is a movable nut, and it never changes the key
+- **What:** `app/utils/capo.js`, `app/components/CapoControls.vue`, and a `capo`
+  prop on ChordSheet and ChordGrid. Picking a fret redraws the chord symbols as
+  the shapes you finger there.
+- **The arithmetic:** a capo raises all six open strings equally, so
+  `sounding = shape + capo` and therefore `shape = sounding - capo`.
+- **The two controls do opposite things and must stay independent.**
+  Transposing moves the sounding pitch — the singer changes key. A capo moves
+  only the left hand. So `sounding = originalKey + semitones`, with the capo
+  playing no part, and `displayed = sounding - capo`. A capo that shifted the
+  key would be a second, worse transpose control.
+- **The readout says both halves** ("Hvataš u Am, a zvuči u Dm") because that
+  sentence is the whole theory, and without it nothing on screen distinguishes
+  the two controls.
+- **Stored chords are the sounding chords.** `originalKey` equals the written
+  root in all 292 songs carrying a capo value, so the arrangement's `capo` is a
+  suggestion, never an offset already baked into the symbols. The control starts
+  at 0 for that reason: honouring a stored value on load would shift a song's
+  chords the moment it opened, for no reason the reader could see.
+- **Frets clamp, keys wrap.** Transposition wraps at twelve because the keys are
+  a circle; the capo clamps at 0 and 7, because frets are a line with a nut at
+  one end and crowd together past the seventh.
+
+### 2026-08-27 — The songbook page is for paper, and only public-domain songs
+- **What:** `app/pages/pjesmarica.vue` (`/pjesmarica`, `/songbook`) collects
+  every `javno-vlasnistvo` song that actually has chords onto one page, with a
+  contents index and a page break per song.
+- **Why:** the site is useless exactly where the songs get played — a cottage, a
+  fire, a bus. Transposing, auto-scroll and chord audio are screen features and
+  none of them survive losing the network; paper needs no battery and no bars.
+- **Only public-domain songs, deliberately.** Not a technical limit: a print
+  button over somebody else's transcription would be the site quietly doing what
+  it declines to do everywhere else. Songs with an empty arrangement are skipped
+  too — a blank leaf is indistinguishable from a printing failure.
+- **Static ChordSheet, no controls.** The interactive props are left off rather
+  than hidden at print time, so the page cannot drift back into being a screen.
+
+### 2026-08-27 — Toast notification with artist avatar on save
+- **What:** `AppToast.vue` and `useToast.js` composable for floating feedback
+  when saving a song or artist to favorites.
+- **Why:** Tapping the heart saved the item silently with only an icon fill
+  change, which offered weak feedback especially on mobile. A floating card
+  shows the artist portrait (or deterministic initial avatar fallback), the
+  title, artist name, and a confirmation badge.
+- **Affects:** `AppToast.vue`, `useToast.js`, `layouts/default.vue`,
+  `pages/pjesma/[slug].vue`, `pages/izvodjac/[slug].vue`.
+
 ### 2026-08-27 — One dialog for both surfaces
 - **What:** `AppModal.vue`, byte-identical in octava-app and octava-dashboard,
   replacing seven window.confirm/prompt calls and two hand-rolled overlays.
@@ -183,9 +230,52 @@ word (it is a translation key — see §6), or add a locale key to one catalogue
   that fight the terracotta accent. The palette is eight fixed muted tones.
 - **Affects:** `app/utils/avatar.js`, `pages/izvodjac/[slug].vue`, `SearchBox.vue`.
 
+### 2026-08-27 — Navbar max-width expanded to max-w-7xl and lg breakpoint
+- **What:** navbar container widened to `max-w-7xl` with `lg` desktop navigation breakpoint, and `SearchBox` given `min-w-[180px]` with `min-w-[280px]` popup width.
+- **Why:** 9 nav buttons plus search and brand in `max-w-5xl` overflowed or squished the search box down to ~70px on intermediate/tablet viewports, collapsing the autocomplete dropdown.
+- **Affects:** `app/layouts/default.vue`, `app/components/SearchBox.vue`.
+
+### 2026-08-27 — Genre / Rubric page 2-column rich layout & SongList cards
+- **What:** redesigned `zanr/[slug].vue` with a rich Hero Banner with watermark, Top 3 Spotlight hit cards, in-genre search filter, and a 2-column grid with a dedicated sidebar (Top Artists, Popular Keys, Related Genres). `SongList.vue` rows now include artist avatars, difficulty pill badges, and hover card styling.
+- **Why:** a single flat list across 1280px created an empty void; the rich layout creates visual depth, active discovery, and engagement.
+- **Affects:** `app/pages/zanr/[slug].vue`, `app/components/SongList.vue`, `octava-backend/src/controllers/genreController.js`.
+
+### 2026-08-27 — Artists page portrait cards with avatars, flags, and overall rating
+- **What:** redesigned `izvodjaci.vue` into a responsive 4-5 column portrait card grid with large avatars (`size-16 sm:size-20`), floating country flag badges, origin, song counts, and aggregated overall ratings.
+- **Why:** 3-column flat rectangles were too wide, short, and lacked visual identity.
+- **Affects:** `app/pages/izvodjaci.vue`, `octava-backend/src/controllers/artistController.js`.
+
+### 2026-08-27 — Rating Toast popup with star badge and song context
+- **What:** added toast feedback for rating actions (`StarRating.vue` & `RatingStars.vue`) using `AppToast.vue` with an amber star badge and explicit confirmation message (e.g. `Ocijenjeno sa 5 ★` or `Ocjena uklonjena`).
+- **Why:** user requested immediate feedback popups for ratings similar to saving songs/artists.
+- **Affects:** `app/components/AppToast.vue`, `app/components/StarRating.vue`, `app/components/RatingStars.vue`, `app/composables/useToast.js`.
+
 ---
 
 ## 6. Traps & gotchas
+
+### Strumming a diagram under a capo plays the wrong chord
+- **Symptom:** with a capo set, pressing a chord would sound the shape rather
+  than the chord the guitar in your hands actually makes — press Am at capo 5
+  and hear Am instead of Dm.
+- **Cause:** a diagram's fret numbers are measured from the capo, not the nut. A
+  string marked open is stopped at the capo's fret. Strumming the numbers as
+  written ignores that.
+- **Fix:** `strum(frets, { capo })` adds the capo fret to every string before
+  converting to MIDI. Verified: the Am shape at capo 5 sounds D F A, and the
+  open strings become A D G C E A.
+- **Why it matters:** the sound is the one thing a player checks against their
+  own singing, and this failure is silent on screen.
+- **Files:** `app/utils/chordAudio.js`, `app/components/ChordSheet.vue`.
+
+### "Capo 1 for a song in F" is a rule of thumb that scores badly
+- **Symptom:** the first version of the capo test asserted that a song in F
+  plays more easily at fret 1. The scorer disagreed, and the scorer was right.
+- **Cause:** F/B flat/C/Dm at fret 1 gives E, A, H, C#m — H major is a barre and
+  C#m is worse. The rule only holds for the bare I chord.
+- **The real answer** is fret 3 (D G A Hm) or fret 5 (C F G Am), both 88%, tie
+  broken to the lower fret. Keep the scorer, not the rule.
+- **Files:** `app/utils/capo.js`.
 
 ### An ASCII quote inside a template literal ends the HTML attribute
 - **Symptom:** the dashboard would not compile — "Unterminated template" in

@@ -48,7 +48,7 @@ function remember(choice) {
     role="region"
     :aria-label="$t('language.switch')"
   >
-    <div class="mx-auto flex max-w-5xl flex-wrap items-center gap-3 px-5 py-2 text-sm">
+    <div class="mx-auto flex max-w-7xl flex-wrap items-center gap-3 px-5 py-2 text-sm">
       <Icon name="material-symbols:language" class="text-accent" />
       <span class="text-body">{{ $t('language.suggestion') }}</span>
 

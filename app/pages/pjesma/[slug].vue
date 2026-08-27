@@ -1,10 +1,14 @@
 <script setup>
+import { initials, avatarStyle } from '~/utils/avatar';
+import { flagOf } from '~/utils/countries';
+
 // Declared before the error branch below uses it: const is not hoisted,
 // so a later declaration throws only on the 404 path — which ordinary
 // testing never walks.
 const { locale, t } = useI18n();
 const route = useRoute();
 const { $api } = useNuxtApp();
+const config = useRuntimeConfig();
 
 const auth = useAuthStore();
 const favorites = useFavoritesStore();
@@ -38,6 +42,12 @@ const song = computed(() => data.value?.song);
 const localePath = useLocalePath();
 const toast = useToast();
 
+const artistImgError = ref(false);
+watch(() => song.value?._id, () => { artistImgError.value = false; });
+
+const artistHasImage = computed(() => Boolean(song.value?.artist?.hasImage || song.value?.artist?.imageBytes));
+const artistFlag = computed(() => song.value?.artist?.flag || flagOf(song.value?.artist?.country));
+
 async function toggleFavorite() {
   if (!song.value) return;
   const wasSaved = favorites.has(song.value._id);
@@ -47,7 +57,7 @@ async function toggleFavorite() {
       title: song.value.title,
       artistName: song.value.artist?.name || '',
       artistId: song.value.artist?._id || '',
-      hasImage: Boolean(song.value.artist?.hasImage || song.value.artist?.imageBytes),
+      hasImage: artistHasImage.value,
       message: t('song.songSaved'),
       type: 'song'
     });
@@ -78,6 +88,17 @@ const viewsLabel = computed(() => {
 // Transposition is deliberately component state, not a URL parameter: every
 // key would otherwise be a separate crawlable URL with near-identical content.
 const semitones = ref(0);
+/**
+ * Capo fret, 0 meaning none.
+ *
+ * AI-DECISION: starts at 0 even when the arrangement carries its own capo
+ * value. Those 292 stored values came out of the import, not off a transcriber's
+ * page, and the chords beside them are the sounding chords — so honouring one on
+ * load would shift a song's displayed chords the moment it opened, for no reason
+ * the reader could see. The stored value is offered in the suggestion list
+ * instead, where it is a proposal rather than a silent edit.
+ */
+const capo = ref(0);
 const { fontSize } = useSheetFontSize();
 const showChords = ref(false);
 const { columns, wideEnough, active: splitColumns, toggle: toggleColumns } = useSheetColumns();
@@ -141,35 +162,64 @@ defineOgImage('Song', {
 <template>
   <article v-if="song">
     <header class="mb-6">
-      <h1 class="text-2xl font-semibold tracking-tight">{{ song.title }}</h1>
-      <NuxtLink :to="localePath(`/izvodjac/${song.artist?.slug}`)" class="text-muted hover:text-accent">
-        {{ song.artist?.name }}
-      </NuxtLink>
+      <h1 class="text-2xl sm:text-3xl font-semibold tracking-tight text-ink">{{ song.title }}</h1>
 
-      <ul v-if="song.genres?.length" class="mt-2 flex flex-wrap gap-1.5">
-        <li v-for="genre in song.genres" :key="genre._id">
-          <NuxtLink
-            :to="localePath(`/zanr/${genre.slug}`)"
-            class="rounded-full border border-line-strong px-2.5 py-0.5 text-xs text-muted hover:border-accent hover:text-accent"
-          >{{ genre.name }}</NuxtLink>
-        </li>
-      </ul>
+      <div v-if="song.artist" class="mt-2.5 flex items-center gap-2.5">
+        <NuxtLink
+          :to="localePath(`/izvodjac/${song.artist.slug}`)"
+          class="group inline-flex items-center gap-2.5 text-body hover:text-accent transition-colors"
+        >
+          <!-- Artist Avatar: Image with fallback initials -->
+          <span class="relative inline-flex shrink-0">
+            <img
+              v-if="artistHasImage && !artistImgError"
+              :src="`${config.public.apiBase}/artists/${song.artist._id}/image`"
+              :alt="song.artist.name"
+              class="size-8 sm:size-9 rounded-full object-cover ring-1 ring-line group-hover:ring-accent transition-all"
+              @error="artistImgError = true"
+            >
+            <span
+              v-else
+              :style="avatarStyle(song.artist.name)"
+              class="flex size-8 sm:size-9 select-none items-center justify-center rounded-full font-semibold ring-1 ring-line text-xs group-hover:ring-accent transition-all"
+              aria-hidden="true"
+            >
+              {{ initials(song.artist.name) }}
+            </span>
+          </span>
 
-      <!-- Both were already in the payload and neither was ever shown. The
-           difficulty tells a beginner whether to attempt this at all; the view
-           count is the only signal on the page that other people play it. -->
-      <p v-if="difficultyKey || viewsLabel" class="mt-2.5 flex flex-wrap items-center gap-x-2.5 gap-y-1 text-xs text-muted">
-        <span
-          v-if="difficultyKey"
-          class="rounded-full border px-2 py-0.5 font-medium"
-          :class="difficultyClass"
-          :title="$t('song.difficultyLabel')"
-        >{{ $t(`song.${difficultyKey}`) }}</span>
+          <!-- Artist Name and Flag -->
+          <span class="text-base font-medium text-body group-hover:text-accent transition-colors">
+            <span v-if="artistFlag" class="mr-1.5" :title="song.artist.country">{{ artistFlag }}</span>{{ song.artist.name }}
+          </span>
+        </NuxtLink>
+      </div>
 
-        <span v-if="difficultyKey && viewsLabel" aria-hidden="true">·</span>
+      <div class="mt-3 flex flex-wrap items-center gap-2">
+        <ul v-if="song.genres?.length" class="flex flex-wrap gap-1.5">
+          <li v-for="genre in song.genres" :key="genre._id">
+            <NuxtLink
+              :to="localePath(`/zanr/${genre.slug}`)"
+              class="rounded-full border border-line-strong px-2.5 py-0.5 text-xs text-muted hover:border-accent hover:text-accent transition"
+            >{{ genre.name }}</NuxtLink>
+          </li>
+        </ul>
 
-        <span v-if="viewsLabel">{{ $t('song.views', { n: viewsLabel.formatted }, viewsLabel.n) }}</span>
-      </p>
+        <span v-if="song.genres?.length && (difficultyKey || viewsLabel)" class="text-dim" aria-hidden="true">·</span>
+
+        <p v-if="difficultyKey || viewsLabel" class="flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-muted">
+          <span
+            v-if="difficultyKey"
+            class="rounded-full border px-2 py-0.5 font-medium"
+            :class="difficultyClass"
+            :title="$t('song.difficultyLabel')"
+          >{{ $t(`song.${difficultyKey}`) }}</span>
+
+          <span v-if="difficultyKey && viewsLabel" class="text-dim" aria-hidden="true">·</span>
+
+          <span v-if="viewsLabel">{{ $t('song.views', { n: viewsLabel.formatted }, viewsLabel.n) }}</span>
+        </p>
+      </div>
     </header>
 
     <VersionSwitcher
@@ -187,10 +237,20 @@ defineOgImage('Song', {
       class="mb-5"
       :slug="song.slug"
       :arrangement-id="song.arrangementId"
+      :song-title="song.title"
+      :artist-name="song.artist?.name"
+      :artist-id="song.artist?._id"
     />
 
     <div data-print="hide" class="mb-6 flex flex-wrap items-center gap-x-3 gap-y-2 border-y border-line py-2 sm:mb-8 sm:gap-x-6 sm:gap-y-3 sm:py-3">
       <TransposeControls v-model:semitones="semitones" :original-key="song.originalKey" />
+
+      <CapoControls
+        v-model:capo="capo"
+        :semitones="semitones"
+        :original-key="song.originalKey"
+        :content="song.content"
+      />
 
       <FontSizeControl />
 
@@ -222,10 +282,6 @@ defineOgImage('Song', {
         <Icon name="material-symbols:grid-view-rounded" />
         <span class="sr-only">{{ $t('song.allChords') }}</span>
       </button>
-
-      <span v-if="song.capo" class="order-last text-sm text-muted sm:order-none">
-        {{ $t('song.capo') }}: {{ $t('song.capoFret', { n: song.capo }) }}
-      </span>
 
       <button
         class="rounded border border-line-strong bg-panel px-2.5 py-1.5 text-muted transition hover:border-accent hover:text-accent"
@@ -271,6 +327,7 @@ defineOgImage('Song', {
       class="mb-8"
       :content="song.content"
       :semitones="semitones"
+      :capo="capo"
       :original-key="song.originalKey"
     />
 
@@ -290,6 +347,7 @@ defineOgImage('Song', {
     <ChordSheet
       :content="song.content"
       :semitones="semitones"
+      :capo="capo"
       :original-key="song.originalKey"
       :font-size="fontSize"
       :columns="splitColumns"

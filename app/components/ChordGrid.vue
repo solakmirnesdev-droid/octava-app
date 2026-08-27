@@ -5,6 +5,8 @@ import { findFingering } from '~/utils/chordEngine';
 const props = defineProps({
   content: { type: String, default: '' },
   semitones: { type: Number, default: 0 },
+  /** Display only; see ChordSheet. The grid must show the same shapes. */
+  capo: { type: Number, default: 0 },
   originalKey: { type: String, default: '' }
 });
 
@@ -13,7 +15,8 @@ const props = defineProps({
  * grid follows the key the reader is actually looking at.
  */
 const chords = computed(() =>
-  extractChords(normalizeNotation(transposeContent(props.content, props.semitones, props.originalKey)))
+  extractChords(normalizeNotation(
+    transposeContent(props.content, props.semitones - props.capo, props.originalKey)))
 );
 
 /**

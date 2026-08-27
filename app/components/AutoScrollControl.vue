@@ -35,6 +35,25 @@ const { running, speed, toggle, faster, slower, canGoFaster, canGoSlower } = use
       >+</button>
     </div>
 
-    <span v-if="running" class="hidden text-xs text-faint sm:inline">{{ $t('song.tapToStop') }}</span>
+    <!-- AI-DECISION: Teleported fixed badge in corner so starting auto-scroll
+         never shifts or wraps the toolbar layout. -->
+    <Teleport to="body">
+      <Transition
+        enter-active-class="transition duration-200 ease-out"
+        leave-active-class="transition duration-150 ease-in"
+        enter-from-class="translate-y-2 opacity-0"
+        leave-to-class="translate-y-2 opacity-0"
+      >
+        <div
+          v-if="running"
+          data-print="hide"
+          class="pointer-events-none fixed bottom-5 left-5 z-40 flex items-center gap-2 rounded-full border border-line bg-panel/90 px-3 py-1.5 text-xs text-muted shadow-md backdrop-blur"
+          role="status"
+        >
+          <span class="size-2 rounded-full bg-accent animate-pulse" />
+          <span>{{ $t('song.tapToStop') }}</span>
+        </div>
+      </Transition>
+    </Teleport>
   </div>
 </template>

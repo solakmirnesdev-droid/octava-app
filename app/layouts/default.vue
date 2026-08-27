@@ -68,19 +68,6 @@ useHead({
   }]
 });
 
-/**
- * Labels are keys, not text: the English site renders this same array. Paths go
- * through localePath because the routes are translated, not merely prefixed —
- * a raw '/akordi' here drops an English visitor back onto the Bosnian site.
- */
-const browse = [
-  { to: '/izvodjaci', key: 'nav.artists', icon: 'material-symbols:artist-rounded' },
-  { to: '/akordi',    key: 'nav.chords',  icon: 'material-symbols:music-note-rounded' },
-  { to: '/stimer',    key: 'nav.tuner',   icon: 'material-symbols:tune-rounded' },
-  { to: '/metronom',  key: 'nav.metronome', icon: 'material-symbols:avg-time-rounded' },
-  { to: '/zatrazi',   key: 'nav.request', icon: 'material-symbols:add-circle-outline-rounded' }
-];
-
 const itemClass =
   'flex shrink-0 items-center gap-1.5 rounded px-2 py-1.5 text-body hover:bg-raised hover:text-accent';
 </script>
@@ -88,20 +75,21 @@ const itemClass =
 <template>
   <div class="min-h-screen bg-surface text-ink">
     <SiteNotice />
+    <AppToast />
     <LanguageSuggestion data-print="hide" />
 
     <header class="sticky top-0 z-10 border-b border-line bg-surface/90 backdrop-blur">
-      <div class="mx-auto flex max-w-5xl items-center gap-x-3 px-5 py-2.5 sm:gap-x-4 sm:py-3">
+      <div class="mx-auto flex max-w-7xl items-center gap-x-3 px-5 py-2.5 sm:gap-x-4 sm:py-3">
         <NuxtLink :to="localePath('/')" class="shrink-0 text-lg font-semibold tracking-tight">Octava</NuxtLink>
 
         <SearchBox />
 
-        <!-- Everything below sm lives behind this one control. Hidden with CSS
-             at sm and up, never with v-if, so the header height is identical
+        <!-- Everything below lg lives behind this one control. Hidden with CSS
+             at lg and up, never with v-if, so the header height is identical
              before and after hydration. -->
         <button
           type="button"
-          class="-mr-2 flex size-11 shrink-0 items-center justify-center rounded text-body hover:bg-raised hover:text-accent sm:hidden"
+          class="-mr-2 flex size-11 shrink-0 items-center justify-center rounded text-body hover:bg-raised hover:text-accent lg:hidden"
           :aria-label="menuOpen ? $t('nav.closeMenu') : $t('nav.openMenu')"
           :aria-expanded="menuOpen"
           aria-controls="mobile-menu"
@@ -116,13 +104,45 @@ const itemClass =
           <Icon v-show="menuOpen" name="material-symbols:close-rounded" class="text-2xl" />
         </button>
 
-        <nav class="ml-auto hidden items-center gap-1 text-sm sm:flex">
+        <nav class="ml-auto hidden items-center gap-1 text-sm lg:flex">
           <NuxtLink
-            v-for="item in browse" :key="item.to" :to="localePath(item.to)"
-            :class="itemClass" active-class="text-accent" :title="$t(item.key)"
+            :to="localePath('/izvodjaci')"
+            :class="itemClass" active-class="text-accent" :title="$t('nav.artists')"
           >
-            <Icon :name="item.icon" />
-            <span>{{ $t(item.key) }}</span>
+            <Icon name="material-symbols:mic-rounded" />
+            <span>{{ $t('nav.artists') }}</span>
+          </NuxtLink>
+
+          <NuxtLink
+            :to="localePath('/akordi')"
+            :class="itemClass" active-class="text-accent" :title="$t('nav.chords')"
+          >
+            <Icon name="material-symbols:library-music-rounded" />
+            <span>{{ $t('nav.chords') }}</span>
+          </NuxtLink>
+
+          <NuxtLink
+            :to="localePath('/stimer')"
+            :class="itemClass" active-class="text-accent" :title="$t('nav.tuner')"
+          >
+            <Icon name="material-symbols:graphic-eq-rounded" />
+            <span>{{ $t('nav.tuner') }}</span>
+          </NuxtLink>
+
+          <NuxtLink
+            :to="localePath('/metronom')"
+            :class="itemClass" active-class="text-accent" :title="$t('nav.metronome')"
+          >
+            <Icon name="material-symbols:timer-rounded" />
+            <span>{{ $t('nav.metronome') }}</span>
+          </NuxtLink>
+
+          <NuxtLink
+            :to="localePath('/zatrazi')"
+            :class="itemClass" active-class="text-accent" :title="$t('nav.request')"
+          >
+            <Icon name="material-symbols:note-add-rounded" />
+            <span>{{ $t('nav.request') }}</span>
           </NuxtLink>
 
           <span class="mx-1 h-5 w-px shrink-0 bg-sunken" aria-hidden="true" />
@@ -168,15 +188,51 @@ const itemClass =
 
       <!-- The drawer. In flow rather than overlaid, so it pushes the page down
            instead of covering it and needs no scroll lock or focus trap. -->
-      <div v-show="menuOpen" id="mobile-menu" class="border-t border-line-soft sm:hidden">
-        <nav class="mx-auto grid max-w-5xl gap-0.5 px-3 py-2 text-sm">
+      <div v-show="menuOpen" id="mobile-menu" class="border-t border-line-soft lg:hidden">
+        <nav class="mx-auto grid max-w-7xl gap-0.5 px-3 py-2 text-sm">
           <NuxtLink
-            v-for="item in browse" :key="item.to" :to="localePath(item.to)"
+            :to="localePath('/izvodjaci')"
             class="flex items-center gap-3 rounded px-2 py-2.5 text-body hover:bg-raised hover:text-accent"
             active-class="text-accent"
           >
-            <Icon :name="item.icon" class="text-lg" />
-            <span>{{ $t(item.key) }}</span>
+            <Icon name="material-symbols:mic-rounded" class="text-lg" />
+            <span>{{ $t('nav.artists') }}</span>
+          </NuxtLink>
+
+          <NuxtLink
+            :to="localePath('/akordi')"
+            class="flex items-center gap-3 rounded px-2 py-2.5 text-body hover:bg-raised hover:text-accent"
+            active-class="text-accent"
+          >
+            <Icon name="material-symbols:library-music-rounded" class="text-lg" />
+            <span>{{ $t('nav.chords') }}</span>
+          </NuxtLink>
+
+          <NuxtLink
+            :to="localePath('/stimer')"
+            class="flex items-center gap-3 rounded px-2 py-2.5 text-body hover:bg-raised hover:text-accent"
+            active-class="text-accent"
+          >
+            <Icon name="material-symbols:graphic-eq-rounded" class="text-lg" />
+            <span>{{ $t('nav.tuner') }}</span>
+          </NuxtLink>
+
+          <NuxtLink
+            :to="localePath('/metronom')"
+            class="flex items-center gap-3 rounded px-2 py-2.5 text-body hover:bg-raised hover:text-accent"
+            active-class="text-accent"
+          >
+            <Icon name="material-symbols:timer-rounded" class="text-lg" />
+            <span>{{ $t('nav.metronome') }}</span>
+          </NuxtLink>
+
+          <NuxtLink
+            :to="localePath('/zatrazi')"
+            class="flex items-center gap-3 rounded px-2 py-2.5 text-body hover:bg-raised hover:text-accent"
+            active-class="text-accent"
+          >
+            <Icon name="material-symbols:note-add-rounded" class="text-lg" />
+            <span>{{ $t('nav.request') }}</span>
           </NuxtLink>
 
           <span class="my-1 h-px bg-sunken" aria-hidden="true" />
@@ -229,7 +285,7 @@ const itemClass =
            reachable at a fraction of the height. -->
       <div class="border-t border-line-soft">
         <div
-          class="mx-auto flex max-w-5xl items-center gap-x-4 gap-y-1 overflow-x-auto px-5 py-1.5 text-sm
+          class="mx-auto flex max-w-7xl items-center gap-x-4 gap-y-1 overflow-x-auto px-5 py-1.5 text-sm
                  [-ms-overflow-style:none] [scrollbar-width:none] sm:flex-wrap sm:overflow-visible sm:py-2
                  [&::-webkit-scrollbar]:hidden"
         >
@@ -252,7 +308,7 @@ const itemClass =
       </div>
     </header>
 
-    <main class="mx-auto max-w-5xl px-5 py-8">
+    <main class="mx-auto max-w-7xl px-5 py-8">
       <slot />
     </main>
 

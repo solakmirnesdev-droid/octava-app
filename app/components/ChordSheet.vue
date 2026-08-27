@@ -8,12 +8,19 @@ const props = defineProps({
   semitones: { type: Number, default: 0 },
   // Passed so transposition can resolve the destination key.
   originalKey: { type: String, default: '' },
+  /**
+   * Capo fret. Display only: the shapes drop by this much so that fingering
+   * them with the capo on sounds the chords that are actually stored. The
+   * sounding pitch, and therefore the key label, never moves with it.
+   */
+  capo: { type: Number, default: 0 },
   fontSize: { type: Number, default: 15 },
   columns: { type: Boolean, default: false }
 });
 
 const lines = computed(() =>
-  parseSong(normalizeNotation(transposeContent(props.content, props.semitones, props.originalKey)))
+  parseSong(normalizeNotation(
+    transposeContent(props.content, props.semitones - props.capo, props.originalKey)))
 );
 
 // Which chord is showing its diagram. Keyed by position rather than by symbol,
@@ -58,8 +65,11 @@ onBeforeUnmount(() => clearTimeout(closeTimer));
  * dotted underline was the only sign these did anything at all.
  */
 function playChord(symbol) {
+  // `symbol` is already the shape, so its fingering is measured from the capo;
+  // strum raises it back to concert pitch. Press Am under a capo at 3 and you
+  // hear Cm, which is what the guitar in your hands would do.
   const shape = findFingering(symbol);
-  if (shape) strum(shape.frets);
+  if (shape) strum(shape.frets, { capo: props.capo });
 }
 
 </script>

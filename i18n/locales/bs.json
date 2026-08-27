@@ -142,7 +142,27 @@
     "hint": "Koliko tačno ovi akordi odgovaraju pjesmi?",
     "star": "{n} od 5",
     "yours": "Tvoja ocjena: {n}",
-    "give": "Daj {n} od 5"
+    "give": "Daj {n} od 5",
+    "star1": "1 ★ — Potrebne veće ispravke",
+    "star2": "2 ★ — Ima dosta grešaka",
+    "star3": "3 ★ — Djelimično tačno",
+    "star4": "4 ★ — Vrlo dobro i tačno",
+    "star5": "5 ★ — Savršeno tačni akordi",
+    "ratedToast": "Ocijenjeno sa {n} ★",
+    "retractedToast": "Ocjena uklonjena"
+  },
+  "genre": {
+    "spotlight": "Hitovi rubrike",
+    "topArtists": "Top izvođači",
+    "popularKeys": "Popularni tonaliteti",
+    "relatedGenres": "Srodne rubrike",
+    "searchPlaceholder": "Filtriraj pjesme ili izvođače…",
+    "songCount": "{n} pjesama",
+    "artistCount": "{n} izvođača",
+    "sortRecent": "Najnovije",
+    "sortPopular": "Najtraženije",
+    "sortTitle": "Abecedno",
+    "emptyFilter": "Nema pjesama koje odgovaraju filteru."
   },
   "page": {
     "artists": "Izvođači",
@@ -190,7 +210,8 @@
     "savedEmpty": "Još nemaš sačuvanih pjesama.",
     "metronome": "Metronom",
     "metronomeLead": "Postavi tempo, pritisni razmak i sviraj uz otkucaje.",
-    "chordHear": "Pritisni bilo koji dijagram da čuješ kako zvuči."
+    "chordHear": "Pritisni bilo koji dijagram da čuješ kako zvuči.",
+    "songbook": "Pjesmarica"
   },
   "auth": {
     "signInLead": "Prijavi se da sačuvaš pjesme.",
@@ -244,7 +265,8 @@
     "profileTitle": "Moj profil {'|'} Octava",
     "savedTitle": "Sačuvano {'|'} Octava",
     "metronomeTitle": "Metronom {'|'} Octava",
-    "metronomeDesc": "Metronom sa tapkanjem tempa i naglaskom na prvu dobu. Radi u pregledniku, bez instalacije."
+    "metronomeDesc": "Metronom sa tapkanjem tempa i naglaskom na prvu dobu. Radi u pregledniku, bez instalacije.",
+    "songbookTitle": "Pjesmarica za štampu"
   },
   "about": {
     "title": "O nama",
@@ -456,5 +478,22 @@
     "allegro": "allegro",
     "presto": "presto",
     "prestissimo": "prestissimo"
+  },
+  "songbook": {
+    "intro": "Sve pjesme iz javnog vlasništva na jednom mjestu, spremne za štampu. Odštampaj ili sačuvaj kao PDF i ponesi — papir radi i tamo gdje nema signala.",
+    "print": "Štampaj",
+    "contents": "Sadržaj",
+    "empty": "Još nema pjesama s akordima u javnom vlasništvu.",
+    "unchecked": "Tekst zapisan po sjećanju iz narodne tradicije — provjeri prije nego se osloniš na njega."
+  },
+  "capo": {
+    "none": "bez kapa",
+    "fret": "polje",
+    "down": "Kapodaster niže",
+    "up": "Kapodaster više",
+    "choose": "Izaberi polje",
+    "remove": "Skini kapodaster",
+    "playingSounding": "Hvataš u {shape}, a zvuči u {sound} — kapodaster ne mijenja tonalitet.",
+    "easierAt": "Lakše na {fret}. polju: {shapes}."
   }
 }

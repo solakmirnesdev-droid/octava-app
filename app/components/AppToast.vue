@@ -53,8 +53,15 @@ const artistImgSrc = computed(() => {
               {{ initials(toast.artistName || toast.title) }}
             </span>
 
-            <!-- Heart badge -->
+            <!-- Action badge (Star for rating, Heart for saved) -->
             <span
+              v-if="toast.type === 'rating'"
+              class="absolute -bottom-1 -right-1 flex size-5 items-center justify-center rounded-full bg-warn text-on-ink ring-2 ring-panel"
+            >
+              <Icon name="material-symbols:star-rounded" class="text-xs" />
+            </span>
+            <span
+              v-else
               class="absolute -bottom-1 -right-1 flex size-5 items-center justify-center rounded-full bg-accent text-on-accent ring-2 ring-panel"
             >
               <Icon name="material-symbols:favorite-rounded" class="text-xs" />
@@ -63,8 +70,14 @@ const artistImgSrc = computed(() => {
 
           <!-- Message and song / artist details -->
           <div class="min-w-0 flex-1">
-            <div class="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider text-accent">
-              <span>{{ toast.message || $t('song.saved') }}</span>
+            <div
+              class="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider"
+              :class="toast.type === 'rating' ? 'text-warn' : 'text-accent'"
+            >
+              <span v-if="toast.type === 'rating'">
+                {{ toast.message || (toast.ratingValue ? $t('rating.ratedToast', { n: toast.ratingValue }) : $t('rating.retractedToast')) }}
+              </span>
+              <span v-else>{{ toast.message || $t('song.saved') }}</span>
             </div>
             <p class="truncate text-sm font-semibold text-ink leading-snug">
               {{ toast.title }}

@@ -142,7 +142,27 @@
     "hint": "How closely do these chords match the song?",
     "star": "{n} out of 5",
     "yours": "Your rating: {n}",
-    "give": "Give {n} out of 5"
+    "give": "Give {n} out of 5",
+    "star1": "1 ★ — Needs major corrections",
+    "star2": "2 ★ — Noticeable errors",
+    "star3": "3 ★ — Mostly accurate",
+    "star4": "4 ★ — Very good & accurate",
+    "star5": "5 ★ — Completely accurate",
+    "ratedToast": "Rated {n} ★",
+    "retractedToast": "Rating removed"
+  },
+  "genre": {
+    "spotlight": "Genre Spotlight",
+    "topArtists": "Top Artists",
+    "popularKeys": "Popular Keys",
+    "relatedGenres": "Related Genres",
+    "searchPlaceholder": "Filter songs or artists…",
+    "songCount": "{n} songs",
+    "artistCount": "{n} artists",
+    "sortRecent": "Latest",
+    "sortPopular": "Most Popular",
+    "sortTitle": "Alphabetical",
+    "emptyFilter": "No songs match this filter."
   },
   "page": {
     "artists": "Artists",
@@ -190,7 +210,8 @@
     "savedEmpty": "You haven't saved any songs yet.",
     "metronome": "Metronome",
     "metronomeLead": "Set the tempo, press space, and play along.",
-    "chordHear": "Press any diagram to hear how it sounds."
+    "chordHear": "Press any diagram to hear how it sounds.",
+    "songbook": "Songbook"
   },
   "auth": {
     "signInLead": "Sign in to save songs.",
@@ -244,7 +265,8 @@
     "profileTitle": "My profile {'|'} Octava",
     "savedTitle": "Saved {'|'} Octava",
     "metronomeTitle": "Metronome {'|'} Octava",
-    "metronomeDesc": "A metronome with tap tempo and an accented downbeat. Runs in the browser, nothing to install."
+    "metronomeDesc": "A metronome with tap tempo and an accented downbeat. Runs in the browser, nothing to install.",
+    "songbookTitle": "Printable songbook"
   },
   "about": {
     "title": "About",
@@ -456,5 +478,22 @@
     "allegro": "allegro",
     "presto": "presto",
     "prestissimo": "prestissimo"
+  },
+  "songbook": {
+    "intro": "Every public-domain song in one place, ready for paper. Print it or save it as a PDF and take it with you — paper works where there is no signal.",
+    "print": "Print",
+    "contents": "Contents",
+    "empty": "No public-domain songs with chords yet.",
+    "unchecked": "Written from recall of the oral tradition — check it before relying on it."
+  },
+  "capo": {
+    "none": "no capo",
+    "fret": "fret",
+    "down": "Capo down",
+    "up": "Capo up",
+    "choose": "Choose a fret",
+    "remove": "Remove capo",
+    "playingSounding": "Fingering {shape}, sounding {sound} — a capo does not change the key.",
+    "easierAt": "Easier at fret {fret}: {shapes}."
   }
 }

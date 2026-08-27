@@ -80,14 +80,22 @@ function pluckBuffer(context, frequency, brightness) {
  * Strums one fingering.
  *
  * @param frets  low E to high E; a number is a fret, 0 is open, null is muted
- * @param opts   direction 'down' (default) or 'up', and a 0–1 volume
+ * @param opts   direction 'down' (default), a 0–1 volume, and the capo fret
+ *
+ * AI-TRAP: `capo` is not decoration. A diagram's fret numbers are measured from
+ * the capo, not from the nut, so a shape marked open is stopped at the capo's
+ * fret and everything above it moves with it. Strumming the diagram's numbers
+ * as written plays the shape rather than the sound the room hears — which is
+ * the one thing the player is listening for when they check a chord against
+ * their own singing. Raising every string by the capo fret is the whole
+ * correction, and it is exact: a capo is a movable nut.
  */
-export function strum(frets, { direction = 'down', volume = 0.7 } = {}) {
+export function strum(frets, { direction = 'down', volume = 0.7, capo = 0 } = {}) {
   const context = audio();
   if (!context || !Array.isArray(frets)) return false;
 
   const strings = frets
-    .map((fret, i) => (fret === null ? null : { i, midi: TUNING[i] + fret }))
+    .map((fret, i) => (fret === null ? null : { i, midi: TUNING[i] + capo + fret }))
     .filter(Boolean);
   if (!strings.length) return false;
 
