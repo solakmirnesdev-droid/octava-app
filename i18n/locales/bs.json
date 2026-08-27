@@ -23,7 +23,8 @@
     "profile": "Profil",
     "logoutTitle": "Odjava",
     "logoutBody": "Odjavljujemo te s naloga {name}. Sačuvane pjesme ostaju i čekaju te kad se vratiš.",
-    "loggedOut": "Odjavljen si."
+    "loggedOut": "Odjavljen si.",
+    "metronome": "Metronom"
   },
   "song": {
     "key": "Tonalitet",
@@ -103,7 +104,8 @@
     "privacy": "Politika privatnosti",
     "contact": "Kontakt",
     "counts": "{songs} pjesama · {artists} izvođača",
-    "terms": "Uslovi korištenja"
+    "terms": "Uslovi korištenja",
+    "metronome": "Metronom"
   },
   "language": {
     "switch": "Jezik",
@@ -181,7 +183,9 @@
     "chordSearchEmpty": "Nema akorda za „{query}\". Probaj Am, C#m7 ili sus4.",
     "saved": "Sačuvano",
     "savedArtists": "Izvođači",
-    "savedEmpty": "Još nemaš sačuvanih pjesama."
+    "savedEmpty": "Još nemaš sačuvanih pjesama.",
+    "metronome": "Metronom",
+    "metronomeLead": "Postavi tempo, pritisni razmak i sviraj uz otkucaje."
   },
   "auth": {
     "signInLead": "Prijavi se da sačuvaš pjesme.",
@@ -233,7 +237,9 @@
     "loginTitle": "Prijava {'|'} Octava",
     "registerTitle": "Registracija {'|'} Octava",
     "profileTitle": "Moj profil {'|'} Octava",
-    "savedTitle": "Sačuvano {'|'} Octava"
+    "savedTitle": "Sačuvano {'|'} Octava",
+    "metronomeTitle": "Metronom {'|'} Octava",
+    "metronomeDesc": "Metronom sa tapkanjem tempa i naglaskom na prvu dobu. Radi u pregledniku, bez instalacije."
   },
   "about": {
     "title": "O nama",
@@ -417,5 +423,32 @@
     "website": "Stranica",
     "save": "Sačuvaj izvođača",
     "saved": "Sačuvan"
+  },
+  "tuner": {
+    "guitar": "Gitara",
+    "bass": "Bas",
+    "ukulele": "Ukulele",
+    "hear": "Odsviraj {note}",
+    "focus": "Fokus na žicu",
+    "focusHint": "Za bučnu prostoriju. Štimer traži glasniji i čistiji ton prije nego prikaže očitanje — rjeđe reaguje, ali ne pokazuje buku."
+  },
+  "metronome": {
+    "start": "Pokreni",
+    "stop": "Zaustavi",
+    "tap": "Tapkaj",
+    "tapHint": "Tapkaj u ritmu pjesme da postaviš tempo",
+    "spaceHint": "Razmak pokreće i zaustavlja.",
+    "tempo": "Tempo",
+    "slower": "Sporije",
+    "faster": "Brže",
+    "bar": "Takt",
+    "note": "Prva doba je viša i glasnija, da se čuje gdje takt počinje.",
+    "largo": "largo",
+    "adagio": "adagio",
+    "andante": "andante",
+    "moderato": "moderato",
+    "allegro": "allegro",
+    "presto": "presto",
+    "prestissimo": "prestissimo"
   }
 }

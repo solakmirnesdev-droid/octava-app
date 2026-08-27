@@ -92,6 +92,9 @@ const year = new Date().getFullYear();
             <ul class="space-y-1.5 text-sm">
               <li>
                 <NuxtLink :to="localePath('/stimer')" class="text-body hover:text-accent">{{ $t('footer.tuner') }}</NuxtLink>
+                </li>
+              <li>
+                <NuxtLink :to="localePath('/metronom')" class="text-body hover:text-accent">{{ $t('footer.metronome') }}</NuxtLink>
               </li>
               <li>
                 <NuxtLink :to="localePath('/akordi')" class="text-body hover:text-accent">{{ $t('footer.chords') }}</NuxtLink>

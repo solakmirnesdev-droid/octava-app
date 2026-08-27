@@ -77,6 +77,7 @@ const browse = [
   { to: '/izvodjaci', key: 'nav.artists', icon: 'material-symbols:artist-rounded' },
   { to: '/akordi',    key: 'nav.chords',  icon: 'material-symbols:music-note-rounded' },
   { to: '/stimer',    key: 'nav.tuner',   icon: 'material-symbols:tune-rounded' },
+  { to: '/metronom',  key: 'nav.metronome', icon: 'material-symbols:avg-time-rounded' },
   { to: '/zatrazi',   key: 'nav.request', icon: 'material-symbols:add-circle-outline-rounded' }
 ];
 

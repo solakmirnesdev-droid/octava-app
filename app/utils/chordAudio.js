@@ -118,6 +118,41 @@ export function strum(frets, { direction = 'down', volume = 0.7 } = {}) {
   return true;
 }
 
+/**
+ * One string, at a given pitch.
+ *
+ * The tuner's reference notes need this: there is no fingering to strum, just a
+ * frequency somebody wants to hear so they can match it by ear.
+ */
+export function note(frequency, { volume = 0.6, brightness = 0.75 } = {}) {
+  const context = audio();
+  if (!context || !(frequency > 0)) return false;
+
+  const source = context.createBufferSource();
+  source.buffer = pluckBuffer(context, frequency, brightness);
+
+  const gain = context.createGain();
+  const at = context.currentTime + 0.02;
+  gain.gain.setValueAtTime(0, at);
+  gain.gain.linearRampToValueAtTime(volume, at + 0.006);
+  gain.gain.setValueAtTime(volume, at + DECAY - 0.15);
+  gain.gain.linearRampToValueAtTime(0, at + DECAY);
+
+  source.connect(gain).connect(context.destination);
+  source.start(at);
+  source.stop(at + DECAY);
+  return true;
+}
+
+/**
+ * The shared audio context, for anything that needs to schedule its own sound.
+ *
+ * AI-NOTE: exported so the metronome can schedule against the same clock rather
+ * than opening a second context. Browsers cap how many a page may have, and two
+ * contexts drift apart — which for a metronome is the whole problem.
+ */
+export const context = () => audio();
+
 /** Whether this browser can play anything at all. */
 export const canPlay = () =>
   typeof window !== 'undefined' && Boolean(window.AudioContext || window.webkitAudioContext);

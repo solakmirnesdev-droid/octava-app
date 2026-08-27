@@ -112,9 +112,7 @@ useSeoMeta({
       </i18n-t>
     </header>
 
-    <!-- Sticky: with 168 cards the field is otherwise scrolled away by the time
-         you have decided what you are looking for. -->
-    <div class="sticky top-[3.25rem] z-10 -mx-5 mb-6 bg-surface/95 px-5 py-3 backdrop-blur sm:top-[3.75rem]">
+    <div class="mb-6">
       <div class="relative">
         <Icon
           name="material-symbols:search-rounded"

@@ -1,6 +1,31 @@
 <script setup>
 const { t } = useI18n();
-const { listening, error, reading, nearestString, inTune, start, stop, STRINGS } = useTuner();
+import { note as pluck } from '~/utils/chordAudio';
+
+const {
+  listening, error, reading, nearestString, inTune, start, stop,
+  instrument, strings, INSTRUMENTS, focus
+} = useTuner();
+
+/**
+ * A reference note you can hear.
+ *
+ * AI-NOTE: tuning by ear against a played note is how most people actually do
+ * it, and it is the only way that works at all when the microphone cannot hear
+ * over the room. The six cards were already showing the frequencies; making
+ * them play is the smaller half of the work.
+ */
+const sounded = ref(null);
+let soundTimer = null;
+
+function hear(string) {
+  if (!pluck(string.frequency)) return;
+  sounded.value = string.frequency;
+  window.clearTimeout(soundTimer);
+  soundTimer = window.setTimeout(() => { sounded.value = null; }, 900);
+}
+
+onBeforeUnmount(() => window.clearTimeout(soundTimer));
 
 /**
  * Needle position, clamped to +/- 50 cents.
@@ -38,9 +63,23 @@ useSeoMeta({
     <header class="mb-8">
       <h1 class="text-2xl font-semibold tracking-tight">{{ $t('page.tuner') }}</h1>
       <i18n-t keypath="page.tuningLead" tag="p" class="mb-6 text-sm text-muted" scope="global">
-        <template #tuning><span class="font-mono">E A D G H E</span></template>
+        <template #tuning><span class="font-mono">{{ INSTRUMENTS[instrument].tuning }}</span></template>
       </i18n-t>
     </header>
+
+    <!-- The instrument decides both the reference notes and which string a
+         reading is measured against, so it belongs above the meter. -->
+    <div class="mb-4 flex gap-2">
+      <button
+        v-for="(spec, key) in INSTRUMENTS" :key="key"
+        type="button"
+        class="rounded border px-3 py-1.5 text-sm transition-colors"
+        :class="instrument === key
+          ? 'border-accent bg-accent-soft text-accent'
+          : 'border-line-strong text-muted hover:border-accent hover:text-accent'"
+        @click="instrument = key"
+      >{{ $t(spec.labelKey) }}</button>
+    </div>
 
     <div class="rounded-lg border border-line bg-panel p-6">
       <div v-if="!listening" class="py-8 text-center">
@@ -93,8 +132,18 @@ useSeoMeta({
           <template v-else>&nbsp;</template>
         </p>
 
+        <!-- Offered where the reading is, because it changes what the reading
+             will accept — not tucked away in settings. -->
+        <label class="mt-6 flex cursor-pointer items-start gap-2.5 rounded border border-line-soft p-3">
+          <input v-model="focus" type="checkbox" class="mt-0.5 accent-accent">
+          <span class="min-w-0">
+            <span class="block text-sm font-medium">{{ $t('tuner.focus') }}</span>
+            <span class="block text-xs leading-relaxed text-faint">{{ $t('tuner.focusHint') }}</span>
+          </span>
+        </label>
+
         <button
-          class="mt-6 w-full rounded border border-line-strong py-2 text-sm hover:border-accent"
+          class="mt-3 w-full rounded border border-line-strong py-2 text-sm hover:border-accent"
           @click="stop"
         >
           {{ $t('page.stop') }}
@@ -105,16 +154,23 @@ useSeoMeta({
     <!-- Which open string the reading is nearest, so a badly out-of-tune
          string still tells you which one you are holding. -->
     <div class="mt-6 flex justify-between gap-2">
-      <div
-        v-for="(string, i) in STRINGS" :key="i"
-        class="flex-1 rounded border py-2 text-center transition"
-        :class="nearestString && nearestString.frequency === string.frequency
-          ? (inTune ? 'border-ok bg-ok-soft/10' : 'border-accent bg-accent-soft')
-          : 'border-line'"
+      <button
+        v-for="(string, i) in strings" :key="i"
+        type="button"
+        class="flex-1 rounded border py-2 text-center transition-colors"
+        :class="[
+          nearestString && nearestString.frequency === string.frequency
+            ? (inTune ? 'border-ok bg-ok-soft/10' : 'border-accent bg-accent-soft')
+            : 'border-line hover:border-accent',
+          sounded === string.frequency ? 'bg-accent-soft' : ''
+        ]"
+        :title="$t('tuner.hear', { note: string.label })"
+        :aria-label="$t('tuner.hear', { note: string.label })"
+        @click="hear(string)"
       >
         <span class="block font-mono text-sm font-semibold">{{ string.label }}</span>
         <span class="block text-[10px] text-faint">{{ string.frequency }}</span>
-      </div>
+      </button>
     </div>
 
     <p class="mt-6 text-xs text-faint">

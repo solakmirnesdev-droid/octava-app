@@ -23,7 +23,8 @@
     "profile": "Profile",
     "logoutTitle": "Sign out",
     "logoutBody": "You'll be signed out of {name}. Your saved songs stay where they are.",
-    "loggedOut": "You are signed out."
+    "loggedOut": "You are signed out.",
+    "metronome": "Metronome"
   },
   "song": {
     "key": "Key",
@@ -103,7 +104,8 @@
     "privacy": "Privacy policy",
     "contact": "Contact",
     "counts": "{songs} songs · {artists} artists",
-    "terms": "Terms of use"
+    "terms": "Terms of use",
+    "metronome": "Metronome"
   },
   "language": {
     "switch": "Language",
@@ -181,7 +183,9 @@
     "chordSearchEmpty": "Nothing matches \"{query}\". Try Am, C#m7 or sus4.",
     "saved": "Saved",
     "savedArtists": "Artists",
-    "savedEmpty": "You haven't saved any songs yet."
+    "savedEmpty": "You haven't saved any songs yet.",
+    "metronome": "Metronome",
+    "metronomeLead": "Set the tempo, press space, and play along."
   },
   "auth": {
     "signInLead": "Sign in to save songs.",
@@ -233,7 +237,9 @@
     "loginTitle": "Sign in {'|'} Octava",
     "registerTitle": "Sign up {'|'} Octava",
     "profileTitle": "My profile {'|'} Octava",
-    "savedTitle": "Saved {'|'} Octava"
+    "savedTitle": "Saved {'|'} Octava",
+    "metronomeTitle": "Metronome {'|'} Octava",
+    "metronomeDesc": "A metronome with tap tempo and an accented downbeat. Runs in the browser, nothing to install."
   },
   "about": {
     "title": "About",
@@ -417,5 +423,32 @@
     "website": "Website",
     "save": "Save artist",
     "saved": "Saved"
+  },
+  "tuner": {
+    "guitar": "Guitar",
+    "bass": "Bass",
+    "ukulele": "Ukulele",
+    "hear": "Play {note}",
+    "focus": "Focus on the string",
+    "focusHint": "For a noisy room. The tuner waits for a louder, cleaner note before showing a reading — it responds less often, but it never shows you noise."
+  },
+  "metronome": {
+    "start": "Start",
+    "stop": "Stop",
+    "tap": "Tap",
+    "tapHint": "Tap along to the song to set the tempo",
+    "spaceHint": "Space starts and stops.",
+    "tempo": "Tempo",
+    "slower": "Slower",
+    "faster": "Faster",
+    "bar": "Bar",
+    "note": "The first beat is higher and louder, so you can hear where the bar starts.",
+    "largo": "largo",
+    "adagio": "adagio",
+    "andante": "andante",
+    "moderato": "moderato",
+    "allegro": "allegro",
+    "presto": "presto",
+    "prestissimo": "prestissimo"
   }
 }
