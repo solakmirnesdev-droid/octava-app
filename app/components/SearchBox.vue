@@ -1,4 +1,6 @@
 <script setup>
+import { initials, avatarStyle } from '~/utils/avatar';
+
 const config = useRuntimeConfig();
 const localePath = useLocalePath();
 const { t } = useI18n();
@@ -147,7 +149,7 @@ onBeforeUnmount(() => {
       <Icon
         name="material-symbols:search-rounded"
         aria-hidden="true"
-        class="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-black/35"
+        class="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-faint"
       />
 
       <input
@@ -156,7 +158,7 @@ onBeforeUnmount(() => {
         :aria-label="$t('nav.searchLabel')"
         autocomplete="off"
         :placeholder="$t('nav.search')"
-        class="w-full rounded-full border border-black/15 bg-white py-1.5 pl-9 pr-9 text-sm outline-none focus:border-accent"
+        class="w-full rounded-full border border-line-strong bg-panel py-1.5 pl-9 pr-9 text-sm outline-none focus:border-accent"
         :aria-expanded="open"
         @focus="query.trim().length >= MIN_QUERY && (open = true)"
         @keydown.down.prevent="move(1)"
@@ -167,7 +169,7 @@ onBeforeUnmount(() => {
       <button
         v-if="query"
         type="button"
-        class="absolute right-3 top-1/2 -translate-y-1/2 text-black/30 hover:text-accent"
+        class="absolute right-3 top-1/2 -translate-y-1/2 text-dim hover:text-accent"
         :title="$t('nav.clear')"
         @click="query = ''; close()"
       >
@@ -178,11 +180,11 @@ onBeforeUnmount(() => {
 
     <div
       v-if="open"
-      class="absolute left-0 right-0 top-full z-30 mt-1 overflow-hidden rounded-lg border border-black/10 bg-white shadow-lg"
+      class="absolute left-0 right-0 top-full z-30 mt-1 overflow-hidden rounded-lg border border-line bg-panel shadow-lg"
     >
-      <p v-if="loading && !hasResults" class="px-4 py-3 text-sm text-black/40">{{ $t('nav.searching') }}</p>
+      <p v-if="loading && !hasResults" class="px-4 py-3 text-sm text-faint">{{ $t('nav.searching') }}</p>
 
-      <p v-else-if="!hasResults" class="px-4 py-3 text-sm text-black/40">
+      <p v-else-if="!hasResults" class="px-4 py-3 text-sm text-faint">
         {{ $t('nav.noResultsFor', { q: query.trim() }) }}
       </p>
 
@@ -191,19 +193,24 @@ onBeforeUnmount(() => {
           <button
             type="button"
             class="flex w-full items-baseline gap-2 px-4 py-2 text-left text-sm"
-            :class="i === highlighted ? 'bg-accent/10 text-accent' : 'hover:bg-black/[0.03]'"
+            :class="i === highlighted ? 'bg-accent-soft text-accent' : 'hover:bg-raised'"
             @click="go(item.to)"
             @mouseenter="highlighted = i"
           >
             <img
               v-if="item.image" :src="item.image" alt=""
-              class="size-6 shrink-0 self-center rounded-full object-cover ring-1 ring-black/10"
+              class="size-6 shrink-0 self-center rounded-full object-cover ring-1 ring-line"
             >
-            <Icon v-else :name="ICONS[item.kind]" class="shrink-0 self-center text-black/30" />
+            <span
+              v-else-if="item.kind === 'artist'"
+              :style="avatarStyle(item.label)"
+              class="flex size-6 shrink-0 select-none items-center justify-center self-center rounded-full text-[9px] font-semibold ring-1 ring-line-soft"
+            >{{ initials(item.label) }}</span>
+            <Icon v-else :name="ICONS[item.kind]" class="shrink-0 self-center text-dim" />
             <span class="font-medium">
               <span v-if="item.flag" class="mr-1">{{ item.flag }}</span>{{ item.label }}
             </span>
-            <span class="truncate text-xs text-black/45">{{ item.sub }}</span>
+            <span class="truncate text-xs text-faint">{{ item.sub }}</span>
           </button>
         </li>
       </ul>
@@ -211,7 +218,7 @@ onBeforeUnmount(() => {
       <button
         v-if="hasResults"
         type="button"
-        class="w-full border-t border-black/5 px-4 py-2 text-left text-xs text-black/45 hover:text-accent"
+        class="w-full border-t border-line-soft px-4 py-2 text-left text-xs text-faint hover:text-accent"
         @click="submit"
       >
         Prikaži sve rezultate za „{{ query.trim() }}"
