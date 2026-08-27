@@ -173,7 +173,12 @@
     "tuningLead": "Standardno štimovanje — {tuning}. Odsviraj jednu žicu i pusti je da zvoni.",
     "chordsTitle": "Akordi za gitaru",
     "chordsLead": "Hvatovi za {total} akorda. Notacija je naša — {h} je dvanaesti stepen, a povisilice se pišu umjesto snizilica.",
-    "noArtistSongs": "Još nema pjesama ovog izvođača."
+    "noArtistSongs": "Još nema pjesama ovog izvođača.",
+    "chordSearch": "Traži akord — Am, C#, sus4, mol…",
+    "chordSearchLabel": "Traži akord",
+    "chordSearchClear": "Poništi",
+    "chordSearchCount": "nema akorda | {n} akord | {n} akorda | {n} akorda",
+    "chordSearchEmpty": "Nema akorda za „{query}\". Probaj Am, C#m7 ili sus4."
   },
   "auth": {
     "signInLead": "Prijavi se da sačuvaš pjesme.",

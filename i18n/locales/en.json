@@ -173,7 +173,12 @@
     "tuningLead": "Standard tuning — {tuning}. Play one string and let it ring.",
     "chordsTitle": "Guitar chords",
     "chordsLead": "Fingerings for {total} chords. The notation is ours — {h} is the twelfth degree, and sharps are written instead of flats.",
-    "noArtistSongs": "No songs for this artist yet."
+    "noArtistSongs": "No songs for this artist yet.",
+    "chordSearch": "Find a chord — Am, C#, sus4, minor…",
+    "chordSearchLabel": "Find a chord",
+    "chordSearchClear": "Clear",
+    "chordSearchCount": "no chords | {n} chord | {n} chords",
+    "chordSearchEmpty": "Nothing matches \"{query}\". Try Am, C#m7 or sus4."
   },
   "auth": {
     "signInLead": "Sign in to save songs.",
