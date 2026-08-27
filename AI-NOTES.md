@@ -111,6 +111,22 @@ word (it is a translation key — see §6), or add a locale key to one catalogue
 
 ## 5. Decision log
 
+### 2026-08-27 — One dialog for both surfaces
+- **What:** `AppModal.vue`, byte-identical in octava-app and octava-dashboard,
+  replacing seven window.confirm/prompt calls and two hand-rolled overlays.
+- **Why:** a native confirm cannot be styled, ignores the theme the reader
+  chose, and on a phone renders as a system sheet that looks like it came from
+  somewhere else. More to the point it is a yes/no with no room to say what is
+  about to happen — which is exactly what a destructive action needs. Purging a
+  song now shows the title beside the field that asks you to type it; a
+  window.prompt could not.
+- **Identical on purpose,** imports and all, so a fix in one is a copy away from
+  the other. It uses explicit `import { ref, … } from 'vue'` even though Nuxt
+  would auto-import them, because that is what makes the file portable.
+- **Affects:** `LogoutButton`, `SongReviews`, `ReviewComments`, `ReportProblem`
+  in the app; `ArrangementsPanel`, `BulkBar`, `TrashView`, `ArtistsView`,
+  `SecurityView`, `ModerationView` in the dashboard.
+
 ### 2026-08-27 — The light text ladder was raised to meet AA
 - **What:** `--text-faint` 0.40 → 0.54 and `--text-muted` 0.55 → 0.64.
 - **Why:** faint was 2.83:1 against the 4.5:1 AA needs, and it carried real
@@ -170,6 +186,31 @@ word (it is a translation key — see §6), or add a locale key to one catalogue
 ---
 
 ## 6. Traps & gotchas
+
+### An ASCII quote inside a template literal ends the HTML attribute
+- **Symptom:** the dashboard would not compile — "Unterminated template" in
+  ArtistsView, pointing at a line that looked fine.
+- **Cause:** `:description="… `„${name}" …`"`. The straight quote closing the
+  Bosnian pair terminated the attribute long before Vue saw the backtick.
+- **Fix:** the typographic closing quote, which is the right character anyway.
+- **Files:** `views/ArtistsView.vue`, `components/ArrangementsPanel.vue`.
+
+### A scroll lock counter cannot live inside the component
+- **Symptom:** scrolling came back while a dialog was still covering the page.
+- **Cause:** the counter was declared in `<script setup>`, so every AppModal had
+  its own. Several are mounted at once — the layout renders one LogoutButton for
+  the desktop nav and another for the mobile drawer — and Teleport lifts each
+  dialog out of its hidden container, so more than one can be live.
+- **Fix:** the count lives on `document.body.dataset.modalCount`.
+- **Files:** `components/AppModal.vue`.
+
+### A dialog whose leave transition never finishes freezes the page
+- **Symptom:** in a tab that is not compositing, `transitionend` never fires, so
+  Vue never removes the element. A `fixed inset-0` overlay at opacity 0 then
+  swallows every click with nothing on screen to explain it.
+- **Fix:** the leave state also sets `pointer-events-none`, so a stalled overlay
+  is at worst invisible rather than page-breaking.
+- **Files:** `components/AppModal.vue`.
 
 ### Theme tokens must stay translucent where they composite
 - **Symptom:** none yet — this is the reason the palette looks the way it does.
