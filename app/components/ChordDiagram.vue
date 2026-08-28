@@ -1,5 +1,5 @@
 <script setup>
-import { findFingering, fingerNumbers, INSTRUMENTS } from '~/utils/chordEngine';
+import { findFingering, fingerNumbers, CHORD_INSTRUMENTS } from '~/utils/chordEngine';
 import { strum, canPlay } from '~/utils/chordAudio';
 
 const props = defineProps({
@@ -32,7 +32,7 @@ function play() {
   // The tuning goes with the shape: the same fret numbers on a ukulele are a
   // different chord, and playing them against guitar strings would teach the ear
   // something the diagram does not say.
-  const tuning = (INSTRUMENTS[props.instrument] || INSTRUMENTS.guitar).tuning;
+  const tuning = (CHORD_INSTRUMENTS[props.instrument] || CHORD_INSTRUMENTS.guitar).tuning;
   if (!strum(shape.value.frets, { tuning })) return;
   ringing.value = true;
   window.clearTimeout(timer);

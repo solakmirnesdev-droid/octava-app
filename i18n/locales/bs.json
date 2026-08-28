@@ -91,7 +91,8 @@
     "videoLabel": "Snimak pjesme",
     "seeReviews": "Pogledaj ocjene i recenzije",
     "beFirstToRate": "Budi prvi koji ocjenjuje",
-    "chordHear": "Pritisni akord da ga čuješ i vidiš hvat."
+    "chordHear": "Pritisni akord da ga čuješ i vidiš hvat.",
+    "viewsLabel": "pregleda"
   },
   "footer": {
     "rubrics": "Rubrike",
@@ -464,7 +465,8 @@
     "website": "Stranica",
     "save": "Sačuvaj izvođača",
     "saved": "Sačuvan",
-    "artistSaved": "Izvođač sačuvan"
+    "artistSaved": "Izvođač sačuvan",
+    "photoBy": "Foto:"
   },
   "tuner": {
     "guitar": "Gitara",

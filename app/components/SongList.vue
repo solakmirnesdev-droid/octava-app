@@ -1,5 +1,6 @@
 <script setup>
 import { initials } from '~/utils/avatar';
+import { compareText } from '~/utils/collate';
 import { safeFlag } from '~/utils/countries';
 
 const auth = useAuthStore();
@@ -62,7 +63,9 @@ const filteredSongs = computed(() => {
   } else if (sortBy.value === 'rating') {
     list = [...list].sort((a, b) => (b.rating || 0) - (a.rating || 0));
   } else if (sortBy.value === 'title') {
-    list = [...list].sort((a, b) => (a.title || '').localeCompare(b.title || ''));
+    // Not localeCompare: browsers have no Bosnian collation and fall back to
+    // English, which files Č, Ć, Š and Ž before C, S and Z. See utils/collate.js.
+    list = [...list].sort((a, b) => compareText(a.title, b.title));
   }
 
   return list;
@@ -184,13 +187,18 @@ const filteredSongs = computed(() => {
         <!-- Top Ambient Glow -->
         <div class="pointer-events-none absolute -right-6 -top-6 size-20 rounded-full bg-accent/5 blur-xl transition-all duration-300 group-hover:bg-accent/15" />
 
-        <!-- Top header row: Artist info or difficulty + Musical Key badge -->
-        <div class="relative z-10 flex items-center justify-between gap-2">
+        <!--
+          AI-TRAP: pointer-events-none on the row, re-enabled on each control.
+          Without it these rows are a z-10 lid over the stretched link: a click on
+          the gap beside the badge lands on a div that does nothing, and the card
+          reads as dead exactly where there is nothing to hit.
+        -->
+        <div class="pointer-events-none relative z-10 flex items-center justify-between gap-2">
           <!-- Artist info if showArtist is true -->
           <div v-if="showArtist && song.artist" class="flex min-w-0 items-center gap-2">
             <NuxtLink
               :to="localePath(`/izvodjac/${song.artist.slug}`)"
-              class="shrink-0"
+              class="pointer-events-auto shrink-0"
               :title="song.artist.name"
             >
               <img
@@ -208,7 +216,7 @@ const filteredSongs = computed(() => {
             </NuxtLink>
             <NuxtLink
               :to="localePath(`/izvodjac/${song.artist.slug}`)"
-              class="truncate text-xs font-medium text-muted hover:text-accent transition-colors"
+              class="pointer-events-auto truncate text-xs font-medium text-muted hover:text-accent transition-colors"
             >
               <span v-if="safeFlag(song.artist.flag, song.artist.country)" class="mr-1">
                 {{ safeFlag(song.artist.flag, song.artist.country) }}
@@ -242,7 +250,7 @@ const filteredSongs = computed(() => {
             <NuxtLink
               v-if="song.originalKey"
               :to="localePath(`/pjesma/${song.slug}`)"
-              class="inline-flex items-center rounded-lg border border-accent/25 bg-accent-soft px-2 py-0.5 font-mono text-[11px] font-extrabold text-accent transition-all hover:bg-accent hover:text-on-accent shadow-2xs"
+              class="pointer-events-auto inline-flex items-center rounded-lg border border-accent/25 bg-accent-soft px-2 py-0.5 font-mono text-[11px] font-extrabold text-accent transition-all hover:bg-accent hover:text-on-accent shadow-2xs"
               :title="`${$t('song.key')}: ${song.originalKey}`"
             >
               {{ song.originalKey }}
@@ -250,10 +258,19 @@ const filteredSongs = computed(() => {
           </div>
         </div>
 
-        <!-- Card Body: Song Title -->
+        <!--
+          AI-DECISION: the whole card is the link, done with a stretched ::after
+          on the real anchor rather than by wrapping everything in one.
+
+          Wrapping would nest the artist link and the rating control inside an
+          anchor, which is invalid HTML and leaves a screen reader announcing one
+          link whose name is the entire card. This way there is still exactly one
+          link to the song, it keeps its href for middle-click and "open in new
+          tab", and the controls above it stay separately reachable.
+        -->
         <NuxtLink
           :to="localePath(`/pjesma/${song.slug}`)"
-          class="relative z-10 my-3 block min-w-0"
+          class="my-3 block min-w-0 after:absolute after:inset-0 after:content-['']"
         >
           <h3 class="text-[15px] sm:text-base font-bold text-ink group-hover:text-accent transition-colors line-clamp-2 tracking-tight leading-snug">
             {{ song.title }}
@@ -261,10 +278,10 @@ const filteredSongs = computed(() => {
         </NuxtLink>
 
         <!-- Bottom row: Rating & Stats (Views & Favorites) -->
-        <div class="relative z-10 flex items-center justify-between gap-2 border-t border-line-soft/80 pt-2.5">
+        <div class="pointer-events-none relative z-10 flex items-center justify-between gap-2 border-t border-line-soft/80 pt-2.5">
           <!-- Rating Stars -->
           <div class="flex items-center gap-1.5">
-            <span v-if="auth.isAuthenticated" class="-my-0.5 shrink-0 self-center">
+            <span v-if="auth.isAuthenticated" class="pointer-events-auto -my-0.5 shrink-0 self-center">
               <RatingStars
                 :value="song.rating || 0" :count="song.ratingCount || 0"
                 :slug="song.slug" :arrangement-id="song.arrangementId"
@@ -278,7 +295,7 @@ const filteredSongs = computed(() => {
             <NuxtLink
               v-else
               :to="localePath(`/pjesma/${song.slug}`) + '#recenzije'"
-              class="-my-0.5 shrink-0 self-center rounded px-0.5 transition-colors hover:text-accent"
+              class="pointer-events-auto -my-0.5 shrink-0 self-center rounded px-0.5 transition-colors hover:text-accent"
               :title="song.ratingCount ? $t('song.seeReviews') : $t('song.beFirstToRate')"
             >
               <RatingStars :value="song.rating || 0" :count="song.ratingCount || 0" />
@@ -289,7 +306,7 @@ const filteredSongs = computed(() => {
           <div class="flex shrink-0 items-center gap-2.5 font-mono text-[11px] text-faint">
             <span
               class="inline-flex items-center gap-1"
-              :title="`${song.views || 0} ${$t('song.viewsLabel') || 'pregleda'}`"
+              :title="`${song.views || 0} ${$t('song.viewsLabel')}`"
             >
               <Icon name="material-symbols:visibility-outline-rounded" class="text-xs" />
               <span>{{ formatNumber(song.views) }}</span>
@@ -313,14 +330,14 @@ const filteredSongs = computed(() => {
       <li
         v-for="song in filteredSongs"
         :key="song._id"
-        class="group flex items-center justify-between gap-3 rounded-xl border border-transparent px-3 py-2.5 transition-colors hover:border-line-soft hover:bg-panel/75"
+        class="group relative flex items-center justify-between gap-3 rounded-xl border border-transparent px-3 py-2.5 transition-colors hover:border-line-soft hover:bg-panel/75"
       >
         <div class="flex min-w-0 flex-1 items-center gap-3">
           <!-- Artist Avatar (if showArtist) -->
           <NuxtLink
             v-if="showArtist && song.artist"
             :to="localePath(`/izvodjac/${song.artist.slug}`)"
-            class="shrink-0"
+            class="relative z-10 shrink-0"
             :title="song.artist.name"
           >
             <img
@@ -340,7 +357,7 @@ const filteredSongs = computed(() => {
           <!-- Title and Artist Name -->
           <NuxtLink
             :to="localePath(`/pjesma/${song.slug}`)"
-            class="flex min-w-0 flex-1 flex-col sm:flex-row sm:items-center sm:gap-2.5 group-hover:text-accent transition-colors"
+            class="flex min-w-0 flex-1 flex-col after:absolute after:inset-0 after:content-[''] sm:flex-row sm:items-center sm:gap-2.5 group-hover:text-accent transition-colors"
           >
             <span class="truncate font-medium text-ink group-hover:text-accent">{{ song.title }}</span>
             <span v-if="showArtist && song.artist" class="truncate text-xs text-muted">
@@ -352,8 +369,8 @@ const filteredSongs = computed(() => {
         </div>
 
         <!-- Right side metrics: Rating Stars, Difficulty Badge, Views, Likes/Favorites, Key -->
-        <div class="flex shrink-0 items-center gap-3 sm:gap-4">
-          <span v-if="auth.isAuthenticated" class="-my-0.5 shrink-0 self-center px-1 py-0.5">
+        <div class="pointer-events-none relative z-10 flex shrink-0 items-center gap-3 sm:gap-4">
+          <span v-if="auth.isAuthenticated" class="pointer-events-auto -my-0.5 shrink-0 self-center px-1 py-0.5">
             <RatingStars
               :value="song.rating || 0" :count="song.ratingCount || 0"
               :slug="song.slug" :arrangement-id="song.arrangementId"
@@ -367,7 +384,7 @@ const filteredSongs = computed(() => {
           <NuxtLink
             v-else
             :to="localePath(`/pjesma/${song.slug}`) + '#recenzije'"
-            class="-my-0.5 shrink-0 self-center rounded px-1 py-0.5 hover:bg-raised"
+            class="pointer-events-auto -my-0.5 shrink-0 self-center rounded px-1 py-0.5 hover:bg-raised"
             :title="song.ratingCount ? $t('song.seeReviews') : $t('song.beFirstToRate')"
           >
             <RatingStars :value="song.rating || 0" :count="song.ratingCount || 0" />
@@ -387,7 +404,7 @@ const filteredSongs = computed(() => {
           <!-- Views -->
           <span
             class="hidden sm:inline-flex min-w-[3.25rem] items-center justify-end gap-1 font-mono text-xs text-muted"
-            :title="`${song.views || 0} ${$t('song.viewsLabel') || 'pregleda'}`"
+            :title="`${song.views || 0} ${$t('song.viewsLabel')}`"
           >
             <Icon name="material-symbols:visibility-outline-rounded" class="text-xs text-faint" />
             <span>{{ formatNumber(song.views) }}</span>
@@ -398,7 +415,7 @@ const filteredSongs = computed(() => {
             <NuxtLink
               v-if="song.originalKey"
               :to="localePath(`/pjesma/${song.slug}`)"
-              class="inline-block rounded-md border border-accent/25 bg-accent-soft px-2 py-0.5 font-mono text-xs font-bold text-accent transition-colors hover:bg-accent hover:text-on-accent"
+              class="pointer-events-auto inline-block rounded-md border border-accent/25 bg-accent-soft px-2 py-0.5 font-mono text-xs font-bold text-accent transition-colors hover:bg-accent hover:text-on-accent"
               :title="`${$t('song.key')}: ${song.originalKey}`"
             >
               {{ song.originalKey }}

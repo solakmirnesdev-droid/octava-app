@@ -74,7 +74,7 @@ const needle = computed(() => {
 const verdict = computed(() => {
   if (!reading.value) return null;
   if (inTune.value) {
-    return { text: t('meta.inTune') || 'Savršeno naštimano', tone: 'text-ok', bg: 'border-ok/30 bg-ok-soft text-ok' };
+    return { text: t('meta.inTune'), tone: 'text-ok', bg: 'border-ok/30 bg-ok-soft text-ok' };
   }
   return reading.value.cents < 0
     ? { text: 'Nisko — Zategni žicu', tone: 'text-warn', bg: 'border-warn/30 bg-warn-soft text-warn' }

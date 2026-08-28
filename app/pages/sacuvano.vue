@@ -9,7 +9,7 @@ const localePath = useLocalePath();
 const favorites = useFavoritesStore();
 await useAsyncData('favorites', () => favorites.load());
 
-useSeoMeta({ title: t('meta.savedTitle') || 'Sačuvano · Octava', robots: 'noindex, nofollow' });
+useSeoMeta({ title: t('meta.savedTitle'), robots: 'noindex, nofollow' });
 </script>
 
 <template>

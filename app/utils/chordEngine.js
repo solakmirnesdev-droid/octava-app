@@ -34,7 +34,15 @@ export const NOTES = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#'
  * What bass players actually use is the root with a fifth or an octave, so the
  * generator is capped at three and allowed to stop at two.
  */
-export const INSTRUMENTS = {
+/*
+ * AI-TRAP: named CHORD_INSTRUMENTS, not CHORD_INSTRUMENTS. useTuner.js already exports
+ * an INSTRUMENTS of its own — same word, unrelated shape: that one carries string
+ * frequencies for pitch detection, this one carries MIDI tunings for generating
+ * shapes. Nuxt auto-imports both, silently keeps one, and the loser is whichever
+ * file it decided to ignore. Nothing breaks loudly; a component just receives an
+ * object whose keys it does not have.
+ */
+export const CHORD_INSTRUMENTS = {
   guitar:  { tuning: [40, 45, 50, 55, 59, 64], minNotes: 3, maxNotes: 6, openShapes: true,  requireBass: true },
   bass:    { tuning: [28, 33, 38, 43],         minNotes: 2, maxNotes: 3, openShapes: false, requireBass: true },
   // All four strings, always: real ukulele charts practically never mute one,
@@ -45,7 +53,7 @@ export const INSTRUMENTS = {
 
 const DEFAULT_INSTRUMENT = 'guitar';
 
-const TUNING = INSTRUMENTS.guitar.tuning;
+const TUNING = CHORD_INSTRUMENTS.guitar.tuning;
 
 const STRINGS = 6;
 const MAX_SPAN = 4;        // frets a hand covers without shifting
@@ -190,7 +198,7 @@ function playability(frets) {
 
 /** Generates every playable voicing of one chord, best first. */
 export function voicings(parsed, limit = 8, instrument = DEFAULT_INSTRUMENT) {
-  const inst = INSTRUMENTS[instrument] || INSTRUMENTS[DEFAULT_INSTRUMENT];
+  const inst = CHORD_INSTRUMENTS[instrument] || CHORD_INSTRUMENTS[DEFAULT_INSTRUMENT];
   const tuning = inst.tuning;
   const strings = tuning.length;
 
@@ -347,7 +355,7 @@ const cache = new Map();
 export function fingeringsFor(symbol, instrument = DEFAULT_INSTRUMENT) {
   const parsed = parseChord(symbol);
   if (!parsed) return [];
-  const inst = INSTRUMENTS[instrument] || INSTRUMENTS[DEFAULT_INSTRUMENT];
+  const inst = CHORD_INSTRUMENTS[instrument] || CHORD_INSTRUMENTS[DEFAULT_INSTRUMENT];
 
   // AI-TRAP: the instrument belongs in the cache key. Without it the first
   // lookup for "Am" fills the entry and every other instrument is handed

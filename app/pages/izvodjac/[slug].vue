@@ -84,6 +84,20 @@ useSeoMeta({
 </script>
 
 <template>
+  <!--
+    AI-TRAP: do NOT centre this sidebar against the song column. It was tried and
+    reverted, and it looks correct on a wide screen — which is exactly what makes
+    it tempting.
+
+    The song grid drops to two columns below about 1200px and to one below the
+    breakpoint, so its height depends on the viewport, not on the design. Centring
+    a 558px card inside a column that grows to 750px and beyond pushes it down by
+    half the difference: 93px at 1100px wide, and further on anything narrower or
+    zoomed, until the card sits below the fold with an empty panel above it.
+
+    items-start plus lg:sticky is the right pair here. The dead space under a
+    short card is cosmetic; a sidebar the reader has to scroll to find is not.
+  -->
   <div v-if="artist" class="lg:grid lg:grid-cols-[300px_1fr] lg:gap-8 xl:gap-10 items-start">
     <!-- Modern 2026 Artist Profile Sidebar -->
     <aside class="relative mb-8 overflow-hidden rounded-3xl border border-line bg-gradient-to-b from-panel/95 via-panel/80 to-panel/95 p-6 sm:p-7 backdrop-blur-md shadow-sm lg:sticky lg:top-24 lg:mb-0 lg:self-start flex flex-col items-center text-center">
@@ -235,6 +249,27 @@ useSeoMeta({
       <div v-if="artist.bio" class="mt-4 w-full rounded-xl border border-line-soft bg-surface/40 p-3 text-xs leading-relaxed text-muted text-left">
         <p class="line-clamp-4 text-faint">{{ artist.bio }}</p>
       </div>
+      <!--
+        AI-DECISION: the photo credit is not decoration and not optional. These
+        portraits come from Wikimedia Commons under CC BY and CC BY-SA, which are
+        free *with attribution* — a picture shown without the photographer's name
+        and licence is as much an infringement as one taken off a search engine.
+        It renders only when the fields are there, so an artist without a credit
+        cannot quietly end up with an uncredited picture.
+      -->
+      <p
+        v-if="artist.hasImage && artist.imageAuthor"
+        class="mt-4 w-full border-t border-line-soft pt-3 text-[10px] leading-relaxed text-dim"
+      >
+        {{ $t('artist.photoBy') }} {{ artist.imageAuthor }}
+        <a
+          v-if="artist.imageSource"
+          :href="artist.imageSource" target="_blank" rel="noopener nofollow"
+          class="text-faint hover:text-accent hover:underline"
+        >· {{ artist.imageLicense }}</a>
+        <span v-else class="text-faint">· {{ artist.imageLicense }}</span>
+      </p>
+
     </aside>
 
     <!-- Main Content: SongList with Search, Filters and Grid/List view -->

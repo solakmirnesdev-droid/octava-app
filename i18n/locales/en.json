@@ -91,7 +91,8 @@
     "videoLabel": "Recording of the song",
     "seeReviews": "See ratings and reviews",
     "beFirstToRate": "Be the first to rate",
-    "chordHear": "Press a chord to hear it and see the shape."
+    "chordHear": "Press a chord to hear it and see the shape.",
+    "viewsLabel": "views"
   },
   "footer": {
     "rubrics": "Genres",
@@ -464,7 +465,8 @@
     "website": "Website",
     "save": "Save artist",
     "saved": "Saved",
-    "artistSaved": "Artist saved"
+    "artistSaved": "Artist saved",
+    "photoBy": "Photo:"
   },
   "tuner": {
     "guitar": "Guitar",
