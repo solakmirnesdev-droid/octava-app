@@ -308,15 +308,27 @@ export function voicings(parsed, limit = 8, instrument = DEFAULT_INSTRUMENT) {
 
   found.sort((a, b) => a.score - b.score);
 
-  // One shape per neck position: five ways to finger the same fret is noise.
+  /*
+   * At most two shapes per neck position.
+   *
+   * AI-DECISION: it was one, to keep five ways of fingering the same fret from
+   * becoming noise. But one silently threw away the fingering every printed
+   * chart uses: ukulele Em is 0432 everywhere, and the generator found it, then
+   * dropped it because the easier 0402 sits at the same position and scores a
+   * point better. A reference that disagrees with every book on the shelf is
+   * worse than one carrying a second row — and the second shape is reachable
+   * through the position switcher rather than shown at once.
+   */
+  const PER_POSITION = 2;
   const out = [];
-  const seenPos = new Set();
+  const atPosition = new Map();
   const seenShape = new Set();
   for (const v of found) {
     const key = v.frets.join(',');
-    if (seenShape.has(key) || seenPos.has(v.position)) continue;
+    const used = atPosition.get(v.position) || 0;
+    if (seenShape.has(key) || used >= PER_POSITION) continue;
     seenShape.add(key);
-    seenPos.add(v.position);
+    atPosition.set(v.position, used + 1);
     out.push({ frets: v.frets, barre: v.barre, baseFret: v.baseFret, position: v.position });
     if (out.length >= limit) break;
   }
@@ -368,9 +380,16 @@ export function fingeringsFor(symbol, instrument = DEFAULT_INSTRUMENT) {
     }
   }
 
-  for (const v of voicings(parsed, 12, instrument)) {
+  /*
+   * AI-TRAP: there are two position filters, here and inside voicings(), and
+   * relaxing only one changes nothing. The generator found ukulele Em's standard
+   * 0432 and voicings() passed it through; this loop then dropped it because the
+   * easier 0402 already held position 2. Both have to allow the second shape or
+   * the fingering every printed chart uses never reaches the page.
+   */
+  for (const v of voicings(parsed, 20, instrument)) {
     if (out.length >= 8) break;
-    if (out.some((o) => o.position === v.position)) continue;
+    if (out.filter((o) => o.position === v.position).length >= 2) continue;
     add(v);
   }
 
