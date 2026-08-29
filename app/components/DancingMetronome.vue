@@ -33,19 +33,19 @@ onBeforeUnmount(() => {
 </script>
 
 <template>
-  <div class="fixed right-4 sm:right-6 bottom-20 sm:bottom-24 z-40 flex flex-col items-end" data-dancing-metronome data-print="hide">
-    <!-- Popover Mini Metronome Player -->
+  <div class="fixed right-4 sm:right-6 bottom-[4.5rem] sm:bottom-[5.25rem] z-40 flex flex-col items-end" data-dancing-metronome data-print="hide">
+    <!-- Popover Mini Metronome Player (Positioned to the left of floating buttons) -->
     <Transition
       enter-active-class="transition duration-200 ease-out"
-      enter-from-class="opacity-0 translate-y-3 scale-95"
-      enter-to-class="opacity-100 translate-y-0 scale-100"
+      enter-from-class="opacity-0 translate-y-3 sm:translate-x-3 scale-95"
+      enter-to-class="opacity-100 translate-y-0 sm:translate-x-0 scale-100"
       leave-active-class="transition duration-150 ease-in"
-      leave-from-class="opacity-100 translate-y-0 scale-100"
-      leave-to-class="opacity-0 translate-y-3 scale-95"
+      leave-from-class="opacity-100 translate-y-0 sm:translate-x-0 scale-100"
+      leave-to-class="opacity-0 translate-y-3 sm:translate-x-3 scale-95"
     >
       <div
         v-if="isOpen"
-        class="mb-3 w-72 sm:w-80 rounded-3xl border border-line bg-panel/95 p-4 sm:p-5 shadow-2xl backdrop-blur-xl ring-1 ring-white/10 space-y-4"
+        class="fixed right-3 sm:right-20 bottom-18 sm:bottom-6 z-40 w-72 sm:w-80 max-h-[calc(100dvh-5.5rem)] sm:max-h-[calc(100dvh-6.5rem)] overflow-y-auto rounded-3xl border border-line bg-panel/95 p-4 sm:p-5 shadow-2xl backdrop-blur-xl ring-1 ring-white/10 space-y-4"
         role="dialog"
         aria-label="Mini metronom"
       >
@@ -198,57 +198,51 @@ onBeforeUnmount(() => {
       @click="isOpen = !isOpen"
     >
       <!-- Dancing / Swinging Animated Metronome Icon -->
-      <span
-        class="inline-flex items-center justify-center transition-transform pointer-events-none"
-        :class="running ? 'dancing-metronome-active' : 'dancing-metronome-idle'"
-        :style="{ animationDuration: swingDuration }"
-      >
-        <MetronomeIcon size="1.65em" />
+      <span class="inline-flex items-center justify-center pointer-events-none">
+        <MetronomeIcon
+          size="1.65em"
+          :running="running"
+          :duration="swingDuration"
+        />
       </span>
 
-      <!-- Active Pulsing Beat Ring Badge -->
+      <!-- Active Pulsing Beat Ring Badge (Synchronized with metronome beep audio clock) -->
       <span
         v-if="running"
-        class="absolute -top-1 -right-1 flex size-4 items-center justify-center"
+        class="absolute -top-1 -right-1 flex size-4.5 items-center justify-center pointer-events-none"
       >
-        <span class="absolute inline-flex size-full animate-ping rounded-full bg-accent opacity-75" />
-        <span class="relative inline-flex size-2.5 rounded-full bg-accent" />
+        <span
+          :key="beat"
+          class="absolute inline-flex size-full beat-pulse-ring rounded-full"
+          :class="beat === 0 ? 'bg-warn' : 'bg-accent'"
+        />
+        <span
+          class="relative inline-flex rounded-full transition-all duration-75"
+          :class="[
+            beat === 0
+              ? 'size-3 bg-warn shadow-xs shadow-warn/80 scale-125'
+              : 'size-2.5 bg-accent shadow-xs shadow-accent/80'
+          ]"
+        />
       </span>
     </button>
   </div>
 </template>
 
 <style scoped>
-/* Idle Gentle Playful Dance Animation */
-.dancing-metronome-idle {
-  animation: metronomeIdleDance 1.8s ease-in-out infinite alternate;
-  transform-origin: 50% 85%;
+/* Audio-synchronized beat pulse ring expansion */
+.beat-pulse-ring {
+  animation: beatPulseRing 0.35s cubic-bezier(0, 0, 0.2, 1) forwards;
 }
 
-@keyframes metronomeIdleDance {
+@keyframes beatPulseRing {
   0% {
-    transform: rotate(-10deg) translateY(0);
-  }
-  50% {
-    transform: rotate(0deg) translateY(-2.5px) scale(1.03);
+    transform: scale(0.9);
+    opacity: 0.9;
   }
   100% {
-    transform: rotate(10deg) translateY(0);
-  }
-}
-
-/* Active Real-time BPM Tempo Dance Animation */
-.dancing-metronome-active {
-  animation: metronomeActiveDance infinite alternate ease-in-out;
-  transform-origin: 50% 85%;
-}
-
-@keyframes metronomeActiveDance {
-  0% {
-    transform: rotate(-18deg) scale(1.05);
-  }
-  100% {
-    transform: rotate(18deg) scale(1.05);
+    transform: scale(2.4);
+    opacity: 0;
   }
 }
 </style>

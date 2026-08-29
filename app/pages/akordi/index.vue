@@ -128,6 +128,19 @@ function clear() {
   root.value = '';
 }
 
+const ringingChord = ref(null);
+let ringTimer = null;
+
+function onChordPlay(symbol) {
+  ringingChord.value = symbol;
+  window.clearTimeout(ringTimer);
+  ringTimer = window.setTimeout(() => {
+    ringingChord.value = null;
+  }, 850);
+}
+
+onBeforeUnmount(() => window.clearTimeout(ringTimer));
+
 const showTip = ref(false);
 
 onMounted(() => {
@@ -156,21 +169,50 @@ useSeoMeta({
 </script>
 
 <template>
-  <div>
-    <header class="mb-6">
-      <h1 class="text-2xl font-semibold tracking-tight">{{ $t('page.chordsTitle') }}</h1>
-      <i18n-t keypath="page.chordsLead" tag="p" class="mt-2 max-w-2xl text-muted" scope="global">
-        <template #total>{{ total }}</template>
-        <template #h><strong class="font-mono">H</strong></template>
-      </i18n-t>
+  <div class="space-y-6">
+    <!-- 1. Header Zone with Instrument Switcher on the Right -->
+    <header class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+      <div>
+        <div class="flex items-center gap-2.5">
+          <span class="flex size-9 items-center justify-center rounded-xl bg-accent-soft text-accent shadow-xs">
+            <Icon name="material-symbols:music-note-rounded" class="text-xl" />
+          </span>
+          <h1 class="text-2xl sm:text-3xl font-black tracking-tight text-ink">
+            {{ $t('page.chordsTitle') }}
+          </h1>
+        </div>
+        <p class="mt-1 text-xs sm:text-sm text-muted max-w-xl leading-relaxed">
+          Hvatovi za {{ total }} akorda sa zvučnim pregledom u domaćoj notaciji sa <strong class="font-mono text-ink">H</strong>.
+        </p>
+      </div>
+
+      <!-- Instrument Segmented Control -->
+      <div class="flex items-center gap-1 self-start sm:self-auto rounded-2xl border border-line-soft bg-surface/85 p-1 shadow-2xs backdrop-blur-md" data-print="hide">
+        <button
+          v-for="i in INSTRUMENT_LIST"
+          :key="i.key"
+          type="button"
+          class="flex items-center gap-1.5 rounded-xl px-3 py-1.5 text-xs font-semibold transition-all duration-150 outline-none cursor-pointer"
+          :class="instrument === i.key
+            ? 'bg-accent text-on-accent shadow-xs shadow-accent/25'
+            : 'text-muted hover:bg-panel hover:text-ink'"
+          @click="instrument = i.key"
+        >
+          <span>{{ $t(i.labelKey) }}</span>
+          <span class="font-mono text-[10px] opacity-70 hidden md:inline">{{ i.tuning }}</span>
+        </button>
+      </div>
     </header>
 
-    <div class="mb-6">
-      <div class="relative">
+    <!-- 2. Unified Studio Toolbar (Search + Note Roots in One Seamless Line) -->
+    <div class="rounded-2xl border border-line bg-gradient-to-r from-panel/95 via-panel/85 to-surface/90 p-3 sm:p-3.5 backdrop-blur-xl shadow-xs ring-1 ring-white/5 flex flex-col lg:flex-row lg:items-center justify-between gap-3">
+      
+      <!-- Search Input (Compact, appropriately proportioned) -->
+      <div class="relative w-full lg:w-72 xl:w-80 shrink-0">
         <Icon
           name="material-symbols:search-rounded"
           aria-hidden="true"
-          class="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-faint"
+          class="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-lg text-faint"
         />
         <input
           v-model="query"
@@ -178,62 +220,94 @@ useSeoMeta({
           autocomplete="off"
           :aria-label="$t('page.chordSearchLabel')"
           :placeholder="$t('page.chordSearch')"
-          class="w-full rounded-full border border-line-strong bg-panel py-2 pl-10 pr-4 outline-none focus:border-accent"
+          class="w-full rounded-xl border border-line-soft bg-surface/90 py-2 pl-9 pr-8 text-xs sm:text-sm text-ink placeholder:text-faint outline-none transition focus:border-accent focus:bg-surface focus:ring-2 focus:ring-accent/20 shadow-2xs"
         >
+        <button
+          v-if="query"
+          type="button"
+          class="absolute right-2.5 top-1/2 -translate-y-1/2 flex size-5 items-center justify-center rounded-full text-faint hover:text-ink hover:bg-line transition cursor-pointer"
+          @click="query = ''"
+        >
+          <Icon name="material-symbols:close-rounded" class="text-xs" />
+        </button>
       </div>
 
-      <!-- The roots as chips: "everything in A" is the other half of how a
-           reference like this gets used, and it needs no typing. -->
-      <div class="mt-2.5 flex flex-wrap gap-1">
+      <!-- Root Note Selector Chips Strip -->
+      <div class="flex items-center gap-1 overflow-x-auto pb-1 lg:pb-0 scrollbar-none [mask-image:linear-gradient(to_right,transparent,black_8px,black_calc(100%-8px),transparent)]">
         <button
-          v-for="r in ROOTS" :key="r"
           type="button"
-          class="rounded px-2 py-1 font-mono text-xs transition-colors"
+          class="shrink-0 rounded-lg px-2.5 py-1.5 font-mono text-xs font-bold transition-all shadow-2xs cursor-pointer outline-none"
+          :class="!root
+            ? 'bg-accent-soft border border-accent/40 text-accent font-black'
+            : 'border border-transparent text-muted hover:border-line hover:bg-surface hover:text-ink'"
+          @click="root = ''"
+        >
+          SVI
+        </button>
+
+        <button
+          v-for="r in ROOTS"
+          :key="r"
+          type="button"
+          class="shrink-0 rounded-lg px-2.5 py-1.5 font-mono text-xs font-bold transition-all shadow-2xs cursor-pointer outline-none"
           :class="root === r
-            ? 'bg-accent text-on-accent'
-            : 'text-muted hover:bg-raised hover:text-accent'"
+            ? 'bg-accent text-on-accent shadow-xs shadow-accent/25'
+            : 'border border-transparent text-muted hover:border-line hover:bg-surface hover:text-accent'"
           @click="root = root === r ? '' : r"
-        >{{ r }}</button>
+        >
+          {{ r }}
+        </button>
 
         <button
           v-if="filtering"
           type="button"
-          class="ml-auto rounded px-2 py-1 text-xs text-faint hover:text-accent"
+          class="shrink-0 ml-1.5 rounded-lg border border-line-soft bg-surface/70 px-2.5 py-1.5 text-xs font-medium text-faint hover:text-danger hover:border-danger/30 hover:bg-danger-soft transition shadow-2xs cursor-pointer"
           @click="clear"
-        >{{ $t('page.chordSearchClear') }}</button>
+        >
+          {{ $t('page.chordSearchClear') }}
+        </button>
       </div>
     </div>
 
-    <!-- One row, three tunings. The bass is capped at three notes on purpose:
-         four-note chords down at E1 are mud, and what bass players actually use
-         is a root with a fifth or an octave. -->
-    <div class="mb-6 flex flex-wrap items-center gap-2" data-print="hide">
+    <!-- Active Filtering Status Badge -->
+    <div v-if="filtering" class="flex items-center justify-between text-xs text-muted px-1">
+      <span class="font-mono font-medium">
+        {{ $t('page.chordSearchCount', { n: visible.length }, visible.length) }}
+      </span>
       <button
-        v-for="i in INSTRUMENT_LIST" :key="i.key"
         type="button"
-        class="rounded-full border px-3 py-1 text-xs transition"
-        :class="instrument === i.key
-          ? 'border-accent bg-accent-soft text-accent font-medium'
-          : 'border-line-strong text-muted hover:border-accent hover:text-accent'"
-        @click="instrument = i.key"
+        class="text-xs text-faint hover:text-accent font-semibold transition"
+        @click="clear"
       >
-        {{ $t(i.labelKey) }}
-        <span class="ml-1 font-mono opacity-60">{{ i.tuning }}</span>
+        Prikaži sve akorde ({{ total }})
       </button>
     </div>
 
-    <p v-if="filtering" class="mb-4 text-sm text-muted">
-      {{ $t('page.chordSearchCount', { n: visible.length }, visible.length) }}
-    </p>
+    <!-- Empty State -->
+    <div
+      v-if="!visible.length"
+      class="rounded-3xl border border-line bg-panel/75 p-12 text-center backdrop-blur-md space-y-3"
+    >
+      <div class="flex size-12 items-center justify-center rounded-2xl bg-surface border border-line text-faint mx-auto">
+        <Icon name="material-symbols:search-off-rounded" class="text-2xl" />
+      </div>
+      <p class="text-sm font-semibold text-ink">
+        {{ $t('page.chordSearchEmpty', { query: query || root }) }}
+      </p>
+      <button
+        type="button"
+        class="inline-flex items-center gap-1.5 rounded-xl border border-line bg-surface hover:bg-panel px-4 py-2 text-xs font-bold text-accent transition shadow-2xs"
+        @click="clear"
+      >
+        <span>Poništi pretragu</span>
+      </button>
+    </div>
 
-    <p v-if="!visible.length" class="text-sm text-muted">
-      {{ $t('page.chordSearchEmpty', { query }) }}
-    </p>
-
+    <!-- Grouped Chords Sections -->
     <section
       v-for="(group, idx) in grouped"
       :key="group.root"
-      class="mb-10 pt-8 sm:pt-10 border-t border-line/70 first:border-t-0 first:pt-0"
+      class="pt-6 sm:pt-8 border-t border-line/70 first:border-t-0 first:pt-0"
     >
       <div class="mb-4 flex items-center gap-3">
         <span class="flex size-7 items-center justify-center rounded-lg border border-accent/30 bg-accent-soft font-mono text-sm font-bold text-accent shadow-2xs">
@@ -242,16 +316,20 @@ useSeoMeta({
         <h2 class="font-mono text-base font-bold text-ink tracking-tight">
           {{ group.root }}
         </h2>
+        <span class="text-xs font-mono text-faint">({{ group.chords.length }})</span>
         <div class="flex-1 h-px bg-gradient-to-r from-line/80 via-line-soft/40 to-transparent ml-2" />
       </div>
 
-      <div class="grid grid-cols-2 gap-3 sm:gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
+      <div class="grid grid-cols-2 gap-3.5 sm:gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
         <div
           v-for="symbol in group.chords" :key="symbol"
-          class="group relative flex flex-col items-center justify-between rounded-2xl border border-line/75 bg-gradient-to-b from-panel/95 via-panel/60 to-surface/80 p-3.5 sm:p-4 backdrop-blur-md shadow-xs transition-colors duration-200 hover:border-accent/60 hover:bg-panel hover:shadow-lg hover:shadow-accent/5 overflow-hidden"
+          class="group relative flex flex-col items-center justify-between rounded-2xl border bg-gradient-to-b from-panel/95 via-panel/60 to-surface/80 p-3.5 sm:p-4 backdrop-blur-md shadow-xs transition-all duration-300 hover:border-accent/60 hover:bg-panel hover:shadow-lg hover:shadow-accent/5 overflow-hidden cursor-pointer"
+          :class="ringingChord === symbol
+            ? 'border-accent ring-2 ring-accent/50 shadow-[0_0_24px_rgba(224,90,58,0.35)]'
+            : 'border-line/75'"
         >
           <div class="pointer-events-none absolute -right-8 -top-8 size-20 rounded-full bg-accent/5 blur-xl group-hover:bg-accent/15 transition-colors" />
-          <ChordDiagram :symbol="symbol" :instrument="instrument" />
+          <ChordDiagram :symbol="symbol" :instrument="instrument" @play="onChordPlay(symbol)" />
         </div>
       </div>
     </section>

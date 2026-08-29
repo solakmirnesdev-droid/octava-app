@@ -73,61 +73,101 @@ const when = (iso) => new Date(iso).toLocaleDateString(locale.value);
 <template>
   <div class="mt-2">
     <button
-      class="py-3.5 -my-3.5 text-xs text-faint hover:text-accent"
+      type="button"
+      class="inline-flex items-center gap-1.5 text-xs font-semibold text-muted hover:text-accent transition-colors py-1 cursor-pointer outline-none"
       :aria-expanded="open"
       @click="toggle"
     >
-      {{ open ? $t('reviews.hideComments') : $t('reviews.commentCount', { n: count }, count) }}
+      <Icon name="material-symbols:chat-bubble-outline-rounded" class="text-sm" />
+      <span>{{ open ? $t('reviews.hideComments') : $t('reviews.commentCount', { n: count }, count) }}</span>
+      <Icon
+        name="material-symbols:keyboard-arrow-down-rounded"
+        class="text-xs transition-transform duration-200"
+        :class="open && 'rotate-180'"
+      />
     </button>
 
-    <div v-if="open" class="mt-3 border-l-2 border-line pl-4">
-      <p v-if="loading" class="text-xs text-faint">{{ $t('common.loading') }}</p>
+    <Transition
+      enter-active-class="transition duration-150 ease-out"
+      enter-from-class="opacity-0 -translate-y-1"
+      enter-to-class="opacity-100 translate-y-0"
+      leave-active-class="transition duration-100 ease-in"
+      leave-from-class="opacity-100 translate-y-0"
+      leave-to-class="opacity-0 -translate-y-1"
+    >
+      <div v-if="open" class="mt-2.5 rounded-xl border border-line bg-surface/75 p-3 sm:p-3.5 space-y-3 shadow-2xs">
+        <p v-if="loading" class="text-xs text-faint flex items-center gap-1.5">
+          <Icon name="svg-spinners:ring-resize" class="text-xs" />
+          <span>{{ $t('common.loading') }}</span>
+        </p>
 
-      <p v-else-if="!items.length" class="text-xs text-faint">{{ $t('reviews.noComments') }}</p>
+        <p v-else-if="!items.length" class="text-xs text-faint italic py-1">
+          {{ $t('reviews.noComments') }}
+        </p>
 
-      <ul v-else class="space-y-3">
-        <li v-for="c in items" :key="c._id" class="flex gap-2.5 text-sm">
-          <!-- Smaller than the review's: a comment is a reply, and matching
-               sizes would make the thread read as a list of equals. -->
-          <UserAvatar
-            :name="c.author || '?'" :user-id="c.authorId"
-            :has-avatar="c.authorHasAvatar" :flag="c.authorFlag || ''" size="sm"
-          />
+        <ul v-else class="space-y-2.5 divide-y divide-line-soft">
+          <li v-for="c in items" :key="c._id" class="flex items-start gap-2.5 pt-2.5 first:pt-0">
+            <UserAvatar
+              :name="c.author || '?'"
+              :user-id="c.authorId"
+              :has-avatar="c.authorHasAvatar"
+              :flag="c.authorFlag || ''"
+              size="xs"
+              class="shrink-0 mt-0.5"
+            />
 
-          <div class="min-w-0 flex-1">
-            <div class="flex flex-wrap items-baseline gap-x-2">
-              <span class="font-medium">{{ c.author }}</span>
-              <span class="text-xs text-faint">{{ when(c.createdAt) }}</span>
-              <span v-if="c.editedAt" class="text-xs text-faint">· {{ $t('reviews.edited') }}</span>
-              <button
-                v-if="c.mine"
-                class="ml-auto py-3.5 -my-3.5 text-xs text-faint hover:text-danger"
-                @click="pendingRemoval = c"
-              >{{ $t('reviews.remove') }}</button>
+            <div class="min-w-0 flex-1 space-y-0.5">
+              <div class="flex flex-wrap items-baseline justify-between gap-x-2 text-xs">
+                <div class="flex items-center gap-1.5">
+                  <span class="font-bold text-ink">{{ c.author }}</span>
+                  <span v-if="c.authorFlag" class="text-[10px]">{{ c.authorFlag }}</span>
+                  <span class="text-faint text-[11px]">{{ when(c.createdAt) }}</span>
+                  <span v-if="c.editedAt" class="text-[10px] text-faint">· {{ $t('reviews.edited') }}</span>
+                </div>
+
+                <button
+                  v-if="c.mine"
+                  type="button"
+                  class="text-[11px] text-faint hover:text-danger transition-colors cursor-pointer"
+                  @click="pendingRemoval = c"
+                >
+                  {{ $t('reviews.remove') }}
+                </button>
+              </div>
+              <p class="whitespace-pre-wrap text-xs text-body leading-relaxed">{{ c.body }}</p>
             </div>
-            <p class="mt-0.5 whitespace-pre-wrap text-ink">{{ c.body }}</p>
-          </div>
-        </li>
-      </ul>
+          </li>
+        </ul>
 
-      <form v-if="auth.isAuthenticated" class="mt-3 flex gap-2" @submit.prevent="post">
-        <input
-          v-model="draft" maxlength="2000"
-          class="min-w-0 flex-1 rounded border border-line-strong px-3 py-1.5 text-sm outline-none focus:border-accent"
-          :placeholder="$t('reviews.commentPlaceholder')"
+        <!-- Add Reply Form -->
+        <form v-if="auth.isAuthenticated" class="pt-2 flex items-center gap-2" @submit.prevent="post">
+          <input
+            v-model="draft"
+            maxlength="2000"
+            class="input-base text-xs py-1.5 pl-3 pr-3"
+            :placeholder="$t('reviews.commentPlaceholder')"
+          >
+          <AppButton
+            type="submit"
+            variant="primary"
+            size="xs"
+            icon="material-symbols:reply-rounded"
+            :loading="posting"
+            :disabled="!draft.trim() || posting"
+          >
+            {{ posting ? $t('reviews.saving') : $t('reviews.reply') }}
+          </AppButton>
+        </form>
+
+        <NuxtLink
+          v-else
+          :to="localePath({ path: '/prijava', query: { redirect: route.fullPath } })"
+          class="mt-1 inline-block text-xs text-muted hover:text-accent font-medium"
         >
-        <button
-          class="shrink-0 rounded bg-accent px-3 py-1.5 text-sm text-on-accent disabled:opacity-40"
-          :disabled="!draft.trim() || posting"
-        >{{ posting ? $t('reviews.saving') : $t('reviews.reply') }}</button>
-      </form>
-
-      <NuxtLink
-        v-else
-        :to="localePath({ path: '/prijava', query: { redirect: route.fullPath } })"
-        class="mt-3 inline-block text-xs text-faint hover:text-accent"
-      >{{ $t('reviews.signInToReply') }}</NuxtLink>
-    </div>
+          {{ $t('reviews.signInToReply') }} →
+        </NuxtLink>
+      </div>
+    </Transition>
 
     <AppModal
       :model-value="Boolean(pendingRemoval)"

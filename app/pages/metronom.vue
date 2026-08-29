@@ -79,13 +79,52 @@ const swingDuration = computed(() => `${(120 / bpm.value).toFixed(4)}s`);
 
 /**
  * Counterweight position on the metal rod:
- * - Slow BPM (40) -> Weight slides up towards top of rod (y = 48px).
- * - Fast BPM (240) -> Weight slides down towards pivot base (y = 190px).
+ * - Slow BPM (40) -> Weight slides up towards top of rod (y = 65px).
+ * - Fast BPM (240) -> Weight slides down towards pivot base (y = 320px).
  */
 const weightY = computed(() => {
   const ratio = (bpm.value - MIN_BPM) / (MAX_BPM - MIN_BPM);
   return 65 + ratio * 255;
 });
+
+const svgRef = ref(null);
+const isDragging = ref(false);
+
+function updateBpmFromPointer(event) {
+  if (!svgRef.value) return;
+  const rect = svgRef.value.getBoundingClientRect();
+  const clientY = event.clientY;
+  // SVG coordinate Y in viewBox 0 0 400 420
+  const svgY = ((clientY - rect.top) / rect.height) * 420;
+  // Clamp between 65 (40 BPM) and 320 (240 BPM)
+  const clampedY = Math.max(65, Math.min(320, svgY));
+  const ratio = (clampedY - 65) / 255;
+  const targetBpm = Math.round(MIN_BPM + ratio * (MAX_BPM - MIN_BPM));
+  setBpm(targetBpm);
+}
+
+function onWeightPointerDown(event) {
+  event.preventDefault();
+  isDragging.value = true;
+  updateBpmFromPointer(event);
+
+  function onPointerMove(e) {
+    if (!isDragging.value) return;
+    e.preventDefault();
+    updateBpmFromPointer(e);
+  }
+
+  function onPointerUp() {
+    isDragging.value = false;
+    window.removeEventListener('pointermove', onPointerMove);
+    window.removeEventListener('pointerup', onPointerUp);
+    window.removeEventListener('pointercancel', onPointerUp);
+  }
+
+  window.addEventListener('pointermove', onPointerMove, { passive: false });
+  window.addEventListener('pointerup', onPointerUp);
+  window.addEventListener('pointercancel', onPointerUp);
+}
 
 useSeoMeta({
   title: t('meta.metronomeTitle'),
@@ -140,8 +179,9 @@ useSeoMeta({
         <div class="relative z-10 flex-1 flex items-center justify-center my-3 min-h-[380px] w-full">
           <div class="relative w-full max-w-md h-96 sm:h-[420px] flex items-center justify-center">
             <svg
+              ref="svgRef"
               viewBox="0 0 400 420"
-              class="w-full h-full overflow-visible select-none"
+              class="w-full h-full overflow-visible select-none touch-none"
             >
               <!-- Subtle Engraved Scale Ladder (Stationary Background) -->
               <g class="opacity-45">
@@ -179,10 +219,19 @@ useSeoMeta({
                 <text x="320" y="324" class="fill-muted font-mono font-bold" style="font-size: 11px">200</text>
               </g>
 
+              <!-- Track Click Target to immediately jump to clicked tempo -->
+              <rect
+                x="140" y="55"
+                width="120" height="280"
+                fill="transparent"
+                class="cursor-pointer"
+                @pointerdown="onWeightPointerDown"
+              />
+
               <!-- Pendulum Pivot Group with dynamic CSS animation -->
               <g
                 class="pendulum-arm"
-                :class="{ 'pendulum-swinging': running }"
+                :class="{ 'pendulum-swinging': running && !isDragging }"
                 :style="{ '--swing-duration': swingDuration }"
               >
                 <!-- The Metallic Rod -->
@@ -198,20 +247,48 @@ useSeoMeta({
                 <!-- Upper Tip Pointer with glowing accent dot -->
                 <circle cx="200" cy="22" r="7" class="fill-accent shadow-md shadow-accent/40" />
 
-                <!-- Sliding Brass/Metallic Counterweight -->
+                <!-- Interactive Sliding Brass/Metallic Counterweight -->
                 <!-- Position changes along Y axis with BPM -->
-                <g :transform="`translate(0, ${weightY})`">
+                <g
+                  :transform="`translate(0, ${weightY})`"
+                  class="cursor-ns-resize group"
+                  @pointerdown="onWeightPointerDown"
+                >
+                  <!-- Invisible enlarged hit area for effortless mouse grabbing -->
+                  <rect
+                    x="140" y="-28"
+                    width="120" height="56"
+                    fill="transparent"
+                    class="cursor-ns-resize"
+                  />
+
+                  <!-- Subtle glow outline on hover/active drag -->
+                  <rect
+                    x="170" y="-21"
+                    width="60" height="42"
+                    rx="10"
+                    class="transition-all duration-150"
+                    :class="isDragging ? 'fill-accent/20 stroke-accent' : 'fill-transparent group-hover:fill-accent/10'"
+                    stroke-width="1.5"
+                  />
+
                   <!-- Weight Body with bevel & shadow -->
                   <rect
                     x="172" y="-19"
                     width="56" height="38"
                     rx="8"
                     fill="currentColor"
-                    class="text-accent shadow-xl"
+                    class="text-accent shadow-xl transition-transform duration-100"
+                    :class="isDragging ? 'scale-105' : 'group-hover:scale-102'"
                   />
+
                   <!-- Inner reflective stripe & center notch -->
                   <line x1="175" y1="0" x2="225" y2="0" stroke="currentColor" stroke-width="2.5" class="text-on-accent" />
                   <rect x="193" y="-10" width="14" height="20" rx="3" class="fill-on-accent/30" />
+
+                  <!-- Drag handle grip lines -->
+                  <line x1="183" y1="-5" x2="183" y2="5" stroke="currentColor" stroke-width="1.5" class="text-on-accent/60" />
+                  <line x1="217" y1="-5" x2="217" y2="5" stroke="currentColor" stroke-width="1.5" class="text-on-accent/60" />
                 </g>
               </g>
 

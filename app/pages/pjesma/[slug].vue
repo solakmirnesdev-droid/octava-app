@@ -101,7 +101,7 @@ const semitones = ref(0);
 const capo = ref(0);
 const { fontSize } = useSheetFontSize();
 const showChords = ref(false);
-const { columns, wideEnough, active: splitColumns, toggle: toggleColumns } = useSheetColumns();
+const { active: splitColumns } = useSheetColumns();
 
 import { transposeKey } from '~/utils/chordpro';
 import { suggestions } from '~/utils/capo';
@@ -261,17 +261,17 @@ defineOgImage('Song', {
       :artist-id="song.artist?._id"
     />
 
-    <!-- Modern 2026 Unified Solid Toolbar Card (Never shifts or snaps!) -->
+    <!-- Modern 2026 Sleek Glassmorphic Song Studio Controls Strip -->
     <div
       data-print="hide"
-      class="mb-6 rounded-2xl border border-line bg-gradient-to-r from-panel/95 via-panel/85 to-panel/95 p-3 sm:p-4 backdrop-blur-md shadow-xs"
+      class="mb-4 rounded-2xl border border-line/80 bg-panel/85 p-2 sm:p-2.5 backdrop-blur-xl shadow-md ring-1 ring-white/5 space-y-2"
     >
-      <!-- Row 1: Primary Controls Toolbar (Stable Flex Layout) -->
-      <div class="flex flex-wrap items-center justify-between gap-3">
-        <!-- Group 1: Pitch & Tuning (Transpose & Capo) -->
-        <div class="flex flex-wrap items-center gap-2 sm:gap-3">
+      <!-- Row 1: Primary Controls Toolbar (Pitch, Display, Actions) -->
+      <div class="flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-2 sm:gap-3">
+        <!-- Pitch Controls (Transpose & Capo) -->
+        <div class="flex flex-wrap items-center justify-between sm:justify-start gap-2 sm:gap-3">
           <TransposeControls v-model:semitones="semitones" :original-key="song.originalKey" />
-          <span class="hidden sm:inline-block h-5 w-px bg-line-soft" aria-hidden="true" />
+          <span class="hidden sm:inline-block h-5 w-px bg-line/70" aria-hidden="true" />
           <CapoControls
             v-model:capo="capo"
             :semitones="semitones"
@@ -280,56 +280,22 @@ defineOgImage('Song', {
           />
         </div>
 
-        <!-- Group 2: Display, Scroll & Action Buttons -->
-        <div class="flex flex-wrap items-center gap-2 sm:gap-3 ml-auto">
-          <FontSizeControl />
-          <span class="hidden sm:inline-block h-5 w-px bg-line-soft" aria-hidden="true" />
-          <AutoScrollControl />
-          <span class="hidden sm:inline-block h-5 w-px bg-line-soft" aria-hidden="true" />
+        <!-- Display, Scroll & Action Buttons -->
+        <div class="flex flex-wrap items-center justify-between sm:justify-end gap-2 sm:gap-3 border-t lg:border-t-0 border-line-soft/80 pt-2 lg:pt-0">
+          <div class="flex items-center gap-1.5 sm:gap-2.5">
+            <FontSizeControl />
+            <span class="hidden sm:inline-block h-5 w-px bg-line/70" aria-hidden="true" />
+            <AutoScrollControl />
+          </div>
 
-          <!-- Action Buttons Group (Realistic Studio Icons) -->
-          <div class="flex items-center gap-1.5">
-            <!-- Two Columns Toggle -->
-            <button
-              v-if="wideEnough"
-              type="button"
-              class="flex size-8 items-center justify-center rounded-xl border transition-all duration-150 outline-none shadow-2xs"
-              :class="columns
-                ? 'border-accent/50 bg-accent-soft text-accent ring-1 ring-accent/30'
-                : 'border-line bg-surface/80 text-muted hover:border-accent/50 hover:bg-panel hover:text-accent'"
-              :aria-pressed="columns"
-              :title="$t('song.twoColumns')"
-              @click="toggleColumns"
-            >
-              <!-- Realistic 2-column page layout with text column lines -->
-              <svg viewBox="0 0 24 24" class="size-4 shrink-0" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-                <rect x="3" y="3.5" width="18" height="17" rx="2" stroke-width="1.6" />
-                <path d="M12 3.5v17" stroke-width="1.4" stroke-dasharray="2 2" opacity="0.6" />
-                <path d="M6 7.5h3.5M6 11h3.5M6 14.5h2.5" stroke-width="1.4" />
-                <path d="M14.5 7.5h3.5M14.5 11h3.5M14.5 14.5h2.5" stroke-width="1.4" />
-              </svg>
-              <span class="sr-only">{{ $t('song.twoColumns') }}</span>
-            </button>
+          <span class="hidden sm:inline-block h-5 w-px bg-line/70" aria-hidden="true" />
 
-            <!-- All Chords Grid Toggle (Realistic Fretboard Diagram) -->
+          <!-- Action Buttons Group -->
+          <div class="flex items-center gap-1 sm:gap-1.5 shrink-0">
+            <!-- Print Button -->
             <button
               type="button"
-              class="flex size-8 items-center justify-center rounded-xl border transition-all duration-150 outline-none shadow-2xs"
-              :class="showChords
-                ? 'border-accent/50 bg-accent-soft text-accent ring-1 ring-accent/30'
-                : 'border-line bg-surface/80 text-muted hover:border-accent/50 hover:bg-panel hover:text-accent'"
-              :aria-pressed="showChords"
-              :title="$t('song.allChords')"
-              @click="showChords = !showChords"
-            >
-              <ChordIcon size="1.2em" />
-              <span class="sr-only">{{ $t('song.allChords') }}</span>
-            </button>
-
-            <!-- Print Button (Realistic Studio Printer) -->
-            <button
-              type="button"
-              class="flex size-8 items-center justify-center rounded-xl border border-line bg-surface/80 text-muted transition-all duration-150 outline-none hover:border-accent/50 hover:bg-panel hover:text-accent shadow-2xs"
+              class="flex size-8 items-center justify-center rounded-xl border border-line-soft bg-surface/80 text-muted transition-all duration-150 outline-none hover:border-line hover:bg-panel hover:text-accent shadow-2xs cursor-pointer"
               :title="$t('song.print')"
               @click="print()"
             >
@@ -343,14 +309,14 @@ defineOgImage('Song', {
               <span class="sr-only">{{ $t('song.print') }}</span>
             </button>
 
-            <!-- Favorite Button (Realistic Smooth Heart) -->
+            <!-- Favorite Button -->
             <button
               v-if="auth.isAuthenticated"
               type="button"
-              class="flex size-8 items-center justify-center rounded-xl border transition-all duration-150 outline-none shadow-2xs"
+              class="flex size-8 items-center justify-center rounded-xl border transition-all duration-150 outline-none shadow-2xs cursor-pointer"
               :class="favorites.has(song._id)
                 ? 'border-accent/50 bg-accent-soft text-accent ring-1 ring-accent/30'
-                : 'border-line bg-surface/80 text-muted hover:border-accent/50 hover:bg-panel hover:text-accent'"
+                : 'border-line-soft bg-surface/80 text-muted hover:border-line hover:bg-panel hover:text-accent'"
               :aria-pressed="favorites.has(song._id)"
               :title="favorites.has(song._id) ? $t('song.saved') : $t('song.save')"
               @click="toggleFavorite"
@@ -364,7 +330,7 @@ defineOgImage('Song', {
             <NuxtLink
               v-else
               :to="localePath({ path: '/prijava', query: { redirect: route.fullPath } })"
-              class="flex size-8 items-center justify-center rounded-xl border border-line bg-surface/80 text-muted transition-all duration-150 outline-none hover:border-accent/50 hover:bg-panel hover:text-accent shadow-2xs"
+              class="flex size-8 items-center justify-center rounded-xl border border-line-soft bg-surface/80 text-muted transition-all duration-150 outline-none hover:border-line hover:bg-panel hover:text-accent shadow-2xs"
               :title="$t('song.save')"
             >
               <svg viewBox="0 0 24 24" class="size-4 shrink-0" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
@@ -376,49 +342,36 @@ defineOgImage('Song', {
         </div>
       </div>
 
-      <!-- Row 2: Status & Capo Theory Footer (Full-width, so it NEVER pushes buttons sideways!) -->
+      <!-- Row 2: Status & Capo Theory Footer -->
       <div
         v-if="capo > 0 || semitones !== 0 || capoBestSuggestion"
-        class="mt-3 flex flex-wrap items-center justify-between gap-2 border-t border-line-soft/80 pt-2.5 text-xs text-faint font-mono"
+        class="flex flex-col sm:flex-row sm:items-center justify-between gap-1.5 rounded-xl border border-line-soft bg-surface/60 px-3 py-1.5 text-xs font-mono"
       >
         <div class="flex items-center gap-2">
           <span v-if="capo > 0" class="text-muted">
             Sviraš oblike iz <strong class="text-accent">{{ shapeKey }}</strong>, zvuči kao <strong class="text-ink">{{ soundingKey }}</strong>
           </span>
-          <span v-else-if="capoHint" class="text-faint">
+          <span v-else-if="capoHint" class="text-muted">
             Isto zvuči: kapodaster na <strong>{{ capoHint.fret }}.</strong> pragu, sviraj oblike iz <strong class="font-mono text-ink">{{ capoHint.shapes }}</strong>
           </span>
-          <span v-else-if="semitones !== 0" class="text-faint">
+          <span v-else-if="semitones !== 0" class="text-muted">
             Transponovano: {{ semitones > 0 ? `+${semitones}` : semitones }} polutonova od originala ({{ song.originalKey }})
           </span>
         </div>
 
-        <div v-if="capoBestSuggestion && capo === 0" class="text-xs text-muted">
+        <div v-if="capoBestSuggestion && capo === 0" class="text-xs text-accent font-semibold">
           Lakše na <strong>{{ capoBestSuggestion.fret }}.</strong> polju: {{ capoBestSuggestion.shapes.join(' ') }}
         </div>
       </div>
     </div>
 
-    <ChordGrid data-print="hide"
-      v-if="showChords"
-      class="mb-8"
-      :content="song.content"
-      :semitones="semitones"
-      :capo="capo"
-      :original-key="song.originalKey"
-    />
-
-    <!-- Said once, above the sheet: the dotted underline is the only thing on a
-
-         chord that hints it does anything, and nobody reads an underline. -->
-
-    <p class="mb-2 flex items-center gap-1.5 text-xs text-faint" data-print="hide">
-
-      <Icon name="material-symbols:volume-up-outline-rounded" aria-hidden="true" />
-
-      {{ $t('song.chordHear') }}
-
-    </p>
+    <!-- Acoustic Playback Audio Hint -->
+    <div class="mb-4 flex items-center gap-2 text-xs text-muted" data-print="hide">
+      <span class="flex size-5 items-center justify-center rounded-md bg-accent-soft text-accent">
+        <Icon name="material-symbols:volume-up-rounded" class="text-xs" />
+      </span>
+      <span>{{ $t('song.chordHear') }}</span>
+    </div>
 
 
     <ChordSheet
@@ -428,6 +381,16 @@ defineOgImage('Song', {
       :original-key="song.originalKey"
       :font-size="fontSize"
       :columns="splitColumns"
+      :locked="song.locked"
+    />
+
+    <!--
+      The sheet above is already only as long as the server was willing to send.
+      This is the offer that follows it, not a cover over hidden text.
+    -->
+    <SongPaywall
+      v-if="song.locked"
+      :reason="auth.isAuthenticated ? 'subscription_required' : 'login_required'"
     />
 
 
@@ -471,6 +434,15 @@ defineOgImage('Song', {
 
 
     <RelatedSongs data-print="hide" :slug="song.slug" />
+
+    <!-- Floating Interactive Dancing Chords Companion (Above Metronome) -->
+    <DancingChords
+      v-model="showChords"
+      :content="song.content"
+      :semitones="semitones"
+      :capo="capo"
+      :original-key="song.originalKey"
+    />
 
     <!-- Floating Interactive Dancing Metronome Companion (Right Side) -->
     <DancingMetronome />

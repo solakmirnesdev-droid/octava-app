@@ -43,6 +43,19 @@ const playable = computed(() => {
 // A shape the dataset does not cover would render an empty card, which reads
 // as a bug rather than as a gap; those are listed as text instead.
 const missing = computed(() => chords.value.filter((c) => !findFingering(c)));
+
+const ringingChord = ref(null);
+let ringTimer = null;
+
+function onChordPlay(chord) {
+  ringingChord.value = chord;
+  window.clearTimeout(ringTimer);
+  ringTimer = window.setTimeout(() => {
+    ringingChord.value = null;
+  }, 850);
+}
+
+onBeforeUnmount(() => window.clearTimeout(ringTimer));
 </script>
 
 <template>
@@ -58,10 +71,11 @@ const missing = computed(() => chords.value.filter((c) => !findFingering(c)));
     <div class="grid grid-cols-2 gap-3 sm:gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
       <div
         v-for="chord in playable" :key="chord"
-        class="group relative flex flex-col items-center justify-between rounded-2xl border border-line/75 bg-surface/85 p-3.5 sm:p-4 backdrop-blur-md shadow-xs transition-colors duration-200 hover:border-accent/60 hover:bg-panel hover:shadow-md overflow-hidden"
+        class="group relative flex flex-col items-center justify-between rounded-2xl border bg-surface/85 p-3.5 sm:p-4 backdrop-blur-md shadow-xs transition-all duration-300 hover:border-accent/60 hover:bg-panel hover:shadow-md"
+        :class="ringingChord === chord ? 'border-accent ring-2 ring-accent/50 shadow-[0_0_24px_rgba(224,90,58,0.35)]' : 'border-line/75'"
       >
         <div class="pointer-events-none absolute -right-8 -top-8 size-20 rounded-full bg-accent/5 blur-xl group-hover:bg-accent/15 transition-colors" />
-        <ChordDiagram :symbol="chord" />
+        <ChordDiagram :symbol="chord" @play="onChordPlay(chord)" />
       </div>
     </div>
 

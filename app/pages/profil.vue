@@ -195,7 +195,7 @@ useSeoMeta({ title: t('meta.profileTitle'), robots: 'noindex, nofollow' });
                 v-model="username"
                 type="text"
                 maxlength="40"
-                class="w-full rounded-xl border border-line bg-surface/90 px-3.5 py-2.5 text-sm text-ink outline-none transition-all focus:border-accent focus:bg-panel focus:ring-2 focus:ring-accent/15"
+                class="w-full rounded-xl border border-line bg-surface/90 px-3.5 py-2.5 text-base sm:text-sm text-ink outline-none transition-all focus:border-accent focus:bg-panel focus:ring-2 focus:ring-accent/15"
               >
             </div>
 
@@ -266,7 +266,7 @@ useSeoMeta({ title: t('meta.profileTitle'), robots: 'noindex, nofollow' });
                 type="email"
                 autocomplete="email"
                 placeholder="nova.adresa@primjer.com"
-                class="w-full rounded-xl border border-line bg-surface/90 px-3.5 py-2.5 text-sm text-ink outline-none transition-all focus:border-accent focus:bg-panel focus:ring-2 focus:ring-accent/15 placeholder:text-dim"
+                class="w-full rounded-xl border border-line bg-surface/90 px-3.5 py-2.5 text-base sm:text-sm text-ink outline-none transition-all focus:border-accent focus:bg-panel focus:ring-2 focus:ring-accent/15 placeholder:text-dim"
               >
             </div>
 
@@ -280,7 +280,7 @@ useSeoMeta({ title: t('meta.profileTitle'), robots: 'noindex, nofollow' });
                 type="password"
                 autocomplete="current-password"
                 placeholder="••••••••"
-                class="w-full rounded-xl border border-line bg-surface/90 px-3.5 py-2.5 text-sm text-ink outline-none transition-all focus:border-accent focus:bg-panel focus:ring-2 focus:ring-accent/15 placeholder:text-dim"
+                class="w-full rounded-xl border border-line bg-surface/90 px-3.5 py-2.5 text-base sm:text-sm text-ink outline-none transition-all focus:border-accent focus:bg-panel focus:ring-2 focus:ring-accent/15 placeholder:text-dim"
               >
               <p class="mt-1 text-xs text-faint">{{ $t('profile.whyPassword') }}</p>
             </div>
@@ -315,7 +315,7 @@ useSeoMeta({ title: t('meta.profileTitle'), robots: 'noindex, nofollow' });
                 type="password"
                 autocomplete="current-password"
                 placeholder="••••••••"
-                class="w-full rounded-xl border border-line bg-surface/90 px-3.5 py-2.5 text-sm text-ink outline-none transition-all focus:border-accent focus:bg-panel focus:ring-2 focus:ring-accent/15 placeholder:text-dim"
+                class="w-full rounded-xl border border-line bg-surface/90 px-3.5 py-2.5 text-base sm:text-sm text-ink outline-none transition-all focus:border-accent focus:bg-panel focus:ring-2 focus:ring-accent/15 placeholder:text-dim"
               >
             </div>
 
@@ -336,7 +336,7 @@ useSeoMeta({ title: t('meta.profileTitle'), robots: 'noindex, nofollow' });
                 type="password"
                 autocomplete="new-password"
                 placeholder="••••••••"
-                class="w-full rounded-xl border border-line bg-surface/90 px-3.5 py-2.5 text-sm text-ink outline-none transition-all focus:border-accent focus:bg-panel focus:ring-2 focus:ring-accent/15 placeholder:text-dim"
+                class="w-full rounded-xl border border-line bg-surface/90 px-3.5 py-2.5 text-base sm:text-sm text-ink outline-none transition-all focus:border-accent focus:bg-panel focus:ring-2 focus:ring-accent/15 placeholder:text-dim"
               >
               <p v-if="passwordMismatch" class="mt-1 text-xs text-danger font-medium">{{ $t('profile.mismatch') }}</p>
             </div>

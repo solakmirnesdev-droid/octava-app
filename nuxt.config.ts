@@ -24,8 +24,30 @@ export default defineNuxtConfig({
    * reads the faces this module provides instead.
    */
   fonts: {
+    /**
+     * Both families are declared, and both are preloaded.
+     *
+     * AI-TRAP: JetBrains Mono was never listed here. It reaches the build
+     * through --font-mono in main.css, so the module resolved it with its own
+     * defaults — twelve subsets including Cyrillic, Greek and Vietnamese, none
+     * of which this catalogue can contain, and **weight 400 only**. Meanwhile
+     * `font-mono font-bold` appears 51 times, chord symbols among them, so
+     * every bold monospace glyph on the site was a browser-synthesised fake.
+     * Naming the family is what fixes that; the subsets list is what stops it
+     * shipping ten alphabets to do it.
+     *
+     * AI-DECISION: `preload` is explicit because the module's default refuses
+     * any face carrying a unicode-range, which is every face Google serves.
+     * That default is right in general — it is what keeps a preload from
+     * dragging in Cyrillic — and wrong here only because the subsets are now
+     * narrowed to the two this site actually renders. Bosnian needs both: the
+     * letters are latin, but č ć š ž đ live in latin-ext, so one text run
+     * spans the pair.
+     */
+    defaults: { preload: true },
     families: [
-      { name: 'Inter', provider: 'google', weights: [400, 700], subsets: ['latin', 'latin-ext'] }
+      { name: 'Inter', provider: 'google', weights: [400, 700], subsets: ['latin', 'latin-ext'] },
+      { name: 'JetBrains Mono', provider: 'google', weights: [400, 700], subsets: ['latin', 'latin-ext'] }
     ]
   },
 
@@ -90,6 +112,7 @@ export default defineNuxtConfig({
       'profil':          { bs: '/profil',         en: '/profile' },
       'prijava':         { bs: '/prijava',         en: '/login' },
       'registracija':    { bs: '/registracija',    en: '/register' },
+      'pretplata':       { bs: '/pretplata',       en: '/subscribe' },
       'o-nama':          { bs: '/o-nama',          en: '/about' },
       'privatnost':      { bs: '/privatnost',      en: '/privacy' },
       'uslovi':          { bs: '/uslovi',          en: '/terms' },
@@ -166,7 +189,29 @@ export default defineNuxtConfig({
         'material-symbols:error-rounded',
         'material-symbols:warning-rounded',
         'material-symbols:mail-rounded',
-        'material-symbols:key-rounded'
+        'material-symbols:key-rounded',
+        'material-symbols:add-rounded',
+        'material-symbols:remove-rounded',
+        'material-symbols:volume-up-rounded',
+        'material-symbols:add-notes-rounded',
+        'material-symbols:queue-music-rounded',
+        'material-symbols:edit-note-rounded',
+        'material-symbols:playlist-remove-rounded',
+        'material-symbols:keyboard-arrow-up-rounded',
+        'material-symbols:keyboard-arrow-down-rounded',
+        'material-symbols:chat-bubble-outline-rounded',
+        'material-symbols:arrow-forward-rounded',
+        'material-symbols:stop-rounded',
+        'material-symbols:touch-app-rounded',
+        'material-symbols:check-small-rounded',
+        'material-symbols:search-off-rounded',
+        'material-symbols:info-rounded',
+        'material-symbols:visibility-off-outline-rounded',
+        'material-symbols:visibility-off-rounded',
+        'material-symbols:send-rounded',
+        'material-symbols:edit-rounded',
+        'material-symbols:rate-review-outline-rounded',
+        'material-symbols:reply-rounded'
       ]
     },
     // Matches the surrounding text by default; override per use with a class.
@@ -203,7 +248,15 @@ export default defineNuxtConfig({
       // here made the English pages declare themselves as Bosnian.
       meta: [
         { charset: 'utf-8' },
-        { name: 'viewport', content: 'width=device-width, initial-scale=1' }
+        { name: 'viewport', content: 'width=device-width, initial-scale=1' },
+        { name: 'theme-color', content: '#b4472f' }
+      ],
+      link: [
+        { rel: 'icon', type: 'image/svg+xml', href: '/favicon.svg' },
+        { rel: 'icon', type: 'image/png', sizes: '32x32', href: '/favicon-32x32.png' },
+        { rel: 'icon', type: 'image/png', sizes: '16x16', href: '/favicon-16x16.png' },
+        { rel: 'apple-touch-icon', sizes: '180x180', href: '/apple-touch-icon.png' },
+        { rel: 'manifest', href: '/site.webmanifest' }
       ]
     }
   }

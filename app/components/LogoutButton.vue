@@ -52,6 +52,7 @@ async function signOut() {
     :description="$t('nav.logoutBody', { name: auth.user?.username || '' })"
     :confirm-label="$t('nav.logout')"
     :cancel-label="$t('common.cancel')"
+    icon="material-symbols:logout-rounded"
     :busy="busy"
     @confirm="signOut"
   />

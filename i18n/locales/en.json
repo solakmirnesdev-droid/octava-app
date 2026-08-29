@@ -8,6 +8,7 @@
     "artists": "Artists",
     "chords": "Chords",
     "tuner": "Tuner",
+    "recognize": "Recognise",
     "request": "Request",
     "saved": "Saved",
     "login": "Sign in",
@@ -21,6 +22,7 @@
     "searching": "Searching…",
     "noResultsFor": "No results for “{q}”",
     "profile": "Profile",
+    "editProfile": "Edit profile",
     "logoutTitle": "Sign out",
     "logoutBody": "You'll be signed out of {name}. Your saved songs stay where they are.",
     "loggedOut": "You are signed out.",
@@ -38,6 +40,7 @@
     "original": "original",
     "backToOriginal": "back to {key}",
     "allChords": "Show every chord in this song",
+    "songChords": "Chords in song",
     "twoColumns": "Split into two columns",
     "sameSound": "Same sound: capo at fret {fret}, play {key} shapes.",
     "difficultyEasy": "Easy",
@@ -145,6 +148,7 @@
     "yourRating": "Your rating",
     "average": "{average} out of 5",
     "count": "no ratings | {n} rating | {n} ratings",
+    "unrated": "Not rated",
     "signInToRate": "Sign in to rate",
     "remove": "Remove rating",
     "saving": "Saving…",
@@ -231,6 +235,7 @@
   "auth": {
     "signInLead": "Sign in to save songs.",
     "email": "Email",
+    "password": "Password",
     "username": "Username",
     "forgot": "Forgot your password?",
     "noAccount": "No account?",
@@ -281,7 +286,8 @@
     "savedTitle": "Saved {'|'} Octava",
     "metronomeTitle": "Metronome {'|'} Octava",
     "metronomeDesc": "A metronome with tap tempo and an accented downbeat. Runs in the browser, nothing to install.",
-    "songbookTitle": "Printable songbook"
+    "songbookTitle": "Printable songbook",
+    "recognizeTitle": "Recognise a song — Octava"
   },
   "about": {
     "title": "About",
@@ -511,5 +517,58 @@
     "remove": "Remove capo",
     "playingSounding": "Fingering {shape}, sounding {sound} — a capo does not change the key.",
     "easierAt": "Easier at fret {fret}: {shapes}."
+  },
+  "paywall": {
+    "eyebrow": "Subscription",
+    "title": "This sheet is for subscribers",
+    "body": "Words and chords, every key and the capo — for every song in the catalogue.",
+    "cta": "See the plans",
+    "signIn": "I already have an account",
+    "from": "from {price} {currency} a month",
+    "chordsHidden": "Chords are part of the subscription"
+  },
+  "subscribe": {
+    "metaTitle": "Subscription",
+    "eyebrow": "Octava Subscription",
+    "title": "Access the biggest database of Balkan chords",
+    "lead": "Full chord sheets, every key, the capo and the tuner — no limits.",
+    "songs": "songs",
+    "artists": "artists",
+    "choose": "Subscribe",
+    "cancel": "Cancel renewal",
+    "activeTitle": "Subscription active",
+    "activeUntil": "Valid until {date}.",
+    "thanks": "Thank you — access is open.",
+    "simulated": "Payment is simulated for now: nothing is charged.",
+    "plan": {
+      "monthly": "Monthly",
+      "yearly": "Yearly"
+    },
+    "per": {
+      "monthly": "per month",
+      "yearly": "per year"
+    }
+  },
+  "recognize": {
+    "title": "Recognise a song",
+    "lead": "Play a song near your phone and Octava opens its chords.",
+    "listen": "Listen",
+    "listening": "Listening",
+    "working": "Searching…",
+    "tapToListen": "Tap, then play the song",
+    "hint": "Eight seconds is enough. It recognises recordings — live playing it cannot.",
+    "resultTitle": "Result",
+    "idle": "The result appears here.",
+    "unsure": "Not sure",
+    "unsureHint": "Try closer to the speaker, or play a part where someone is singing.",
+    "noPermission": "No access to the microphone",
+    "noPermissionHint": "Allow the microphone in your browser settings, then try again.",
+    "failed": "That did not work",
+    "failedHint": "The recording was interrupted. Try again.",
+    "again": "Try again",
+    "atSecond": "at {at}s",
+    "fromCache": "offline",
+    "cached": "nothing saved for offline | {n} song saved for offline | {n} songs saved for offline",
+    "clearCache": "Clear saved"
   }
 }

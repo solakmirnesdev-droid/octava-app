@@ -27,15 +27,10 @@ const searchQuery = ref('');
 const sortBy = ref('default');
 
 const DIFFICULTY_KEY = { easy: 'difficultyEasy', medium: 'difficultyMedium', hard: 'difficultyHard' };
-const DIFFICULTY_CLASS = {
-  easy:   'border-ok/30 bg-ok-soft text-ok',
-  medium: 'border-warn/30 bg-warn-soft text-warn',
-  hard:   'border-danger/30 bg-danger-soft text-danger'
-};
-const DIFFICULTY_DOT = {
-  easy:   'bg-ok',
-  medium: 'bg-warn',
-  hard:   'bg-danger'
+const DIFFICULTY_VARIANT = {
+  easy:   'ok',
+  medium: 'warn',
+  hard:   'danger'
 };
 
 function formatNumber(n) {
@@ -226,26 +221,26 @@ const filteredSongs = computed(() => {
 
           <!-- Difficulty Badge if showArtist is false -->
           <div v-else class="flex items-center">
-            <span
+            <AppBadge
               v-if="song.difficulty && DIFFICULTY_KEY[song.difficulty]"
-              class="inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider"
-              :class="DIFFICULTY_CLASS[song.difficulty]"
+              :variant="DIFFICULTY_VARIANT[song.difficulty] || 'neutral'"
+              size="xs"
+              dot
             >
-              <span class="size-1.5 rounded-full" :class="DIFFICULTY_DOT[song.difficulty]" />
               {{ $t(`song.${DIFFICULTY_KEY[song.difficulty]}`) }}
-            </span>
+            </AppBadge>
           </div>
 
           <!-- Right side badges: Key & Difficulty -->
           <div class="flex shrink-0 items-center gap-1.5 ml-auto">
-            <span
+            <AppBadge
               v-if="showArtist && song.difficulty && DIFFICULTY_KEY[song.difficulty]"
-              class="inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider"
-              :class="DIFFICULTY_CLASS[song.difficulty]"
+              :variant="DIFFICULTY_VARIANT[song.difficulty] || 'neutral'"
+              size="xs"
+              dot
             >
-              <span class="size-1 rounded-full" :class="DIFFICULTY_DOT[song.difficulty]" />
               {{ $t(`song.${DIFFICULTY_KEY[song.difficulty]}`) }}
-            </span>
+            </AppBadge>
 
             <NuxtLink
               v-if="song.originalKey"
@@ -392,13 +387,14 @@ const filteredSongs = computed(() => {
 
           <!-- Difficulty Pill -->
           <div class="hidden sm:flex w-16 shrink-0 justify-center">
-            <span
+            <AppBadge
               v-if="song.difficulty && DIFFICULTY_KEY[song.difficulty]"
-              class="w-full text-center truncate rounded-full border px-1.5 py-0.5 text-[11px] font-medium"
-              :class="DIFFICULTY_CLASS[song.difficulty]"
+              :variant="DIFFICULTY_VARIANT[song.difficulty] || 'neutral'"
+              size="xs"
+              class="w-full justify-center"
             >
               {{ $t(`song.${DIFFICULTY_KEY[song.difficulty]}`) }}
-            </span>
+            </AppBadge>
           </div>
 
           <!-- Views -->

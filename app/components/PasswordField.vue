@@ -34,28 +34,36 @@ const strength = computed(() => {
 
 <template>
   <div>
-    <div class="mb-1 flex items-baseline justify-between">
-      <label :for="id" class="text-sm font-medium">{{ label }}</label>
+    <label :for="id" class="mb-1.5 block text-xs font-semibold uppercase tracking-wider text-muted">
+      {{ label }}
+    </label>
+
+    <div class="relative">
+      <input
+        :id="id"
+        :type="revealed ? 'text' : 'password'"
+        :value="modelValue"
+        :autocomplete="autocomplete"
+        :minlength="minlength || undefined"
+        required
+        class="input-base pr-10"
+        @input="$emit('update:modelValue', $event.target.value)"
+      />
+
       <button
         type="button"
-        class="text-xs text-faint hover:text-accent"
+        class="absolute right-2.5 top-1/2 -translate-y-1/2 flex size-7 items-center justify-center rounded-lg text-faint hover:text-accent hover:bg-surface/60 transition-colors cursor-pointer"
         :aria-pressed="revealed"
+        :aria-label="revealed ? 'Sakrij lozinku' : 'Prikaži lozinku'"
+        :title="revealed ? 'Sakrij lozinku' : 'Prikaži lozinku'"
         @click="revealed = !revealed"
       >
-        {{ revealed ? 'Sakrij' : 'Prikaži' }}
+        <Icon
+          :name="revealed ? 'material-symbols:visibility-off-outline-rounded' : 'material-symbols:visibility-outline-rounded'"
+          class="text-lg"
+        />
       </button>
     </div>
-
-    <input
-      :id="id"
-      :type="revealed ? 'text' : 'password'"
-      :value="modelValue"
-      :autocomplete="autocomplete"
-      :minlength="minlength || undefined"
-      required
-      class="w-full rounded border border-line-strong bg-panel px-3 py-2 outline-none focus:border-accent"
-      @input="$emit('update:modelValue', $event.target.value)"
-    />
 
     <div v-if="showStrength && strength" class="mt-1.5 flex items-center gap-2">
       <div class="h-1 flex-1 overflow-hidden rounded-full bg-sunken">

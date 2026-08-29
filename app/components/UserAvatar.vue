@@ -10,6 +10,7 @@ const props = defineProps({
 const config = useRuntimeConfig();
 
 const SIZES = {
+  xs: 'size-5 text-xs',
   sm: 'size-6 text-sm',
   md: 'size-8 text-base',
   lg: 'size-20 text-3xl lg:size-24 lg:text-4xl'
@@ -24,7 +25,7 @@ const src = computed(() => (props.hasAvatar && props.userId
 </script>
 
 <template>
-  <span class="relative inline-flex shrink-0 items-center justify-center">
+  <span class="relative inline-flex shrink-0 items-center justify-center rounded-full">
     <img
       v-if="src" :src="src" :alt="name"
       class="shrink-0 rounded-full object-cover ring-1 ring-line shadow-2xs" :class="box"

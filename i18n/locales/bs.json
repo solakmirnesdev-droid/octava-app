@@ -7,7 +7,8 @@
   "nav": {
     "artists": "Izvođači",
     "chords": "Akordi",
-    "tuner": "Štimer",
+    "tuner": "Uštimaj",
+    "recognize": "Prepoznaj",
     "request": "Zatraži",
     "saved": "Sačuvano",
     "login": "Prijava",
@@ -21,6 +22,7 @@
     "searching": "Traženje…",
     "noResultsFor": "Nema rezultata za „{q}\"",
     "profile": "Profil",
+    "editProfile": "Uredi profil",
     "logoutTitle": "Odjava",
     "logoutBody": "Odjavljujemo te s naloga {name}. Sačuvane pjesme ostaju i čekaju te kad se vratiš.",
     "loggedOut": "Odjavljen si.",
@@ -38,6 +40,7 @@
     "original": "original",
     "backToOriginal": "vrati na {key}",
     "allChords": "Prikaži sve akorde iz pjesme",
+    "songChords": "Akordi u pjesmi",
     "twoColumns": "Podijeli pjesmu u dvije kolone",
     "sameSound": "Isto zvuči: kapodaster na {fret}. pragu, sviraj oblike iz {key}.",
     "difficultyEasy": "Lako",
@@ -145,6 +148,7 @@
     "yourRating": "Tvoja ocjena",
     "average": "{average} od 5",
     "count": "nema ocjena | {n} ocjena | {n} ocjene | {n} ocjena",
+    "unrated": "Nije ocijenjeno",
     "signInToRate": "Prijavi se da ocijeniš",
     "remove": "Povuci ocjenu",
     "saving": "Spašavam…",
@@ -231,6 +235,7 @@
   "auth": {
     "signInLead": "Prijavi se da sačuvaš pjesme.",
     "email": "Email",
+    "password": "Lozinka",
     "username": "Korisničko ime",
     "forgot": "Zaboravljena lozinka?",
     "noAccount": "Nemaš nalog?",
@@ -281,7 +286,8 @@
     "savedTitle": "Sačuvano {'|'} Octava",
     "metronomeTitle": "Metronom {'|'} Octava",
     "metronomeDesc": "Metronom sa tapkanjem tempa i naglaskom na prvu dobu. Radi u pregledniku, bez instalacije.",
-    "songbookTitle": "Pjesmarica za štampu"
+    "songbookTitle": "Pjesmarica za štampu",
+    "recognizeTitle": "Prepoznaj pjesmu — Octava"
   },
   "about": {
     "title": "O nama",
@@ -511,5 +517,58 @@
     "remove": "Skini kapodaster",
     "playingSounding": "Hvataš u {shape}, a zvuči u {sound} — kapodaster ne mijenja tonalitet.",
     "easierAt": "Lakše na {fret}. polju: {shapes}."
+  },
+  "paywall": {
+    "eyebrow": "Pretplata",
+    "title": "Ovaj list je za pretplatnike",
+    "body": "Tekst i akordi, svi tonaliteti i kapodaster — za sve pjesme u katalogu.",
+    "cta": "Pogledaj pretplatu",
+    "signIn": "Već imam nalog",
+    "from": "od {price} {currency} mjesečno",
+    "chordsHidden": "Akordi su dio pretplate"
+  },
+  "subscribe": {
+    "metaTitle": "Pretplata",
+    "eyebrow": "Octava Pretplata",
+    "title": "Pristup najvećoj bazi domaćih akorda",
+    "lead": "Cijeli listovi s akordima, svi tonaliteti, kapodaster i štimer — bez ograničenja.",
+    "songs": "pjesama",
+    "artists": "izvođača",
+    "choose": "Uzmi pretplatu",
+    "cancel": "Otkaži obnovu",
+    "activeTitle": "Pretplata je aktivna",
+    "activeUntil": "Vrijedi do {date}.",
+    "thanks": "Hvala — pristup je otvoren.",
+    "simulated": "Plaćanje je trenutno simulirano: ništa se ne naplaćuje.",
+    "plan": {
+      "monthly": "Mjesečno",
+      "yearly": "Godišnje"
+    },
+    "per": {
+      "monthly": "po mjesecu",
+      "yearly": "po godini"
+    }
+  },
+  "recognize": {
+    "title": "Prepoznaj pjesmu",
+    "lead": "Pusti pjesmu blizu telefona i Octava ti otvori akorde.",
+    "listen": "Slušaj",
+    "listening": "Slušam",
+    "working": "Tražim…",
+    "tapToListen": "Dodirni pa pusti pjesmu",
+    "hint": "Osam sekundi je dovoljno. Prepoznaje snimke — živo sviranje ne može.",
+    "resultTitle": "Rezultat",
+    "idle": "Rezultat se pojavi ovdje.",
+    "unsure": "Nisam siguran",
+    "unsureHint": "Probaj bliže izvoru zvuka, ili pusti dio gdje se pjeva.",
+    "noPermission": "Nemam pristup mikrofonu",
+    "noPermissionHint": "Dozvoli mikrofon u postavkama pretraživača pa pokušaj ponovo.",
+    "failed": "Nije uspjelo",
+    "failedHint": "Snimanje je prekinuto. Pokušaj ponovo.",
+    "again": "Pokušaj ponovo",
+    "atSecond": "na {at}s",
+    "fromCache": "bez interneta",
+    "cached": "ništa nije spremljeno za offline | {n} pjesma spremljena za offline | {n} pjesme spremljene za offline | {n} pjesama spremljeno za offline",
+    "clearCache": "Obriši spremljeno"
   }
 }

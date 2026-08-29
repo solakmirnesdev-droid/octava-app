@@ -101,6 +101,20 @@ holds its own palette and explains why.
 fret numbers, formulas. `font-sans` for prose. Sizes bottom out at
 `text-[10px]` for diagram furniture.
 
+**Centralized UI Primitives & Utilities (`main.css`):**
+- **Buttons:** `btn-primary`, `btn-secondary`, `btn-ghost`, `btn-danger`.
+- **Form inputs:** `input-base`, `textarea-base`.
+- **Cards:** `card-base`, `card-interactive` (with hover lift), `card-glass`, `card-gradient`.
+- **Badges / Pills:** `badge-pill`, `badge-accent`, `badge-ok`, `badge-warn`, `badge-danger`.
+- **Popovers / Menus:** `popover-surface`.
+- **Micro-physics:** `transition-lift`, `transition-press`.
+
+**Atomic Vue Components (`app/components/`):**
+- `<AppButton>`: Polymorphic button (NuxtLink / a / button) with `variant`, `size`, `loading`, `icon`.
+- `<AppBadge>`: Status pills with `variant` (`neutral|accent|ok|warn|danger`), `dot`, `pulse`, `icon`.
+- `<AppCard>`: Uniform card surfaces with `variant` (`default|interactive|glass|gradient|sunken`).
+- `<AppInput>`: Form text/search/email input with label, required asterisk, icon, and error handling.
+
 **Pattern-match from:** `app/components/ChordDiagram.vue` (SVG + tokens),
 `app/pages/izvodjac/[slug].vue` (page layout, sticky aside).
 
@@ -249,6 +263,232 @@ word (it is a translation key — see §6), or add a locale key to one catalogue
 - **What:** added toast feedback for rating actions (`StarRating.vue` & `RatingStars.vue`) using `AppToast.vue` with an amber star badge and explicit confirmation message (e.g. `Ocijenjeno sa 5 ★` or `Ocjena uklonjena`).
 - **Why:** user requested immediate feedback popups for ratings similar to saving songs/artists.
 - **Affects:** `app/components/AppToast.vue`, `app/components/StarRating.vue`, `app/components/RatingStars.vue`, `app/composables/useToast.js`.
+
+### 2026-08-29 — Brand favicon and web icon suite
+- **What:** Generated brand vector `favicon.svg`, multi-size `favicon.ico` (16, 32, 48), `apple-touch-icon.png`, `icon-192.png`, `icon-512.png`, and `site.webmanifest` in `public/`. Configured `<head>` in `nuxt.config.ts` and `app/app.vue` (and dashboard `index.html`).
+- **Why:** The browser tab showed a generic globe icon because `public/` was empty and no favicon link tags were provided.
+- **Visuals:** Uses the canonical terracotta rounded tile (`#b4472f`) with the white graphic equalizer icon matching the header brand logo.
+- **Affects:** `public/`, `nuxt.config.ts`, `app/app.vue`, `octava-dashboard/public/`, `octava-dashboard/index.html`.
+
+### 2026-08-29 — Centralized UI primitives and atomic component system
+- **What:** Added centralized Tailwind 4 `@utility` classes in `main.css` (`btn-*`, `input-base`, `card-*`, `badge-*`, `popover-surface`, `transition-lift/press`) and atomic Vue components (`AppButton.vue`, `AppBadge.vue`, `AppCard.vue`, `AppInput.vue`). Refactored `prijava.vue`, `registracija.vue`, `zatrazi.vue`, `izvodjaci.vue`, `zanr/[slug].vue`, `SongList.vue`, and `default.vue`.
+- **Why:** Replaces fragmented, ad-hoc inline styles with a single unified component and utility library, preventing drift in button paddings, border radiuses, card elevations, and hover animations.
+- **Affects:** `app/assets/css/main.css`, `app/components/AppButton.vue`, `app/components/AppBadge.vue`, `app/components/AppCard.vue`, `app/components/AppInput.vue`, `app/components/SongList.vue`, `app/layouts/default.vue`, and auth/request/listing pages.
+
+### 2026-08-29 — Redesigned review composer, cards, and comment replies
+- **What:** Rebuilt `SongReviews.vue` and `ReviewComments.vue` using `AppCard`, `AppButton`, `AppBadge`, `input-base`, `textarea-base`, and `UserAvatar`. Added an author composer card with live character count (`draft.length / 4000`), highlighted "Tvoja recenzija" glass card with edit/delete quick actions, and sunken reply threads with collapsible animations.
+- **Why:** Replaced plain, flat review inputs with modern, accessible cards reusing the design system.
+- **Affects:** `app/components/SongReviews.vue`, `app/components/ReviewComments.vue`, `app/components/UserAvatar.vue`.
+
+### 2026-08-29 — Responsive song controls and playback toolbar
+- **What:** Refactored song playback & pitch toolbar on `pjesma/[slug].vue`, `TransposeControls.vue`, and `CapoControls.vue` with responsive breakpoints, grouped segmented controls (Pitch & Capo / Display & Autoscroll / Action cluster), and full-width formatted capo theory footer ribbon.
+- **Why:** Prevented uneven wrapping, button collisions, and awkward whitespace on mobile and tablet viewport widths.
+- **Affects:** `app/pages/pjesma/[slug].vue`, `app/components/TransposeControls.vue`, `app/components/CapoControls.vue`.
+
+### 2026-08-29 — Floating Dancing Chords Companion
+- **What:** Replaced the intrusive inline chord diagrams block with a floating companion widget (`DancingChords.vue`) positioned right above the `DancingMetronome.vue` button. Features a playful rhythmic vibrato animation (`chordIdleDance` / `chordActiveDance`), chord count indicator badge, instrument selector (Gitara, Ukulele, Bas), clickable audio strum previews, position switchers, and outside-click dismiss.
+- **Why:** Keeps chord reference diagrams easily accessible anywhere while scrolling through a song without disrupting the vertical lyrics layout.
+- **Affects:** `app/components/DancingChords.vue`, `app/pages/pjesma/[slug].vue`.
+
+### 2026-08-29 — Realistic Metronome Pendulum Needle Tilt Animation
+- **What:** Updated `MetronomeIcon.vue` and `DancingMetronome.vue` so the pyramid casing remains grounded and stable while the pendulum wand (wand + sliding tempo bob + pivot anchor) swings back and forth left-right from the base anchor `(12, 17)`.
+- **Why:** Delivers realistic mechanical metronome physics where the needle ticks left and right across the tempo scale.
+- **Affects:** `app/components/MetronomeIcon.vue`, `app/components/DancingMetronome.vue`.
+
+### 2026-08-29 — Automatic Default 2-Column Sheet Layout
+- **What:** Removed manual two-column toggle icon from song controls toolbar. `useSheetColumns.js` and `ChordSheet.vue` now automatically split the song lyrics into two columns by default whenever viewport width is wide enough (`>= 1024px`), while retaining clean 1-column layout on phones and tablets.
+- **Why:** Eliminates toolbar clutter while providing optimal reading width and minimal vertical scrolling by default on desktop screens.
+- **Affects:** `app/composables/useSheetColumns.js`, `app/pages/pjesma/[slug].vue`.
+
+### 2026-08-29 — Redesigned Artist Profile Card (Hero Bento Glass Aesthetic)
+- **What:** Modernized the artist profile card in `izvodjac/[slug].vue` following 2026 music streaming patterns (Spotify/Apple Music): added ambient radial hero glow, glowing ring avatar with drop-shadowed flag badge, 3-column bento micro-tiles (Songs, Rating, Views), unified `AppButton` save CTA, interactive `AppBadge` genre tags, highlighted dominant musical keys with proportional pills, clean timeline rows, and refined attribution.
+- **Why:** Replaces flat, plain form-like elements with a cohesive, premium editorial card.
+- **Affects:** `app/pages/izvodjac/[slug].vue`.
+
+### 2026-08-29 — Viewport-bounded Popover Heights
+- **What:** Constrained `DancingChords.vue` and `DancingMetronome.vue` floating popover cards with `max-h-[calc(100dvh-10.5rem)]` and `overflow-y-auto` dynamically derived from their bottom trigger offset.
+- **Why:** Prevents floating cards from overflowing and clipping past the top of the viewport on laptops, compact screens, or mobile browser address bars.
+- **Affects:** `app/components/DancingChords.vue`, `app/components/DancingMetronome.vue`.
+
+### 2026-08-29 — Balanced Responsive Redesign of StarRating Card
+- **What:** Replaced the rigid 12-column 3-block grid in `StarRating.vue` with a fluid 2-zone responsive layout. The left wing houses the amber score badge (`★ 3.0`), title, count, inline verification badges (`Tonalitet`, `Tekst`, `Harmonizacija`), and live rating feedback subtitle; the right wing houses interactive stars with micro-animations and a sleek retract button.
+- **Why:** Eliminated clumsy 2-line badge wrapping and vertical misalignment on medium viewports, keeping the card compact and visually balanced across all resolutions.
+- **Affects:** `app/components/StarRating.vue`, `app/components/AutoScrollControl.vue`.
+
+### 2026-08-29 — Floating Companion Buttons Pushed to Bottom of Viewport
+- **What:** Positioned `DancingChords.vue` at the very bottom right (`bottom-4 sm:bottom-6 right-4 sm:right-6`) and `DancingMetronome.vue` directly above it (`bottom-[4.5rem] sm:bottom-[5.25rem] right-4 sm:right-6`). Updated popover max-heights to `max-h-[calc(100dvh-5rem)]` and `max-h-[calc(100dvh-7.5rem)]`.
+- **Why:** Keeps floating action widgets unobtrusively anchored at the bottom corner of the viewport without taking up valuable middle-screen space.
+- **Affects:** `app/components/DancingChords.vue`, `app/components/DancingMetronome.vue`.
+
+### 2026-08-29 — Compact Chord Sizing and Non-Overlapping Left Popover Placement
+- **What:** Added `compact` prop to `ChordDiagram.vue` for sharper, smaller fretboard grids and typography; shifted floating popovers in `DancingChords.vue` and `DancingMetronome.vue` to the left (`right-3 sm:right-20`) so open popups sit beside the buttons without obscuring them.
+- **Why:** Keeps the full button stack visible and interactive while displaying a clean, compact companion panel.
+- **Affects:** `app/components/ChordDiagram.vue`, `app/components/DancingChords.vue`, `app/components/DancingMetronome.vue`.
+
+### 2026-08-29 — Glassmorphic Design for In-Lyric Chord Hover Tooltip
+- **What:** Upgraded `ChordTooltip.vue` container with `rounded-2xl border border-line bg-panel/90 p-2.5 shadow-2xl backdrop-blur-xl ring-1 ring-white/10` and compact diagram proportions.
+- **Why:** Harmonizes the in-text chord hover/click popover with the design system's glass aesthetic across song and profile cards.
+- **Affects:** `app/components/ChordTooltip.vue`.
+
+### 2026-08-29 — 3-Column Responsive Song Sheet Layout
+- **What:** Replaced hardcoded `columns-2 max-w-3xl` in `ChordSheet.vue` with `columns-1 md:columns-2 xl:columns-3 max-w-full gap-8 md:gap-10 xl:gap-12`, expanded default layout `<main>` container to `max-w-6xl xl:max-w-7xl`, and adjusted `useSheetColumns.js` to activate from 768px.
+- **Why:** When playing guitar or enlarging font sizes, 3 columns allow the song to spread across wide desktop/laptop screens and fit entirely within the viewport without requiring vertical scrolling while holding the instrument.
+- **Affects:** `app/components/ChordSheet.vue`, `app/composables/useSheetColumns.js`, `app/layouts/default.vue`.
+
+### 2026-08-29 — Metronome Needle Parked State & Synchronized Swing
+- **What:** Updated `MetronomeIcon.vue` and `DancingMetronome.vue` so that when the metronome is turned off/stopped, the needle rests firmly parked at the far left latch position (`rotate(-28deg)`) with no animation. When started, the needle swings left-to-right (`-28deg` to `+28deg`) strictly synchronized with the metronome BPM (`animationDuration = (60 / bpm) + 's'`).
+- **Why:** Eliminates false idle animations when the metronome is not running, and provides clear visual mechanical feedback when active.
+- **Affects:** `app/components/MetronomeIcon.vue`, `app/components/DancingMetronome.vue`.
+
+### 2026-08-29 — Profile Header Dropdown Menu
+- **What:** Converted the desktop header Profile link into an interactive glassmorphic dropdown menu (`default.vue`) containing user avatar summary (username + email), "Uredi profil" (`/profil`), "Sačuvano" (`/sacuvano`), and "Odjavi se" with an `AppModal` confirmation prompt. Added click-outside, Escape key, and route-change close handlers.
+- **Why:** Replaces flat header links with a modern profile hub for fast navigation to account settings, saved favorites, and sign-out.
+- **Affects:** `app/layouts/default.vue`, `i18n/locales/bs.json`, `i18n/locales/en.json`.
+
+### 2026-08-29 — Metronome Floating Badge Audio Beat Pulse Synchronization
+- **What:** Replaced generic 1s CSS loop `animate-ping` with a reactive `:key="beat"` pulse ring on the `DancingMetronome.vue` active badge. Rings expand and flash on every audio click scheduled in Web Audio (gold on accent beat 0, coral on sub-beats).
+- **Why:** Delivers precise real-time visual synchrony with every audible metronome beep.
+- **Affects:** `app/components/DancingMetronome.vue`.
+
+### 2026-08-29 — Navigation Tuner Label Rename ("Uštimaj")
+- **What:** Changed `nav.tuner` in `i18n/locales/bs.json` from `"Štimer"` to `"Uštimaj"`.
+- **Why:** Matches the active imperative verb pattern across the navigation items ("Zatraži", "Uštimaj").
+- **Affects:** `i18n/locales/bs.json`.
+
+### 2026-08-29 — Mobile Full-Height Slide-in Navigation Drawer
+- **What:** Replaced in-flow vertical collapsing accordion with a full-height (`h-dvh`), left-to-right sliding drawer (`<Teleport to="body">`) with a frosted backdrop blur scrim (`bg-black/65 backdrop-blur-xs`), smooth cubic-bezier slide transitions, body scroll-lock management, drawer header with logo and close trigger, mobile search box, category tags, and account footer.
+- **Why:** Delivers a modern mobile app feel without pushing or reflowing the page content underneath.
+- **Affects:** `app/layouts/default.vue`.
+
+### 2026-08-29 — Song Studio Controls Toolbar Redesign & Redundant Chord Button Removal
+- **What:** Overhauled the song page toolbar (`TransposeControls.vue`, `CapoControls.vue`, `FontSizeControl.vue`, `AutoScrollControl.vue`, and `[slug].vue`) from bulky text buttons into high-precision, tactile glassmorphic stepper pills (`bg-surface/80 border border-line-soft hover:border-line`). Removed duplicate chords grid toggle from the top toolbar because the floating `DancingChords.vue` companion button handles song chords on demand.
+- **Why:** Replaces cluttered, heavy boxes with a lightweight, professional music studio toolbar designed for effortless touch and desktop interaction while holding a guitar.
+- **Affects:** `app/components/TransposeControls.vue`, `app/components/CapoControls.vue`, `app/components/FontSizeControl.vue`, `app/components/AutoScrollControl.vue`, `app/pages/pjesma/[slug].vue`.
+
+### 2026-08-29 — Dancing Chords Header Enlargement & Right Action Alignment
+- **What:** Redesigned the header in `DancingChords.vue`: enlarged the fretboard icon container to `size-9.5` (`<ChordIcon size="1.45em" />`), updated the title from sentence case to `"Akordi u pjesmi"` (`song.songChords`), and neatly grouped the count badge (`{{ playable.length }}`) alongside the close `X` button on the far right.
+- **Why:** Prevents multi-line title wrapping and awkwardly placed count indicators, creating a clean, balanced studio popover header.
+- **Affects:** `app/components/DancingChords.vue`, `i18n/locales/bs.json`, `i18n/locales/en.json`.
+
+### 2026-08-29 — Unrated Song Card Label ("Nije ocijenjeno")
+- **What:** Replaced the dash `'—'` in `RatingStars.vue` for unrated songs with localized `"Nije ocijenjeno"` (`rating.unrated` in `bs.json` / `"Not rated"` in `en.json`).
+- **Why:** Clarifies that a song has not yet received community votes rather than showing an ambiguous dash next to empty stars.
+- **Affects:** `app/components/RatingStars.vue`, `i18n/locales/bs.json`, `i18n/locales/en.json`.
+
+### 2026-08-29 — Singer / Artist Navigation Icon Update
+- **What:** Redesigned `SingerIcon.vue` to depict a person/singer performing into a stage microphone rather than a standalone voice microphone capsule.
+- **Why:** Avoids user confusion with voice recording / microphone permissions buttons and clearly represents musicians, artists, and singers.
+- **Affects:** `app/components/SingerIcon.vue`, `app/layouts/default.vue`, `app/pages/izvodjaci.vue`, `app/pages/sacuvano.vue`.
+
+### 2026-08-29 — Genre Page Hero Header Layout Revamp
+- **What:** Replaced the wide 2-wall split header on `app/pages/zanr/[slug].vue` with a cohesive, balanced studio card: added a prominent genre category badge (`size-16` with gradient ring), curated lead description, and integrated metric chips (`[ songs ] [ artists ] [ tonalities ]`) inline directly below the title.
+- **Why:** Eliminates the wide empty void in the middle of the genre banner across desktop screens and presents a rich, unified category overview.
+- **Affects:** `app/pages/zanr/[slug].vue`.
+
+### 2026-08-29 — Suppressed Native WebKit Search Cancel Button
+- **What:** Added global CSS in `main.css` targeting `input[type="search"]::-webkit-search-cancel-button` to suppress the browser's default bold white cancel button.
+- **Why:** Prevents duplicate clear `X` buttons from appearing inside search inputs alongside the custom Vue clear button.
+- **Affects:** `app/assets/css/main.css`.
+
+### 2026-08-29 — Tactile Audio Ripple Effect on Chord Diagram Play
+- **What:** Added animated expanding acoustic orange ripple rings, speaker ping pulse, and subtle glowing dot drop-shadows to `ChordDiagram.vue` whenever a chord is clicked or strummed.
+- **Why:** Provides immediate, satisfying visual feedback synchronized with the chord playback audio.
+- **Affects:** `app/components/ChordDiagram.vue`, `app/components/ChordTooltip.vue`, `app/components/DancingChords.vue`, `app/pages/akordi/index.vue`.
+
+### 2026-08-29 — Added Missing Stepper Icons to Client Icon Bundle
+- **What:** Added `material-symbols:add-rounded`, `material-symbols:remove-rounded`, `material-symbols:volume-up-rounded`, and other dynamically referenced icons to `clientBundle.icons` in `nuxt.config.ts`.
+- **Why:** Nuxt Icon with client bundling only precompiles icons explicitly listed in `clientBundle.icons`, causing `+` and `-` stepper icons to be missing on client render.
+- **Affects:** `nuxt.config.ts`, `app/components/TransposeControls.vue`, `app/components/CapoControls.vue`, `app/components/AutoScrollControl.vue`.
+
+### 2026-08-29 — Authentication Pages Studio Suite Redesign
+- **What:** Overhauled `app/pages/prijava.vue`, `registracija.vue`, `zaboravljena-lozinka.vue`, and `nova-lozinka.vue` with elevated 2026 glassmorphic studio cards (`backdrop-blur-2xl bg-panel/90 rounded-3xl border border-line ring-1 ring-white/10 shadow-2xl`), ambient lighting backdrops, brand monogram badges, and integrated Google OAuth buttons inside the card container.
+- **Why:** Replaces barebones raw unstyled floating forms with a state-of-the-art, trustworthy sign-in and registration experience consistent with the Octava design system.
+- **Affects:** `app/pages/prijava.vue`, `app/pages/registracija.vue`, `app/pages/zaboravljena-lozinka.vue`, `app/pages/nova-lozinka.vue`.
+
+### 2026-08-29 — In-Input Eye Icon for Password Reveal
+- **What:** Replaced the external text toggle button ("Prikaži"/"Sakrij") in `PasswordField.vue` with an interactive eye icon (`material-symbols:visibility-outline-rounded` and `material-symbols:visibility-off-outline-rounded`) aligned inside the right side of the password input.
+- **Why:** Delivers standard modern UX for password visibility without cluttering label headers or breaking horizontal alignments.
+- **Affects:** `app/components/PasswordField.vue`, `nuxt.config.ts`.
+
+### 2026-08-29 — Textarea & Input Icon Scale Alignment
+- **What:** Upgraded input and textarea icons across `app/pages/zatrazi.vue` and `app/components/SongReviews.vue` from small 16px glyphs to prominent `text-xl` / `text-2xl` vectors, properly aligned with `pl-11`/`pl-12` padding, character counts, and height proportions.
+- **Why:** Eliminates awkward clipping and cramped text fields, creating spacious, professional input cockpits.
+- **Affects:** `app/pages/zatrazi.vue`, `app/components/SongReviews.vue`, `nuxt.config.ts`.
+
+### 2026-08-29 — Interactive Mouse & Touch Dragging for Metronome Counterweight
+- **What:** Added interactive pointer event handlers (`onWeightPointerDown`, `pointermove`, `pointerup`) to the mechanical metronome pendulum in `app/pages/metronom.vue`. Users can drag the terracotta counterweight up and down the metallic rod or click anywhere along the tempo scale track to adjust BPM from 40 to 240 smoothly with continuous visual feedback.
+- **Why:** Delivers authentic physical feedback mimicking a real mechanical metronome while pausing swing during dragging for precise tempo placement.
+- **Affects:** `app/pages/metronom.vue`.
+
+### 2026-08-29 — Whole-Card Acoustic Ripple & Pulse on Chord Strum
+- **What:** Upgraded chord play animations across `ChordTooltip.vue` and `ChordGrid.vue` so that when a chord is clicked or strummed, the entire outer card expands with a subtle physical pulse (`.chord-card-pulse`), glowing terracotta border ring, and expanding concentric shockwave ripples around the full perimeter of the card.
+- **Why:** Replaces small internal-only animations with a satisfying tactile card-level ripple that mirrors the acoustic resonance of playing a real instrument.
+- **Affects:** `app/components/ChordTooltip.vue`, `app/components/ChordDiagram.vue`, `app/components/ChordGrid.vue`.
+
+### 2026-08-29 — AppModal Redesign to Match Studio System
+- **What:** Overhauled `app/components/AppModal.vue` with `rounded-3xl border border-line bg-panel/95 backdrop-blur-2xl ring-1 ring-white/10 shadow-2xl`, ambient background glow, tone-aware icon monogram badges (`logout`, `warning`, `info`), and modern pill action buttons.
+- **Why:** Replaced legacy blocky `rounded-xl` dialog with raw `bg-ink text-on-ink` buttons that looked unstyled and clashed with the rest of the application.
+- **Affects:** `app/components/AppModal.vue`, `app/components/LogoutButton.vue`.
+
+### 2026-08-29 — Auth Suite Brand Identity & Lighting Refinement
+- **What:** Replaced generic lock icons across `prijava.vue`, `registracija.vue`, `zaboravljena-lozinka.vue`, and `nova-lozinka.vue` with the official Octava graphic-eq brand header and logo badge. Added a large, subtle graphic-eq watermark glowing behind the card blur. Softened heavy ambient light blobs from `blur-3xl` to crisp `blur-2xl` and calibrated card backdrop blur. Fixed missing `auth.password` i18n keys.
+- **Why:** Delivers strong brand recognition and crisp visual hierarchy without muddy over-blurred background artifacts.
+- **Affects:** `app/pages/prijava.vue`, `app/pages/registracija.vue`, `app/pages/zaboravljena-lozinka.vue`, `app/pages/nova-lozinka.vue`, `i18n/locales/bs.json`, `i18n/locales/en.json`.
+
+### 2026-08-29 — Smooth Strum Glow Calibration (No Shake)
+- **What:** Calibrated the chord strumming feedback across `ChordTooltip.vue`, `ChordGrid.vue`, and `ChordDiagram.vue`. Eliminated physical `scale` jumping / shaking so cards remain rock steady in place. Retained a prominent, elegant terracotta halo border ring (`border-accent ring-2 ring-accent/50 shadow-[0_0_24px_rgba(224,90,58,0.35)]`) and a rich inner acoustic glow across fretboard dots and diagram elements.
+- **Why:** Delivers prominent visual acoustic feedback without dizzying motion or layout jumping.
+- **Affects:** `app/components/ChordTooltip.vue`, `app/components/ChordDiagram.vue`, `app/components/ChordGrid.vue`.
+
+### 2026-08-29 — Chords Directory Unified Studio Toolbar
+- **What:** Overhauled the chords directory header and controls in `app/pages/akordi/index.vue`. Replaced the full-width search input with a compact, properly sized search box unified with the root note quick-filter chips on the same horizontal toolbar card. Moved the instrument switcher (`Gitara`, `Bas`, `Ukulele`) to the header right zone.
+- **Why:** Removes massive empty space in the search bar and collapses 3 vertical rows into a sleek, unified studio cockpit.
+- **Affects:** `app/pages/akordi/index.vue`.
+
+### 2026-08-29 — Full Card Clickable Hitbox & Unified Strum Glow
+- **What:** Removed narrow `max-w-[155px]` constraints inside `ChordDiagram.vue` so it spans 100% of parent card containers with full-bleed `w-full h-full` hit area. Connected `@play` and `ringingChord` state tracking across `app/pages/akordi/index.vue`, `ChordGrid.vue`, `ChordTooltip.vue`, and `DancingChords.vue` so clicking anywhere on the outer card plays the audio and illuminates the entire card with a steady terracotta halo ring. Positioned the audio speaker icon in the true top-right corner with `px-6` title breathing room.
+- **Why:** Ensures clicking card edges, padding, and headers triggers audio playback with complete visual feedback without dead click zones or misaligned corner glyphs.
+- **Affects:** `app/components/ChordDiagram.vue`, `app/pages/akordi/index.vue`, `app/components/ChordGrid.vue`, `app/components/DancingChords.vue`.
+
+### 2026-08-29 — Artists Directory Visual Overhaul
+- **What:** Modernized `/izvodjaci` cards and filter hub in `app/pages/izvodjaci.vue`. Replaced raw circle initials avatars with stylized rounded squircle gradient portraits with warm border highlights, encapsulated the country flag into a subtle backdrop badge, added origin pill badges, separated stats into distinct micro-badges, and wrapped the alphabet scrubber in a clean segmented track.
+- **Why:** Removes harsh monochrome contrast and dead boxy space, giving the artist directory a rich studio aesthetic.
+- **Affects:** `app/pages/izvodjaci.vue`.
+
+### 2026-08-29 — Instant Hover Tooltip Positioning (No Slide From 0,0)
+- **What:** Replaced `transition-all` on the fixed-position `ChordTooltip.vue` with targeted `transition-[border-color,box-shadow,background-color]`.
+- **Why:** `transition-all` interpolated the `top` and `left` properties when mounting from the default `(0, 0)` coordinates to the anchor position, causing the tooltip to fly/dash across the screen on every hover.
+- **Affects:** `app/components/ChordTooltip.vue`.
+
+### 2026-08-29 — Song Recognition Studio Overhaul
+- **What:** Overhauled `app/pages/prepoznaj.vue` from two disjointed boxes into a unified modern Audio Recognition Studio. Features a central listening orb with animated acoustic radar wave rings, background equalizer watermark, countdown indicators, rich track match cards with direct chord links, and studio feature guides.
+- **Why:** Delivers a premium Shazam-grade recognition experience aligned with the rest of the Octava suite.
+- **Affects:** `app/pages/prepoznaj.vue`.
+
+### 2026-08-29 — Global Mobile Responsiveness & Studio Polish
+- **What:** Globally optimized mobile viewports, touch targets, and ergonomics:
+  1. Set base 16px font size on touch inputs (`text-base sm:text-sm`) in `@utility input-base` and form controls to prevent iOS Safari auto-zoom distortion on focus.
+  2. Added CSS fade masks (`[mask-image:linear-gradient(...)]`) to horizontal scroll tracks (genre pill bar, alphabet scrubber, chord root notes) for clear swipe affordance.
+  3. Added mobile quick-search launcher button on `<sm` viewports and enhanced `/pretraga` into a dedicated full-page search studio.
+  4. Added click-outside dismiss listeners for Transpose and Capo popovers.
+  5. Refined mobile navigation drawer with structured account summary and touch-friendly navigation tiles.
+- **Why:** Delivers a seamless, native-app feel across all mobile devices (from 320px screens to large tablets).
+- **Affects:** `app/assets/css/main.css`, `app/layouts/default.vue`, `app/components/SearchBox.vue`, `app/pages/pretraga.vue`, `app/components/TransposeControls.vue`, `app/components/CapoControls.vue`, `app/pages/izvodjaci.vue`, `app/pages/akordi/index.vue`, `app/pages/profil.vue`.
+
+### 2026-08-29 — StarRating SSR Prefetching (Eliminate Cumulative Layout Shift)
+- **What:** Converted `StarRating.vue` from client-side `onMounted(load)` to asynchronous SSR prefetching using `await useAsyncData(...)`.
+- **Why:** `onMounted(load)` initialized `rating` as `null` during server rendering, causing `<StarRating>` to be absent in the initial SSR HTML. Once mounted on the client, the card popped into existence after hydration, pushing the controls toolbar and chord sheet down by ~75px (Cumulative Layout Shift). With SSR prefetching, the complete card is embedded in the initial server HTML with 0 layout shift.
+- **Affects:** `app/components/StarRating.vue`, `app/pages/pjesma/[slug].vue`.
+
+### 2026-08-29 — Linear Transposition Key Ordering (-5 to +6)
+- **What:** Replaced modulo-based key ordering in `TransposeControls.vue` with a linear ascending progression from the lowest pitch reduction to the highest shift: `[-5, -4, -3, -2, -1, 0 (orig), +1, +2, +3, +4, +5, +6]`.
+- **Why:** Previous order jumped discontinuously between +6 and -5. The linear order follows natural pitch progression from lowest to highest.
+- **Affects:** `app/components/TransposeControls.vue`.
+
+### 2026-08-29 — Clean Static Sound Icon with Card Acoustic Pulse Resonance
+- **What:** Removed `animate-ping` from the tiny top-right speaker badge while retaining the subtle central acoustic resonance pulse and card border halo in `ChordDiagram.vue` and `ChordTooltip.vue`.
+- **Why:** Delivers smooth acoustic feedback on playback without cluttering or vibrating the speaker icon.
+- **Affects:** `app/components/ChordDiagram.vue`, `app/components/ChordTooltip.vue`.
 
 ---
 

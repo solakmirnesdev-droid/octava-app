@@ -42,9 +42,9 @@ async function toggleVote(request) {
 }
 
 const STATUS_CONFIG = {
-  open: { label: 'Čeka obradu', cls: 'border-line bg-surface text-muted', dotCls: 'bg-muted/60' },
-  in_progress: { label: 'U radu', cls: 'border-warn/30 bg-warn-soft text-warn font-semibold', dotCls: 'bg-warn animate-pulse' },
-  done: { label: 'Obrađeno', cls: 'border-ok/30 bg-ok-soft text-ok font-semibold', dotCls: 'bg-ok' }
+  open: { label: 'Čeka obradu', variant: 'neutral', dot: true, pulse: false },
+  in_progress: { label: 'U radu', variant: 'warn', dot: true, pulse: true },
+  done: { label: 'Obrađeno', variant: 'ok', dot: true, pulse: false }
 };
 
 const filteredRequests = computed(() => {
@@ -85,7 +85,7 @@ useSeoMeta({
     <!-- 2-Column Responsive Studio Cockpit Grid -->
     <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
       <!-- 1. LEFT COLUMN: Submit Request Studio Card (5 cols on lg) -->
-      <section class="lg:col-span-5 rounded-3xl border border-line bg-gradient-to-b from-panel/95 via-panel/85 to-surface/95 p-5 sm:p-6 backdrop-blur-md shadow-sm space-y-5">
+      <AppCard as="section" variant="gradient" padding="lg" class="lg:col-span-5 space-y-5">
         <div class="flex items-center gap-3">
           <div class="flex size-10 shrink-0 items-center justify-center rounded-2xl border border-line bg-surface/90 text-accent shadow-2xs">
             <Icon name="material-symbols:add-notes-rounded" class="text-xl" />
@@ -105,14 +105,14 @@ useSeoMeta({
             <div class="relative">
               <Icon
                 name="material-symbols:person-rounded"
-                class="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-base text-muted"
+                class="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-xl text-muted/70"
               />
               <input
                 v-model="form.artist"
                 required
                 maxlength="120"
                 placeholder="npr. Oliver Dragojević, Dino Merlin..."
-                class="w-full rounded-xl border border-line bg-surface/90 hover:bg-surface pl-10 pr-4 py-2.5 text-xs sm:text-sm font-medium text-ink placeholder:text-faint focus:border-accent focus:bg-surface focus:outline-none transition-all shadow-2xs"
+                class="input-base pl-11"
               >
             </div>
           </div>
@@ -125,49 +125,55 @@ useSeoMeta({
             <div class="relative">
               <Icon
                 name="material-symbols:music-note-rounded"
-                class="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-base text-muted"
+                class="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-xl text-muted/70"
               />
               <input
                 v-model="form.title"
                 required
                 maxlength="200"
                 placeholder="npr. Cesarica, Nedostaješ..."
-                class="w-full rounded-xl border border-line bg-surface/90 hover:bg-surface pl-10 pr-4 py-2.5 text-xs sm:text-sm font-medium text-ink placeholder:text-faint focus:border-accent focus:bg-surface focus:outline-none transition-all shadow-2xs"
+                class="input-base pl-11"
               >
             </div>
           </div>
 
           <!-- Note Field (Optional) -->
           <div class="space-y-1.5">
-            <label class="text-xs font-bold text-ink uppercase tracking-wider flex items-center justify-between">
-              <span>{{ $t('page.note') }}</span>
-              <span class="text-[11px] font-normal text-faint normal-case">({{ $t('page.optional') }})</span>
-            </label>
+            <div class="flex items-center justify-between">
+              <label class="text-xs font-bold text-ink uppercase tracking-wider block">
+                {{ $t('page.note') }}
+                <span class="text-[11px] font-normal text-faint normal-case">({{ $t('page.optional') }})</span>
+              </label>
+              <span class="text-[11px] font-mono text-faint">{{ form.note.length }}/500</span>
+            </div>
             <div class="relative">
               <Icon
                 name="material-symbols:edit-note-rounded"
-                class="pointer-events-none absolute left-3.5 top-3 text-base text-muted"
+                class="pointer-events-none absolute left-3.5 top-3 text-2xl text-muted/70"
               />
               <textarea
                 v-model="form.note"
-                rows="2"
+                rows="3"
                 maxlength="500"
                 :placeholder="$t('page.notePlaceholder')"
-                class="w-full rounded-xl border border-line bg-surface/90 hover:bg-surface pl-10 pr-4 py-2.5 text-xs sm:text-sm font-medium text-ink placeholder:text-faint focus:border-accent focus:bg-surface focus:outline-none transition-all shadow-2xs resize-none"
+                class="textarea-base pl-12 min-h-[90px] leading-relaxed text-xs sm:text-sm"
               />
             </div>
           </div>
 
           <!-- Submit Button -->
-          <button
+          <AppButton
             type="submit"
+            :loading="sending"
             :disabled="sending"
-            class="w-full inline-flex items-center justify-center gap-2 rounded-xl bg-accent px-4 py-3 text-xs sm:text-sm font-bold text-on-accent shadow-lg shadow-accent/25 hover:shadow-xl hover:shadow-accent/35 transition-all duration-200 hover:opacity-95 disabled:opacity-50 outline-none cursor-pointer"
+            block
+            size="lg"
           >
-            <Icon v-if="sending" name="svg-spinners:ring-resize" class="text-base" />
-            <RequestIcon v-else size="1.2em" />
+            <template #icon>
+              <RequestIcon size="1.2em" />
+            </template>
             <span>{{ sending ? 'Šaljem zahtjev…' : 'Pošalji zahtjev' }}</span>
-          </button>
+          </AppButton>
 
           <!-- Inline Feedback Alert -->
           <Transition
@@ -196,7 +202,7 @@ useSeoMeta({
             </div>
           </Transition>
         </form>
-      </section>
+      </AppCard>
 
       <!-- 2. RIGHT COLUMN: Trending Requests & Community Voting Feed (7 cols on lg) -->
       <section class="lg:col-span-7 space-y-4">
@@ -291,17 +297,14 @@ useSeoMeta({
                 <Icon name="material-symbols:arrow-forward-rounded" class="text-xs" />
               </NuxtLink>
 
-              <span
+              <AppBadge
                 v-else
-                class="inline-flex items-center gap-1.5 rounded-xl border px-2.5 py-1 text-[11px] font-medium shadow-2xs"
-                :class="STATUS_CONFIG[request.status]?.cls || 'border-line bg-surface text-muted'"
+                :variant="STATUS_CONFIG[request.status]?.variant || 'neutral'"
+                :dot="STATUS_CONFIG[request.status]?.dot ?? true"
+                :pulse="STATUS_CONFIG[request.status]?.pulse ?? false"
               >
-                <span
-                  class="size-1.5 rounded-full"
-                  :class="STATUS_CONFIG[request.status]?.dotCls || 'bg-muted'"
-                />
-                <span>{{ STATUS_CONFIG[request.status]?.label || request.status }}</span>
-              </span>
+                {{ STATUS_CONFIG[request.status]?.label || request.status }}
+              </AppBadge>
             </div>
           </li>
         </ul>

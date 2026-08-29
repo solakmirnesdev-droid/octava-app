@@ -26,8 +26,10 @@ const props = defineProps({
   description: { type: String, default: '' },
   confirmLabel: { type: String, default: '' },
   cancelLabel: { type: String, default: '' },
-  /** 'default' or 'danger'. Danger colours the confirm button, nothing else. */
+  /** 'default' or 'danger'. Danger colours the confirm button. */
   tone: { type: String, default: 'default' },
+  /** Optional icon name for the modal header */
+  icon: { type: String, default: '' },
   /** Work in flight: the buttons disable but the dialog stays put. */
   busy: { type: Boolean, default: false },
   confirmDisabled: { type: Boolean, default: false },
@@ -128,56 +130,97 @@ onBeforeUnmount(() => {
       frozen with nothing on screen to explain it.
     -->
     <Transition
-      enter-active-class="transition-opacity duration-150 ease-out"
-      leave-active-class="transition-opacity duration-100 ease-in"
+      enter-active-class="transition duration-200 ease-out"
+      leave-active-class="transition duration-150 ease-in"
       enter-from-class="opacity-0"
       leave-to-class="opacity-0 pointer-events-none"
     >
       <div
         v-if="modelValue"
-        class="fixed inset-0 z-50 flex items-end justify-center p-0 sm:items-center sm:p-6"
+        class="fixed inset-0 z-50 flex items-end justify-center p-0 sm:items-center sm:p-6 selection:bg-accent selection:text-on-accent"
         data-print="hide"
         @keydown="onKeydown"
       >
         <!-- The scrim stays dark in both themes: it sits over the page, not in it. -->
         <div
-          class="absolute inset-0 bg-black/50 backdrop-blur-[1px]"
+          class="absolute inset-0 bg-black/65 backdrop-blur-sm transition-opacity"
           @click="dismissible && close()"
         />
 
-        <!-- Full width at the bottom on a phone, a centred card above that:
-             a thumb reaches the foot of the screen, not its middle. -->
+        <!-- Ambient Modal Glow -->
+        <div class="pointer-events-none absolute size-72 rounded-full bg-accent/10 blur-3xl" />
+
+        <!-- Centered Card with Octava 2026 aesthetics -->
         <div
           ref="panel"
           role="dialog" aria-modal="true"
           :aria-labelledby="title ? 'modal-title' : undefined"
           tabindex="-1"
-          class="relative w-full max-w-md rounded-t-xl border border-line bg-panel p-5 shadow-xl outline-none
-                 sm:rounded-xl"
+          class="relative w-full max-w-md rounded-t-3xl sm:rounded-3xl border border-line bg-panel/95 p-6 sm:p-7 shadow-2xl backdrop-blur-2xl ring-1 ring-white/10 outline-none space-y-4"
         >
-          <h2 v-if="title" id="modal-title" class="text-base font-semibold tracking-tight">{{ title }}</h2>
-          <p v-if="description" class="mt-1.5 text-sm leading-relaxed text-muted">{{ description }}</p>
+          <!-- Header with Icon and Title -->
+          <div class="flex items-start justify-between gap-3">
+            <div class="flex items-start gap-3.5">
+              <!-- Icon badge based on tone or prop -->
+              <div
+                class="flex size-11 shrink-0 items-center justify-center rounded-2xl border shadow-xs"
+                :class="danger
+                  ? 'border-danger/30 bg-danger-soft text-danger'
+                  : 'border-accent/30 bg-accent-soft text-accent'"
+              >
+                <Icon
+                  :name="icon || (danger ? 'material-symbols:warning-rounded' : 'material-symbols:info-rounded')"
+                  class="text-xl"
+                />
+              </div>
 
-          <div v-if="$slots.default" class="mt-4 text-sm">
+              <div>
+                <h2 v-if="title" id="modal-title" class="text-base sm:text-lg font-bold tracking-tight text-ink">
+                  {{ title }}
+                </h2>
+                <p v-if="description" class="mt-1 text-xs sm:text-sm leading-relaxed text-muted">
+                  {{ description }}
+                </p>
+              </div>
+            </div>
+
+            <!-- Close Trigger -->
+            <button
+              v-if="dismissible"
+              type="button"
+              class="flex size-7 items-center justify-center rounded-lg text-faint hover:bg-surface hover:text-ink transition-colors cursor-pointer outline-none shrink-0"
+              title="Zatvori"
+              @click="close()"
+            >
+              <Icon name="material-symbols:close-rounded" class="text-base" />
+            </button>
+          </div>
+
+          <div v-if="$slots.default" class="text-xs sm:text-sm text-body">
             <slot />
           </div>
 
-          <div class="mt-5 flex justify-end gap-2">
+          <div class="pt-2 flex items-center justify-end gap-2.5">
             <slot name="actions">
               <button
                 type="button" :disabled="busy"
-                class="rounded px-4 py-2 text-sm text-muted hover:text-ink disabled:opacity-40"
+                class="inline-flex items-center justify-center rounded-xl border border-line-soft bg-surface/80 px-4 py-2 text-xs sm:text-sm font-semibold text-muted hover:border-line hover:bg-surface hover:text-ink transition shadow-2xs disabled:opacity-40 cursor-pointer outline-none"
                 @click="close()"
-              >{{ cancelLabel || 'Odustani' }}</button>
+              >
+                {{ cancelLabel || 'Odustani' }}
+              </button>
 
               <button
                 type="button" :disabled="busy || confirmDisabled"
-                class="rounded px-4 py-2 text-sm font-medium disabled:opacity-40"
+                class="inline-flex items-center justify-center gap-1.5 rounded-xl px-4 py-2 text-xs sm:text-sm font-bold transition shadow-md disabled:opacity-40 cursor-pointer outline-none"
                 :class="danger
-                  ? 'bg-danger text-on-danger hover:opacity-90'
-                  : 'bg-ink text-on-ink hover:bg-accent'"
+                  ? 'bg-danger text-on-danger hover:opacity-95 shadow-danger/25 ring-1 ring-danger/30'
+                  : 'bg-accent text-on-accent hover:opacity-95 shadow-accent/25 ring-1 ring-accent/30'"
                 @click="confirm"
-              >{{ busy ? '…' : (confirmLabel || 'Potvrdi') }}</button>
+              >
+                <Icon v-if="busy" name="svg-spinners:ring-resize" class="text-sm" />
+                <span>{{ busy ? '…' : (confirmLabel || 'Potvrdi') }}</span>
+              </button>
             </slot>
           </div>
         </div>

@@ -3,43 +3,54 @@ const { running, speed, toggle, faster, slower, canGoFaster, canGoSlower } = use
 </script>
 
 <template>
-  <div class="flex items-center gap-1.5 sm:gap-2">
-    <span class="hidden text-xs font-semibold uppercase tracking-wider text-faint md:inline">{{ $t('song.scroll') }}</span>
+  <div class="flex items-center gap-1.5">
+    <span class="hidden text-[11px] font-bold uppercase tracking-wider text-muted/70 lg:inline select-none">
+      {{ $t('song.scroll') }}
+    </span>
 
-    <div class="inline-flex items-center rounded-xl border border-line bg-surface/90 p-0.5 shadow-2xs">
+    <div class="inline-flex items-center rounded-xl border border-line-soft bg-surface/80 p-0.5 shadow-2xs hover:border-line transition-colors">
+      <!-- Play / Pause Primary Trigger -->
       <button
         type="button"
-        class="flex size-7 items-center justify-center rounded-lg font-medium transition-all"
-        :class="running ? 'bg-accent text-on-accent shadow-xs' : 'text-muted hover:bg-panel hover:text-accent'"
+        class="flex size-7 items-center justify-center rounded-lg font-medium transition-all cursor-pointer"
+        :class="running ? 'bg-accent text-on-accent shadow-xs scale-105' : 'text-muted hover:bg-panel hover:text-accent'"
         :title="running ? $t('song.scrollStop') : $t('song.scrollStart')"
         :aria-pressed="running"
         @click="toggle"
       >
-        <Icon :name="running ? 'material-symbols:pause-rounded' : 'material-symbols:play-arrow-rounded'" class="text-base" />
+        <Icon v-if="running" name="material-symbols:pause-rounded" class="text-base" />
+        <Icon v-else name="material-symbols:play-arrow-rounded" class="text-base" />
         <span class="sr-only">{{ running ? $t('song.scrollStopSr') : $t('song.scrollStartSr') }}</span>
       </button>
 
+      <!-- Slower Step -->
       <button
         type="button"
-        class="rounded-lg px-2 py-1 text-xs font-bold text-muted hover:bg-panel hover:text-accent disabled:opacity-25 transition-colors"
+        class="flex size-7 items-center justify-center rounded-lg text-xs font-bold text-muted hover:bg-panel hover:text-accent disabled:opacity-25 active:scale-95 transition-all cursor-pointer"
         :disabled="!canGoSlower"
         :title="$t('song.slower')"
         :aria-label="$t('song.slower')"
         @click="slower"
-      >−</button>
+      >
+        <Icon name="material-symbols:remove-rounded" class="text-sm" />
+      </button>
 
-      <span class="min-w-[1.5rem] px-1 py-1 text-center font-mono text-xs font-bold text-ink">
+      <!-- Speed Value -->
+      <span class="min-w-[1.25rem] px-0.5 py-0.5 text-center font-mono text-xs font-bold text-ink select-none">
         {{ speed }}
       </span>
 
+      <!-- Faster Step -->
       <button
         type="button"
-        class="rounded-lg px-2 py-1 text-xs font-bold text-muted hover:bg-panel hover:text-accent disabled:opacity-25 transition-colors"
+        class="flex size-7 items-center justify-center rounded-lg text-xs font-bold text-muted hover:bg-panel hover:text-accent disabled:opacity-25 active:scale-95 transition-all cursor-pointer"
         :disabled="!canGoFaster"
         :title="$t('song.faster')"
         :aria-label="$t('song.faster')"
         @click="faster"
-      >+</button>
+      >
+        <Icon name="material-symbols:add-rounded" class="text-sm" />
+      </button>
     </div>
 
     <!-- Teleported Floating Status Pill -->

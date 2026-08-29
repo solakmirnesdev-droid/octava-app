@@ -154,7 +154,7 @@ onBeforeUnmount(() => {
 </script>
 
 <template>
-  <div ref="root" class="relative w-full min-w-0 max-w-[200px] xl:max-w-[250px]">
+  <div ref="root" class="relative w-full min-w-0">
     <form role="search" class="relative" @submit.prevent="submit">
       <!-- Decorative: the input already has an accessible name, so announcing
            the icon as well would just repeat it. -->
@@ -170,7 +170,7 @@ onBeforeUnmount(() => {
         :aria-label="$t('nav.searchLabel')"
         autocomplete="off"
         :placeholder="$t('nav.search')"
-        class="w-full rounded-full border border-line-strong bg-panel py-2 pl-9.5 pr-9 text-sm outline-none focus:border-accent"
+        class="w-full rounded-full border border-line-strong bg-panel py-2 pl-9.5 pr-9 text-base sm:text-sm outline-none focus:border-accent"
         :aria-expanded="open"
         @focus="query.trim().length >= MIN_QUERY && (open = true)"
         @keydown.down.prevent="move(1)"
@@ -192,7 +192,7 @@ onBeforeUnmount(() => {
 
     <div
       v-if="open"
-      class="absolute left-0 top-full z-30 mt-1.5 w-full min-w-[280px] sm:min-w-[340px] max-w-[90vw] overflow-hidden rounded-xl border border-line bg-panel shadow-2xl backdrop-blur-md"
+      class="absolute left-0 top-full z-30 mt-1.5 w-full min-w-[280px] sm:min-w-[340px] max-w-[90vw] overflow-hidden popover-surface"
     >
       <p v-if="loading && !hasResults" class="px-4 py-3 text-sm text-faint">{{ $t('nav.searching') }}</p>
 

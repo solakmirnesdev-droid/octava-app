@@ -68,47 +68,65 @@ useSeoMeta({
 
 <template>
   <div v-if="genre" class="space-y-8">
-    <!-- 1. Sleek Compact Studio Header Banner (No Empty Space) -->
-    <header class="relative overflow-hidden rounded-2xl border border-line bg-gradient-to-r from-panel/95 via-panel/85 to-surface/90 p-4 sm:p-5 backdrop-blur-md shadow-xs">
-      <div class="relative z-10 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-        <!-- Left Side: Title & Description -->
-        <div class="space-y-1.5 min-w-0">
-          <div class="flex items-center gap-2">
-            <span class="inline-flex items-center gap-1.5 rounded-md border border-accent/30 bg-accent-soft px-2 py-0.5 text-[11px] font-bold uppercase tracking-wider text-accent shadow-2xs">
-              <Icon name="material-symbols:label-outline-rounded" class="text-xs" />
-              {{ $t('genre.rubrics') }}
-            </span>
+    <!-- 1. Rich 2026 Genre Studio Header Card (No Blank Void) -->
+    <header class="relative overflow-hidden rounded-3xl border border-line bg-panel/85 p-5 sm:p-6 backdrop-blur-xl shadow-md ring-1 ring-white/5">
+      <!-- Ambient decorative glow -->
+      <div class="pointer-events-none absolute -top-16 -left-16 size-48 rounded-full bg-accent/15 blur-3xl" />
+      <div class="pointer-events-none absolute -bottom-16 -right-16 size-48 rounded-full bg-accent/10 blur-3xl" />
 
-            <span v-if="stats.totalSongs" class="inline-flex items-center gap-1 text-xs font-mono font-semibold text-muted">
+      <!-- Watermark musical background icon -->
+      <Icon
+        name="material-symbols:music-note-rounded"
+        aria-hidden="true"
+        class="pointer-events-none absolute -bottom-6 -right-4 select-none text-[130px] text-ink/3"
+      />
+
+      <div class="relative z-10 flex flex-col sm:flex-row items-start sm:items-center gap-4 sm:gap-5">
+        <!-- Genre Avatar / Icon Badge -->
+        <div class="flex size-14 sm:size-16 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-accent-soft to-panel border border-accent/30 text-accent shadow-md ring-1 ring-accent/20">
+          <Icon name="material-symbols:category-rounded" class="text-2xl sm:text-3xl" />
+        </div>
+
+        <!-- Genre Info & Inline Metric Pills -->
+        <div class="min-w-0 flex-1 space-y-2">
+          <!-- Top Row: Badge + Count -->
+          <div class="flex flex-wrap items-center gap-2">
+            <AppBadge variant="accent" icon="material-symbols:label-outline-rounded">
+              {{ $t('genre.rubrics') }}
+            </AppBadge>
+
+            <span v-if="stats.totalSongs" class="inline-flex items-center gap-1 text-xs font-mono font-bold text-muted">
               <span>·</span>
               <span>{{ $t('genre.songCount', { n: stats.totalSongs }) }}</span>
             </span>
           </div>
 
-          <h1 class="text-2xl sm:text-3xl font-black tracking-tight text-ink">
-            {{ genre.name }}
-          </h1>
-
-          <p v-if="genre.description" class="text-xs sm:text-sm text-muted max-w-xl">
-            {{ genre.description }}
-          </p>
-        </div>
-
-        <!-- Right Side: Compact Quick Metrics & Tonalities -->
-        <div class="flex flex-wrap md:flex-nowrap items-center gap-2 shrink-0 text-xs">
-          <div class="inline-flex items-center gap-1.5 rounded-xl border border-line bg-surface/80 px-3 py-1.5 font-medium text-body shadow-2xs">
-            <Icon name="material-symbols:music-note-rounded" class="text-accent text-sm" />
-            <span><strong>{{ stats.totalSongs }}</strong> {{ $t('page.songs').toLowerCase() }}</span>
+          <!-- Title & Subtitle -->
+          <div>
+            <h1 class="text-2xl sm:text-3xl lg:text-4xl font-black tracking-tight text-ink">
+              {{ genre.name }}
+            </h1>
+            <p class="mt-1 text-xs sm:text-sm text-muted max-w-2xl leading-relaxed">
+              {{ genre.description || `Pregledaj sve akorde i tekstove pjesama iz rubrike ${genre.name} sa tačnim originalnim tonalitetima i dijagramima za gitaru.` }}
+            </p>
           </div>
 
-          <div v-if="topArtists.length" class="inline-flex items-center gap-1.5 rounded-xl border border-line bg-surface/80 px-3 py-1.5 font-medium text-body shadow-2xs">
-            <Icon name="material-symbols:artist-rounded" class="text-warn text-sm" />
-            <span><strong>{{ topArtists.length }}+</strong> {{ $t('page.artists').toLowerCase() }}</span>
-          </div>
+          <!-- Quick Metrics Bar directly under description -->
+          <div class="pt-1 flex flex-wrap items-center gap-2 text-xs">
+            <div class="inline-flex items-center gap-1.5 rounded-xl border border-line-soft bg-surface/80 px-2.5 py-1 font-medium text-body shadow-2xs">
+              <Icon name="material-symbols:music-note-rounded" class="text-accent text-sm" />
+              <span><strong>{{ stats.totalSongs }}</strong> {{ $t('page.songs').toLowerCase() }}</span>
+            </div>
 
-          <div class="inline-flex items-center gap-1.5 rounded-xl border border-line-soft bg-surface/60 px-2.5 py-1.5 font-mono text-[11px] text-faint">
-            <span>Tonaliteti:</span>
-            <span class="font-bold text-accent">Am · Dm · C · G</span>
+            <div v-if="topArtists.length" class="inline-flex items-center gap-1.5 rounded-xl border border-line-soft bg-surface/80 px-2.5 py-1 font-medium text-body shadow-2xs">
+              <SingerIcon size="1.15em" class="text-accent" />
+              <span><strong>{{ topArtists.length }}+</strong> {{ $t('page.artists').toLowerCase() }}</span>
+            </div>
+
+            <div class="inline-flex items-center gap-1.5 rounded-xl border border-line-soft bg-surface/60 px-2.5 py-1 font-mono text-[11px] text-faint">
+              <Icon name="material-symbols:piano-rounded" class="text-accent text-xs" />
+              <span>Tonaliteti: <strong class="text-accent font-bold">Am · Dm · C · G</strong></span>
+            </div>
           </div>
         </div>
       </div>
@@ -148,7 +166,7 @@ useSeoMeta({
                 v-model="filterQuery"
                 type="search"
                 :placeholder="$t('genre.searchPlaceholder')"
-                class="w-full rounded-xl border border-line bg-panel/80 py-2 pl-9 pr-8 text-xs sm:text-sm outline-none transition focus:border-accent focus:bg-panel text-ink placeholder:text-dim"
+                class="input-base pl-9 pr-8 py-2"
               >
               <button
                 v-if="filterQuery"
@@ -186,38 +204,38 @@ useSeoMeta({
           </div>
         </div>
 
-        <!-- Song List (No duplicate search bar) -->
+        <!-- Songs View (Grid / List) -->
         <SongList
           :songs="filteredSongs"
-          :empty="filterQuery ? $t('genre.emptyFilter') : 'U ovoj rubrici još nema pjesama.'"
-          :searchable="false"
-          :sortable="false"
-          :allow-view-toggle="false"
+          :allow-view-toggle="true"
+          :show-artist="true"
           :default-view="viewMode"
         />
 
-        <!-- Pagination (only when not actively searching in-page) -->
+        <!-- Pagination -->
         <nav
           v-if="!filterQuery && meta && meta.pages > 1"
           class="mt-8 flex items-center justify-center gap-3 pt-4 text-sm"
         >
-          <button
-            class="rounded-lg border border-line-strong bg-panel/60 px-3.5 py-1.5 font-medium transition hover:border-accent disabled:opacity-30"
+          <AppButton
+            variant="secondary"
+            size="sm"
             :disabled="meta.page <= 1"
             @click="go(meta.page - 1)"
           >
             {{ $t('page.prev') }}
-          </button>
+          </AppButton>
 
           <span class="font-mono text-xs text-muted">{{ meta.page }} / {{ meta.pages }}</span>
 
-          <button
-            class="rounded-lg border border-line-strong bg-panel/60 px-3.5 py-1.5 font-medium transition hover:border-accent disabled:opacity-30"
+          <AppButton
+            variant="secondary"
+            size="sm"
             :disabled="meta.page >= meta.pages"
             @click="go(meta.page + 1)"
           >
             {{ $t('page.next') }}
-          </button>
+          </AppButton>
         </nav>
       </section>
 

@@ -117,8 +117,8 @@ const title = computed(() => {
       </span>
     </span>
 
-    <span v-if="showNumber" class="font-mono text-xs" :class="rated ? 'text-muted' : 'text-dim'">
-      {{ rated ? formatted : '—' }}
+    <span v-if="showNumber" class="text-xs" :class="rated ? 'font-mono text-muted' : 'text-faint'">
+      {{ rated ? formatted : $t('rating.unrated') }}
     </span>
 
     <span class="sr-only">
@@ -151,8 +151,8 @@ const title = computed(() => {
       </button>
     </span>
 
-    <span v-if="showNumber" class="font-mono text-xs" :class="rated ? 'text-muted' : 'text-dim'">
-      {{ rated ? formatted : '—' }}
+    <span v-if="showNumber" class="text-xs" :class="rated ? 'font-mono text-muted' : 'text-faint'">
+      {{ rated ? formatted : $t('rating.unrated') }}
     </span>
   </span>
 </template>

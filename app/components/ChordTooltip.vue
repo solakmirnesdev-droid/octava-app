@@ -59,9 +59,22 @@ function place() {
   };
 }
 
+const ringing = ref(false);
+let ringTimer = null;
+
+function onPlay() {
+  ringing.value = false;
+  nextTick(() => {
+    ringing.value = true;
+    window.clearTimeout(ringTimer);
+    ringTimer = window.setTimeout(() => { ringing.value = false; }, 850);
+  });
+}
+
 onMounted(async () => {
   await nextTick();
   place();
+  onPlay();
   // Scrolling happens constantly here — auto-scroll is a feature of this page.
   window.addEventListener('scroll', place, { passive: true });
   window.addEventListener('resize', place);
@@ -70,6 +83,7 @@ onMounted(async () => {
 onBeforeUnmount(() => {
   window.removeEventListener('scroll', place);
   window.removeEventListener('resize', place);
+  window.clearTimeout(ringTimer);
 });
 
 watch(() => props.anchor, place);
@@ -80,11 +94,12 @@ watch(() => props.anchor, place);
     <div
       ref="el"
       :style="style"
-      class="z-30 rounded-lg border border-line bg-panel p-2 shadow-lg"
+      class="relative z-30 rounded-2xl border bg-panel/95 p-2.5 shadow-2xl backdrop-blur-xl transition-[border-color,box-shadow,background-color] duration-300"
+      :class="ringing ? 'border-accent ring-2 ring-accent/50 shadow-[0_0_24px_rgba(224,90,58,0.35)]' : 'border-line ring-1 ring-white/10'"
       @mouseenter="emit('keep')"
       @mouseleave="emit('leave')"
     >
-      <ChordDiagram :symbol="symbol" />
+      <ChordDiagram :symbol="symbol" :compact="true" @play="onPlay" />
     </div>
   </Teleport>
 </template>
