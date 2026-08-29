@@ -28,7 +28,8 @@
     "loggedOut": "Odjavljen si.",
     "metronome": "Metronom",
     "suggestHeading": "Najtraženije",
-    "suggestEmpty": "Počni kucati da pretražiš."
+    "suggestEmpty": "Počni kucati da pretražiš.",
+    "showAllFor": "Prikaži sve rezultate za „{q}\""
   },
   "song": {
     "key": "Tonalitet",

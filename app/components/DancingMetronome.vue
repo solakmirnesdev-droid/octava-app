@@ -1,7 +1,9 @@
 <script setup>
 import { useMetronome, MIN_BPM, MAX_BPM } from '~/composables/useMetronome';
+import { useFloatingChords } from '~/composables/useFloatingChords';
 
 const { running, bpm, beatsPerBar, beat, toggle, setBpm, tap } = useMetronome();
+const { hasFloatingChords } = useFloatingChords();
 const isOpen = ref(false);
 const localePath = useLocalePath();
 
@@ -33,7 +35,12 @@ onBeforeUnmount(() => {
 </script>
 
 <template>
-  <div class="fixed right-4 sm:right-6 bottom-[4.5rem] sm:bottom-[5.25rem] z-40 flex flex-col items-end" data-dancing-metronome data-print="hide">
+  <div
+    class="fixed right-4 sm:right-6 z-40 flex flex-col items-end transition-all duration-300 ease-in-out"
+    :class="hasFloatingChords ? 'bottom-[4.5rem] sm:bottom-[5.25rem]' : 'bottom-4 sm:bottom-6'"
+    data-dancing-metronome
+    data-print="hide"
+  >
     <!-- Popover Mini Metronome Player (Positioned to the left of floating buttons) -->
     <Transition
       enter-active-class="transition duration-200 ease-out"

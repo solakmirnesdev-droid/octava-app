@@ -1,39 +1,37 @@
 <script setup>
 import { extractChords, transposeContent, normalizeNotation } from '~/utils/chordpro';
 import { findFingering } from '~/utils/chordEngine';
+import ChordIcon from '~/components/ChordIcon.vue';
 
 const props = defineProps({
   content: { type: String, default: '' },
   semitones: { type: Number, default: 0 },
   capo: { type: Number, default: 0 },
   originalKey: { type: String, default: '' },
-  modelValue: { type: Boolean, default: undefined }
+  locked: { type: Boolean, default: false }
 });
 
-const emit = defineEmits(['update:modelValue']);
-
-const internalOpen = ref(false);
-const isOpen = computed({
-  get: () => (props.modelValue !== undefined ? props.modelValue : internalOpen.value),
-  set: (val) => {
-    internalOpen.value = val;
-    emit('update:modelValue', val);
-  }
-});
-
-const instrument = ref('guitar');
 const localePath = useLocalePath();
+const isOpen = ref(false);
+const instrument = ref('guitar');
 
 /**
- * Extract transposed chords according to current semitones and capo
+ * Chords extracted from current song content taking transpose into account
  */
 const chords = computed(() =>
-  extractChords(normalizeNotation(
-    transposeContent(props.content, props.semitones - props.capo, props.originalKey)
-  ))
+  extractChords(
+    normalizeNotation(
+      transposeContent(
+        props.content,
+        props.semitones - props.capo,
+        props.originalKey
+      )
+    )
+  )
 );
 
 const playable = computed(() => {
+  if (props.locked) return [];
   const seen = new Set();
   const out = [];
 
@@ -46,20 +44,21 @@ const playable = computed(() => {
   return out;
 });
 
-const missing = computed(() => chords.value.filter((c) => !findFingering(c, 0, instrument.value)));
+// Notify global state whether this floating button is visible
+const { hasFloatingChords } = useFloatingChords();
+watch(
+  () => playable.value.length > 0,
+  (val) => {
+    hasFloatingChords.value = val;
+  },
+  { immediate: true }
+);
 
-const ringingChord = ref(null);
-let ringTimer = null;
+const missing = computed(() => (props.locked ? [] : chords.value.filter((c) => !findFingering(c, 0, instrument.value))));
 
-function onChordPlay(chord) {
-  ringingChord.value = chord;
-  window.clearTimeout(ringTimer);
-  ringTimer = window.setTimeout(() => {
-    ringingChord.value = null;
-  }, 850);
-}
-
-onBeforeUnmount(() => window.clearTimeout(ringTimer));
+onBeforeUnmount(() => {
+  hasFloatingChords.value = false;
+});
 
 // Close popover when clicking outside
 function onClickOutside(e) {
@@ -89,14 +88,7 @@ onBeforeUnmount(() => {
     data-print="hide"
   >
     <!-- Popover Mini Chords Sheet / Companion (Positioned to the left of floating buttons) -->
-    <Transition
-      enter-active-class="transition duration-200 ease-out"
-      enter-from-class="opacity-0 translate-y-3 sm:translate-x-3 scale-95"
-      enter-to-class="opacity-100 translate-y-0 sm:translate-x-0 scale-100"
-      leave-active-class="transition duration-150 ease-in"
-      leave-from-class="opacity-100 translate-y-0 sm:translate-x-0 scale-100"
-      leave-to-class="opacity-0 translate-y-3 sm:translate-x-3 scale-95"
-    >
+    <Transition name="popup">
       <div
         v-if="isOpen"
         class="fixed right-3 sm:right-20 bottom-18 sm:bottom-6 z-40 w-72 sm:w-80 max-w-[calc(100vw-1.5rem)] max-h-[calc(100dvh-5.5rem)] sm:max-h-[calc(100dvh-6.5rem)] flex flex-col rounded-3xl border border-line bg-panel/95 shadow-2xl backdrop-blur-xl ring-1 ring-white/10 overflow-hidden"
@@ -173,13 +165,10 @@ onBeforeUnmount(() => {
             <div
               v-for="chord in playable"
               :key="chord"
-              class="group relative flex flex-col items-center justify-between rounded-xl border bg-surface/90 p-2 backdrop-blur-md shadow-2xs transition-all duration-300 hover:border-accent/60 hover:bg-panel hover:shadow-md overflow-hidden cursor-pointer"
-              :class="ringingChord === chord
-                ? 'border-accent ring-2 ring-accent/50 shadow-[0_0_20px_rgba(224,90,58,0.35)]'
-                : 'border-line'"
+              class="group relative flex flex-col items-center justify-between rounded-xl border border-line bg-surface/90 p-2 backdrop-blur-md shadow-2xs transition-colors duration-150 hover:border-accent/50 hover:bg-panel hover:shadow-md overflow-hidden cursor-pointer"
             >
               <div class="pointer-events-none absolute -right-5 -top-5 size-12 rounded-full bg-accent/5 blur-md group-hover:bg-accent/15 transition-colors" />
-              <ChordDiagram :symbol="chord" :instrument="instrument" :compact="true" @play="onChordPlay(chord)" />
+              <ChordDiagram :symbol="chord" :instrument="instrument" :compact="true" />
             </div>
           </div>
 
@@ -211,14 +200,15 @@ onBeforeUnmount(() => {
         isOpen
           ? 'border-accent bg-accent-soft text-accent ring-2 ring-accent/40 shadow-accent/20 scale-105'
           : 'border-line/80 bg-panel/90 text-accent hover:border-accent hover:bg-panel hover:scale-105'
-      ]"
+      ]
+"
       :title="isOpen ? 'Zatvori akorde' : 'Prikaži akorde pjesme'"
       @click="isOpen = !isOpen"
     >
-      <!-- Dancing Animated Chord Fretboard Icon -->
+      <!-- Animated Chord Fretboard Icon -->
       <span
-        class="inline-flex items-center justify-center transition-transform pointer-events-none"
-        :class="isOpen ? 'dancing-chord-active' : 'dancing-chord-idle'"
+        class="inline-flex items-center justify-center transition-transform duration-300 pointer-events-none"
+        :class="isOpen ? 'rotate-12 scale-110' : 'group-hover:scale-105'"
       >
         <ChordIcon size="1.6em" />
       </span>
@@ -232,38 +222,3 @@ onBeforeUnmount(() => {
     </button>
   </div>
 </template>
-
-<style scoped>
-/* Idle Gentle Chord Vibrato Dance Animation */
-.dancing-chord-idle {
-  animation: chordIdleDance 2.2s ease-in-out infinite alternate;
-  transform-origin: 50% 80%;
-}
-
-@keyframes chordIdleDance {
-  0% {
-    transform: rotate(-6deg) translateY(0);
-  }
-  50% {
-    transform: rotate(0deg) translateY(-2px) scale(1.04);
-  }
-  100% {
-    transform: rotate(6deg) translateY(0);
-  }
-}
-
-/* Active Open Dance Animation */
-.dancing-chord-active {
-  animation: chordActiveDance 1s ease-in-out infinite alternate;
-  transform-origin: 50% 80%;
-}
-
-@keyframes chordActiveDance {
-  0% {
-    transform: rotate(-12deg) scale(1.08);
-  }
-  100% {
-    transform: rotate(12deg) scale(1.08);
-  }
-}
-</style>

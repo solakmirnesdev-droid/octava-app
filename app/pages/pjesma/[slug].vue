@@ -174,6 +174,45 @@ defineOgImage('Song', {
 });
 
 
+/**
+ * Tells Google which part of the sheet is withheld, and why that is not cloaking.
+ *
+ * AI-DECISION: without this, a paywall that serves less to a signed-out visitor
+ * than to a subscriber can be read as cloaking, and Google's guidance is explicit
+ * that such pages are dropped from results. Declaring the withheld part instead
+ * is the sanctioned way to keep a paywall and stay indexed — the `cssSelector`
+ * has to match the wrapper the locked sheet renders inside, so the class name
+ * below and the one in the template are one thing, not two.
+ *
+ * AI-TRAP: `isAccessibleForFree` follows the request, not the site. A subscriber
+ * genuinely is reading the whole page, and claiming otherwise would describe a
+ * page that does not exist.
+ */
+const PAYWALL_SELECTOR = '.paywall';
+
+useHead(computed(() => (song.value ? {
+  script: [{
+    type: 'application/ld+json',
+    innerHTML: JSON.stringify({
+      '@context': 'https://schema.org',
+      '@type': 'Article',
+      headline: title.value,
+      description: description.value,
+      isAccessibleForFree: !song.value.locked,
+      ...(song.value.locked
+        ? {
+            hasPart: {
+              '@type': 'WebPageElement',
+              isAccessibleForFree: false,
+              cssSelector: PAYWALL_SELECTOR
+            }
+          }
+        : {})
+    })
+  }]
+} : {})));
+
+
 // Canonical and hreflang come from useLocaleHead in app.vue. A hard-coded
 // canonical here pointed every English page at its Bosnian counterpart,
 // which tells a search engine to index that one instead.
@@ -374,19 +413,27 @@ defineOgImage('Song', {
     </div>
 
 
-    <ChordSheet
-      :content="song.content"
-      :semitones="semitones"
-      :capo="capo"
-      :original-key="song.originalKey"
-      :font-size="fontSize"
-      :columns="splitColumns"
-      :locked="song.locked"
-    />
+    <!--
+      One sheet, and for a signed-out visitor every chord in it is already [X]
+      and every word already x — the server sent nothing else. The wrapper is
+      what the JSON-LD above names as the withheld part, and the blur inside
+      ChordSheet is decoration over content that has already gone, never the
+      thing protecting it.
+    -->
+    <div :class="song.locked ? 'paywall' : ''">
+      <ChordSheet
+        :content="song.content"
+        :semitones="semitones"
+        :capo="capo"
+        :original-key="song.originalKey"
+        :font-size="fontSize"
+        :columns="splitColumns"
+        :locked="song.locked"
+      />
+    </div>
 
     <!--
-      The sheet above is already only as long as the server was willing to send.
-      This is the offer that follows it, not a cover over hidden text.
+      The offer that follows the sheet, not a cover over hidden text.
     -->
     <SongPaywall
       v-if="song.locked"
@@ -395,43 +442,29 @@ defineOgImage('Song', {
 
 
     <!-- Below the chords: the chart is what the page is for, and a player at
-
          the top would push it off the first screen. -->
-
     <SongVideo
-
       v-if="song.youtubeId"
-
       data-print="hide"
-
       :video-id="song.youtubeId"
-
       :title="song.title"
-
     />
 
 
     <!-- Under the chords and set small: the reader who needs this is a
-
          minority, and a form for them would sit in front of everyone else. -->
-
     <div data-print="hide" class="mt-4 flex justify-end">
-
       <ReportProblem :slug="song.slug" :arrangement-id="song.arrangementId" />
-
     </div>
 
 
     <!-- Below the chords, deliberately: someone opening this page came to
-
          play, and what other people thought is worth reading after that. -->
-
     <!-- AI-TRAP: not `hydrate-on-visible`. Deferring hydration here leaves the
            component frozen in its server-rendered state — the section renders,
            shows "Učitavanje…" and never resolves, because onMounted never runs
            and nothing fetches. Verified on the page, not assumed. -->
-      <SongReviews data-print="hide" :slug="song.slug" />
-
+    <SongReviews data-print="hide" :slug="song.slug" />
 
     <RelatedSongs data-print="hide" :slug="song.slug" />
 
@@ -442,6 +475,7 @@ defineOgImage('Song', {
       :semitones="semitones"
       :capo="capo"
       :original-key="song.originalKey"
+      :locked="song.locked"
     />
 
     <!-- Floating Interactive Dancing Metronome Companion (Right Side) -->

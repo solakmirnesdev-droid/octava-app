@@ -9,7 +9,9 @@ const props = defineProps({
   /** 'guitar', 'bass' or 'ukulele'. Decides the tuning, and with it the shape. */
   instrument: { type: String, default: 'guitar' },
   /** Smaller compact layout for companion popovers and tooltips */
-  compact: { type: Boolean, default: false }
+  compact: { type: Boolean, default: false },
+  /** External counter to trigger resonance and vibration animations */
+  playTrigger: { type: Number, default: 0 }
 });
 
 const emit = defineEmits(['play']);
@@ -27,24 +29,40 @@ const variant = ref(0);
 // server, and guessing wrong would either hide the control from everyone or
 // offer a button that does nothing.
 const audible = ref(false);
-onMounted(() => { audible.value = canPlay(); });
+onMounted(() => {
+  audible.value = canPlay();
+  if (props.playTrigger > 0) {
+    triggerRinging();
+  }
+});
 
 const ringing = ref(false);
+const ringCount = ref(0);
 let timer = null;
+
+function triggerRinging() {
+  ringCount.value++;
+  ringing.value = true;
+  window.clearTimeout(timer);
+  timer = window.setTimeout(() => {
+    ringing.value = false;
+  }, 900);
+}
 
 function play() {
   // The tuning goes with the shape: the same fret numbers on a ukulele are a
   // different chord, and playing them against guitar strings would teach the ear
   // something the diagram does not say.
-  const tuning = (CHORD_INSTRUMENTS[props.instrument] || CHORD_INSTRUMENTS.guitar).tuning;
-  if (!strum(shape.value.frets, { tuning })) return;
-  emit('play', shape.value);
-  ringing.value = false;
-  nextTick(() => {
-    ringing.value = true;
-    window.clearTimeout(timer);
-    timer = window.setTimeout(() => { ringing.value = false; }, 2200);
-  });
+  if (shape.value) {
+    const tuning = (CHORD_INSTRUMENTS[props.instrument] || CHORD_INSTRUMENTS.guitar).tuning;
+    try {
+      strum(shape.value.frets, { tuning });
+    } catch {
+      // Audio playback attempt
+    }
+    emit('play', shape.value);
+  }
+  triggerRinging();
 }
 
 onBeforeUnmount(() => window.clearTimeout(timer));
@@ -53,11 +71,18 @@ onBeforeUnmount(() => window.clearTimeout(timer));
 // so the switcher has to start over rather than keep an index into the old one.
 watch(() => [props.symbol, props.instrument], () => { variant.value = 0; });
 
+watch(() => props.playTrigger, (newVal, oldVal) => {
+  if (newVal > 0 && newVal !== oldVal) triggerRinging();
+});
+
+defineExpose({ play, triggerRinging });
+
 const shape = computed(() => findFingering(props.symbol, variant.value, props.instrument));
 const fingers = computed(() => (shape.value ? fingerNumbers(shape.value) : []));
 
 // Geometry of the drawn grid, in SVG units.
 const STRINGS = computed(() => shape.value?.frets?.length || 6);
+const FREETS = 5;
 const FRETS = 5;
 const LEFT = computed(() => (props.compact ? 12 : 16));
 const TOP = computed(() => (props.compact ? 18 : 24));
@@ -95,6 +120,7 @@ const tab = computed(() => {
 });
 
 const step = (by) => {
+  if (!shape.value || !shape.value.variants) return;
   variant.value = (variant.value + by + shape.value.variants) % shape.value.variants;
 };
 </script>
@@ -106,24 +132,10 @@ const step = (by) => {
     :title="audible ? $t('chord.hear', { name: shape.name }) : ''"
     @click="play"
   >
-    <!-- Full-Card Acoustic Resonance Glow / Pulse on Play -->
-    <div
-      v-if="ringing"
-      class="pointer-events-none absolute -inset-6 sm:-inset-8 z-0 flex items-center justify-center overflow-hidden"
-    >
-      <!-- Full card ambient wash -->
-      <span class="absolute inset-0 bg-gradient-to-b from-accent/15 via-accent/6 to-accent/15 chord-ambient-wash" />
-      <!-- Central blooming radial aura -->
-      <span class="absolute size-56 sm:size-72 rounded-full bg-accent/20 blur-3xl chord-ambient-wash" />
-      <!-- Expansive concentric acoustic shockwaves extending across full card -->
-      <span class="absolute size-40 sm:size-48 rounded-full border border-accent/35 chord-pulse-ring-1" />
-      <span class="absolute size-56 sm:size-64 rounded-full border border-accent/20 chord-pulse-ring-2" />
-    </div>
-
     <!-- Top-Right Audio Icon Badge -->
     <span
       v-if="audible"
-      class="absolute flex items-center justify-center rounded-lg border border-transparent transition-colors duration-150 z-20"
+      class="absolute flex items-center justify-center rounded-full border border-transparent transition-colors duration-150 z-20"
       :class="[
         compact ? 'top-0 right-0 size-5 text-xs' : '-top-1 -right-1 sm:-top-1.5 sm:-right-1.5 size-7 text-base',
         ringing
@@ -132,9 +144,19 @@ const step = (by) => {
       ]"
       aria-hidden="true"
     >
+      <!-- Audio ring ripple on play -->
+      <span
+        v-if="ringing"
+        :key="'ring-' + ringCount"
+        class="absolute inset-0 rounded-full bg-accent/30 speaker-ring-pulse pointer-events-none"
+      />
       <Icon
+        :key="'icon-' + ringCount"
         :name="ringing ? 'material-symbols:volume-up-rounded' : 'material-symbols:volume-up-outline-rounded'"
-        :class="compact ? 'text-xs' : 'text-base'"
+        :class="[
+          compact ? 'text-xs' : 'text-base',
+          ringing ? 'speaker-icon-pulse' : ''
+        ]"
       />
     </span>
 
@@ -163,19 +185,38 @@ const step = (by) => {
       </p>
     </div>
 
-    <!-- The diagram SVG -->
+    <!-- The diagram SVG (Stationary frame, strings vibrate ONLY on click and sound) -->
     <div class="relative mx-auto my-0.5 block rounded-xl p-0.5 z-10">
-      <svg :width="svgWidth" :height="svgHeight" class="overflow-visible">
+      <svg :key="'svg-' + ringCount" :width="svgWidth" :height="svgHeight" class="overflow-visible">
         <!-- Open and muted markers sit above the nut. -->
         <template v-for="(fret, i) in shape.frets" :key="'m' + i">
+          <!-- Open string circle: precisely centered SVG circle vibrating horizontally with string -->
+          <g
+            v-if="fret === 0"
+            :class="ringing ? 'string-vibrating' : ''"
+            :style="{ animationDelay: ringing ? `${i * 30}ms` : '0ms' }"
+          >
+            <circle
+              :cx="x(i)"
+              :cy="TOP - (compact ? 5.5 : 8)"
+              :r="compact ? 2.8 : 3.8"
+              fill="none"
+              stroke="currentColor"
+              :stroke-width="compact ? 1.2 : 1.5"
+              class="transition-colors duration-150"
+              :class="ringing ? 'text-accent' : 'text-faint'"
+            />
+          </g>
+
+          <!-- Muted string cross -->
           <text
-            :x="x(i)" :y="TOP - (compact ? 4 : 7)" text-anchor="middle"
-            class="font-mono font-bold transition-all duration-150"
-            :class="[
-              ringing && fret === 0 ? 'fill-accent scale-110' : 'fill-faint'
-            ]"
+            v-else-if="fret === null"
+            :x="x(i)"
+            :y="TOP - (compact ? 4 : 6.5)"
+            text-anchor="middle"
+            class="fill-faint font-mono font-bold select-none"
             :style="{ fontSize: compact ? '9px' : '11px' }"
-          >{{ fret === null ? '×' : (fret === 0 ? '○' : '') }}</text>
+          >×</text>
         </template>
 
         <!-- Nut is heavy only when the shape starts at the top of the neck. -->
@@ -190,7 +231,7 @@ const step = (by) => {
           stroke="currentColor" stroke-width="1.1" class="text-dim"
         />
 
-        <!-- Vertical Strings (Strings being played vibrate on sound) -->
+        <!-- Vertical Strings (Strings vibrate ONLY on click and sound) -->
         <line
           v-for="s in STRINGS" :key="'s' + s"
           :x1="x(s - 1)" :y1="TOP" :x2="x(s - 1)" :y2="TOP + FRETS * STEP_Y"
@@ -202,7 +243,7 @@ const step = (by) => {
               : 'text-dim'
           ]"
           :style="{
-            animationDelay: ringing && shape.frets[s - 1] !== null ? `${(s - 1) * 35}ms` : '0ms'
+            animationDelay: ringing && shape.frets[s - 1] !== null ? `${(s - 1) * 30}ms` : '0ms'
           }"
         />
 
@@ -216,9 +257,8 @@ const step = (by) => {
         <!-- Barre Chord Shape (Shakes with Barre String) -->
         <g
           v-if="shape.barre"
-          class="transition-all duration-200"
           :class="ringing ? 'string-vibrating' : ''"
-          :style="{ animationDelay: ringing ? `${shape.barre.from * 35}ms` : '0ms' }"
+          :style="{ animationDelay: ringing ? `${shape.barre.from * 30}ms` : '0ms' }"
         >
           <rect
             :x="x(shape.barre.from) - (compact ? 4.5 : 6)"
@@ -237,9 +277,8 @@ const step = (by) => {
         <!-- Finger Position Dots (Each dot shakes synchronized to its string) -->
         <g
           v-for="d in dots" :key="'d' + d.i"
-          class="transition-all duration-200"
           :class="ringing ? 'string-vibrating' : ''"
-          :style="{ animationDelay: ringing ? `${d.i * 35}ms` : '0ms' }"
+          :style="{ animationDelay: ringing ? `${d.i * 30}ms` : '0ms' }"
         >
           <circle
             :cx="x(d.i)" :cy="y(relative(d.fret))" :r="compact ? 4.2 : 5.8"
@@ -265,112 +304,107 @@ const step = (by) => {
       v-if="switchable && shape.variants > 1"
       class="flex items-center justify-between rounded-full border border-line-soft bg-surface/80 px-1.5 py-0.5 z-10 shadow-2xs hover:border-accent/40 transition-colors"
       :class="compact ? 'mt-1 w-20' : 'mt-2 w-24 sm:w-28'"
+      title=""
       @click.stop
     >
       <button
-        type="button" :aria-label="$t('chord.prevShape')"
+        type="button"
+        :title="$t('chord.prevShape')"
+        :aria-label="$t('chord.prevShape')"
         class="flex size-4.5 items-center justify-center rounded-full text-[10px] font-bold text-muted transition-colors hover:bg-panel hover:text-accent active:bg-raised outline-none cursor-pointer"
-        @click.stop="step(-1)"
+        @click.stop.prevent="step(-1)"
       >‹</button>
 
-      <span class="font-mono text-[10px] font-bold tabular-nums text-ink/75 px-1">
+      <span class="font-mono text-[10px] font-bold tabular-nums text-ink/75 px-1" title="">
         {{ shape.variant + 1 }}/{{ shape.variants }}
       </span>
 
       <button
-        type="button" :aria-label="$t('chord.nextShape')"
+        type="button"
+        :title="$t('chord.nextShape')"
+        :aria-label="$t('chord.nextShape')"
         class="flex size-4.5 items-center justify-center rounded-full text-[10px] font-bold text-muted transition-colors hover:bg-panel hover:text-accent active:bg-raised outline-none cursor-pointer"
-        @click.stop="step(1)"
+        @click.stop.prevent="step(1)"
       >›</button>
     </div>
   </div>
 </template>
 
 <style scoped>
-@keyframes chord-ambient-wash {
+@keyframes speaker-icon-pulse {
   0% {
-    opacity: 0;
+    transform: scale(1);
   }
-  15% {
-    opacity: 1;
+  20% {
+    transform: scale(1.35);
+  }
+  40% {
+    transform: scale(0.95);
+  }
+  60% {
+    transform: scale(1.2);
+  }
+  80% {
+    transform: scale(0.98);
   }
   100% {
-    opacity: 0;
+    transform: scale(1);
   }
 }
 
-.chord-ambient-wash {
-  animation: chord-ambient-wash 2.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+.speaker-icon-pulse {
+  animation: speaker-icon-pulse 0.85s cubic-bezier(0.25, 1, 0.5, 1) both;
 }
 
-@keyframes chord-pulse-1 {
+@keyframes speaker-ring-pulse {
   0% {
-    transform: scale(0.3);
-    opacity: 0.45;
-  }
-  35% {
-    opacity: 0.25;
+    transform: scale(0.8);
+    opacity: 0.8;
   }
   100% {
-    transform: scale(3.6);
+    transform: scale(2.2);
     opacity: 0;
   }
 }
 
-@keyframes chord-pulse-2 {
-  0% {
-    transform: scale(0.45);
-    opacity: 0.35;
-  }
-  45% {
-    opacity: 0.15;
-  }
-  100% {
-    transform: scale(4.2);
-    opacity: 0;
-  }
-}
-
-.chord-pulse-ring-1 {
-  animation: chord-pulse-1 2.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-}
-
-.chord-pulse-ring-2 {
-  animation: chord-pulse-2 2.2s cubic-bezier(0.16, 1, 0.3, 1) 0.15s forwards;
+.speaker-ring-pulse {
+  animation: speaker-ring-pulse 0.85s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
 @keyframes string-vibrate {
   0% {
     transform: translateX(0);
-    stroke-width: 1.8px;
   }
-  15% {
-    transform: translateX(-1.4px);
+  12% {
+    transform: translateX(-3px);
   }
-  30% {
-    transform: translateX(1.4px);
+  24% {
+    transform: translateX(3px);
   }
-  45% {
-    transform: translateX(-1px);
+  36% {
+    transform: translateX(-2.2px);
+  }
+  48% {
+    transform: translateX(2.2px);
   }
   60% {
-    transform: translateX(1px);
+    transform: translateX(-1.4px);
   }
-  75% {
-    transform: translateX(-0.5px);
+  72% {
+    transform: translateX(1.4px);
   }
-  90% {
-    transform: translateX(0.5px);
+  84% {
+    transform: translateX(-0.7px);
+  }
+  92% {
+    transform: translateX(0.7px);
   }
   100% {
     transform: translateX(0);
-    stroke-width: 1.1px;
   }
 }
 
 .string-vibrating {
-  animation: string-vibrate 0.8s ease-out forwards;
-  transform-box: fill-box;
-  transform-origin: center;
+  animation: string-vibrate 0.85s cubic-bezier(0.25, 1, 0.5, 1) both;
 }
 </style>

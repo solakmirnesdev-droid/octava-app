@@ -31,46 +31,60 @@ const cheapest = computed(() =>
 
 <template>
   <!--
-    No gradient fade here any more. It made sense while the sheet was cut off
-    partway; now the words run to the end and only the chords are held back, so
-    a fade would be pretending the text stops when it does not.
+    AI-DECISION: This is a compact continuation of the chord sheet, not a
+    hero-sized pricing panel. The interrupted reading context already explains
+    the value; the card supplies one clear next step without creating a second
+    focal point on a wide song page. See AI-NOTES.md §5 (2026-08-30).
   -->
-  <div class="mt-8">
-    <div class="rounded-2xl border border-accent/25 bg-panel p-6 text-center shadow-lg sm:p-8">
-      <p class="font-mono text-xs uppercase tracking-[0.2em] text-accent">
-        {{ $t('paywall.eyebrow') }}
-      </p>
+  <section
+    class="mx-auto mt-14 max-w-2xl sm:mt-16"
+    aria-labelledby="song-paywall-title"
+    data-print="hide"
+  >
+    <AppCard variant="glass" padding="none" class="overflow-hidden">
+      <div class="flex flex-col gap-5 p-5 sm:flex-row sm:items-center sm:justify-between sm:p-6">
+        <div class="flex min-w-0 items-start gap-3.5">
+          <span class="flex size-10 shrink-0 items-center justify-center rounded-xl border border-accent/25 bg-accent-soft text-accent">
+            <Icon name="material-symbols:lock-outline-rounded" class="text-xl" aria-hidden="true" />
+          </span>
 
-      <h2 class="mt-3 text-xl font-bold tracking-tight text-ink sm:text-2xl">
-        {{ $t('paywall.title') }}
-      </h2>
+          <div class="min-w-0">
+            <p class="font-mono text-[11px] font-semibold uppercase tracking-[0.18em] text-accent">
+              {{ $t('paywall.eyebrow') }}
+            </p>
+            <h2 id="song-paywall-title" class="mt-1 text-base font-bold tracking-tight text-ink sm:text-lg">
+              {{ $t('paywall.title') }}
+            </h2>
+            <p class="mt-1.5 max-w-lg text-sm leading-relaxed text-muted">
+              {{ $t('paywall.body') }}
+            </p>
+            <p v-if="cheapest" class="mt-2 font-mono text-xs text-faint">
+              {{ $t('paywall.from', { price: cheapest.price, currency: cheapest.currency }) }}
+            </p>
+          </div>
+        </div>
 
-      <p class="mx-auto mt-2 max-w-md text-sm leading-relaxed text-muted">
-        {{ $t('paywall.body') }}
-      </p>
+        <div class="flex shrink-0 flex-wrap items-center gap-2 sm:justify-end">
+          <AppButton
+            :to="localePath('/pretplata')"
+            size="md"
+            icon-right="material-symbols:arrow-forward-rounded"
+          >
+            {{ $t('paywall.cta') }}
+          </AppButton>
 
-      <div class="mt-6 flex flex-wrap items-center justify-center gap-3">
-        <NuxtLink
-          :to="localePath('/pretplata')"
-          class="rounded-xl bg-accent px-5 py-2.5 text-sm font-semibold text-on-accent shadow-xs transition-opacity hover:opacity-90"
-        >
-          {{ $t('paywall.cta') }}
-        </NuxtLink>
-
-        <!-- Somebody who already pays and is merely signed out needs the other
-             door, not the price list. -->
-        <NuxtLink
-          v-if="reason === 'login_required'"
-          :to="localePath('/prijava')"
-          class="rounded-xl border border-line-strong px-5 py-2.5 text-sm font-medium text-muted transition-colors hover:border-accent hover:text-accent"
-        >
-          {{ $t('paywall.signIn') }}
-        </NuxtLink>
+          <!-- Somebody who already pays and is merely signed out needs the other
+               door, not the price list. -->
+          <AppButton
+            v-if="reason === 'login_required'"
+            :to="localePath('/prijava')"
+            variant="secondary"
+            size="md"
+          >
+            {{ $t('paywall.signIn') }}
+          </AppButton>
+        </div>
       </div>
-
-      <p v-if="cheapest" class="mt-4 font-mono text-xs text-faint">
-        {{ $t('paywall.from', { price: cheapest.price, currency: cheapest.currency }) }}
-      </p>
-    </div>
-  </div>
+    </AppCard>
+  </section>
 </template>

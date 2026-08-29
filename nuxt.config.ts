@@ -1,8 +1,43 @@
 import tailwindcss from '@tailwindcss/vite';
 
+/**
+ * Building for a native shell.
+ *
+ * AI-DECISION: a separate target, switched by an environment variable, rather
+ * than a change to how the site builds. Server rendering is the reason this app
+ * exists in the form it does — search traffic lands directly on a song page,
+ * and the chords have to be in the initial HTML. A native build wants the
+ * opposite: no server at all, one static bundle the shell can package. Both are
+ * correct, for different destinations, so both are kept.
+ *
+ *   npm run build          # the site, server-rendered, unchanged
+ *   npm run build:native   # .output/public, for Capacitor to copy
+ *
+ * AI-TRAP: NUXT_PUBLIC_API_BASE must be an ABSOLUTE url for the native build.
+ * On the web it is '/api', proxied by Nitro to the API — and inside the shell
+ * there is no Nitro and no shared origin, so a relative path resolves against
+ * capacitor://localhost and every request fails as soon as somebody opens the
+ * app away from a desk. The check below refuses the build rather than shipping
+ * a bundle that cannot reach anything.
+ */
+const native = process.env.NUXT_NATIVE === '1';
+
+if (native) {
+  const base = process.env.NUXT_PUBLIC_API_BASE || '';
+  if (!/^https?:\/\//.test(base)) {
+    throw new Error(
+      'NUXT_NATIVE=1 trazi apsolutni NUXT_PUBLIC_API_BASE (npr. https://octava.example/api) — '
+      + `dobijeno: ${base || '(prazno)'}`
+    );
+  }
+}
+
 export default defineNuxtConfig({
   compatibilityDate: '2025-01-01',
   devtools: { enabled: false },
+
+  // No server in a shell: the native target renders entirely in the WebView.
+  ssr: !native,
 
   modules: ['@pinia/nuxt', '@nuxt/icon', '@nuxtjs/i18n', '@nuxt/fonts', 'nuxt-og-image'],
 

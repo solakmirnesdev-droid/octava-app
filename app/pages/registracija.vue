@@ -168,12 +168,12 @@ useSeoMeta({ title: () => `${t('meta.registerTitle')} | Octava`, robots: 'noinde
         </div>
       </div>
 
-      <!-- Card Footer: Link to Login -->
-      <div class="border-t border-line-soft pt-4 text-center text-xs text-muted">
-        <span>{{ $t('auth.haveAccount') }} </span>
+      <!-- Keep spacing structural rather than depending on a trailing space. -->
+      <div class="flex flex-wrap items-center justify-center gap-x-1.5 gap-y-1 border-t border-line-soft pt-4 text-center text-xs text-muted">
+        <span>{{ $t('auth.haveAccount') }}</span>
         <NuxtLink
           :to="localePath('/prijava')"
-          class="font-bold text-accent hover:underline hover:text-accent/90 transition-colors"
+          class="inline-flex items-center rounded-md px-1 py-0.5 font-bold text-accent transition-colors hover:bg-accent-soft hover:text-accent"
         >
           {{ $t('auth.signIn') }}
         </NuxtLink>

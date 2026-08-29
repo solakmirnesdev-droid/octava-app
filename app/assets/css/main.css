@@ -300,6 +300,44 @@ input[type="search"]::-webkit-search-results-decoration {
   @apply transition-transform duration-150 active:scale-95;
 }
 
+/* --- Global Popups & Tooltip Transitions --- */
+/*
+ * Reusable Vue Transitions across the entire codebase:
+ *   <Transition name="popup">
+ *     <div v-if="open" ...>
+ *   </Transition>
+ * Or for dropdowns & popovers:
+ *   <Transition name="popover">
+ *     <div v-if="open" ...>
+ *   </Transition>
+ */
+.popup-enter-active,
+.popover-enter-active {
+  transition: opacity 200ms cubic-bezier(0.16, 1, 0.3, 1),
+              transform 200ms cubic-bezier(0.16, 1, 0.3, 1);
+  will-change: opacity, transform;
+}
+
+.popup-leave-active,
+.popover-leave-active {
+  transition: opacity 160ms cubic-bezier(0.4, 0, 1, 1),
+              transform 160ms cubic-bezier(0.4, 0, 1, 1);
+  will-change: opacity, transform;
+  pointer-events: none;
+}
+
+.popup-enter-from,
+.popover-enter-from {
+  opacity: 0;
+  transform: scale(0.92) translateY(5px);
+}
+
+.popup-leave-to,
+.popover-leave-to {
+  opacity: 0;
+  transform: scale(0.96) translateY(2px);
+}
+
 /*
  * Printing.
  *
@@ -337,26 +375,5 @@ input[type="search"]::-webkit-search-results-decoration {
   main {
     max-width: none !important;
     padding: 0 !important;
-  }
-
-  /*
-   * A chord line separated from the words underneath it is unreadable, and a
-   * page break between them is exactly that separation.
-   */
-  .chord-line,
-  .chord-row,
-  pre {
-    break-inside: avoid;
-    page-break-inside: avoid;
-  }
-
-  h1 {
-    font-size: 18pt;
-  }
-
-  /* Chords carry meaning through colour on screen; on paper they need weight. */
-  .chord {
-    color: #000 !important;
-    font-weight: 700;
   }
 }

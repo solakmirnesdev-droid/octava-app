@@ -145,12 +145,17 @@ useSeoMeta({ title: () => `${t('meta.loginTitle')} | Octava`, robots: 'noindex, 
         </div>
       </div>
 
-      <!-- Card Footer: Link to Registration -->
-      <div class="border-t border-line-soft pt-4 text-center text-xs text-muted">
-        <span>{{ $t('auth.noAccount') }} </span>
+      <!--
+        AI-DECISION: Keep the account-switching sentence as one flex row with
+        an explicit gap. Vue whitespace is not a dependable layout primitive,
+        and this companion action must remain readable at every font size.
+        See AI-NOTES.md §5 (2026-08-30).
+      -->
+      <div class="flex flex-wrap items-center justify-center gap-x-1.5 gap-y-1 border-t border-line-soft pt-4 text-center text-xs text-muted">
+        <span>{{ $t('auth.noAccount') }}</span>
         <NuxtLink
           :to="localePath('/registracija')"
-          class="font-bold text-accent hover:underline hover:text-accent/90 transition-colors"
+          class="inline-flex items-center rounded-md px-1 py-0.5 font-bold text-accent transition-colors hover:bg-accent-soft hover:text-accent"
         >
           {{ $t('auth.register') }}
         </NuxtLink>

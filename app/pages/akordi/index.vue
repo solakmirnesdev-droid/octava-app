@@ -1,5 +1,8 @@
 <script setup>
 import { CATALOGUE, NOTES, QUALITIES, parseChord } from '~/utils/chordEngine';
+import GuitarIcon from '~/components/GuitarIcon.vue';
+import BassIcon from '~/components/BassIcon.vue';
+import UkuleleIcon from '~/components/UkuleleIcon.vue';
 
 const { t } = useI18n();
 
@@ -38,7 +41,7 @@ const FLATS = { db: 'c#', eb: 'd#', gb: 'f#', ab: 'g#', bb: 'a#', b: 'h' };
 function normalise(text) {
   const bare = String(text || '')
     .trim().toLowerCase()
-    .normalize('NFD').replace(/[̀-ͯ]/g, '');
+    .normalize('NFD').replace(/[\u0300-\u036f]/g, '');
 
   // Only the leading note is rewritten: "bb" is a chord root, "bbq" is a typo.
   const m = /^([a-h][b#]?)(.*)$/.exec(bare);
@@ -128,19 +131,6 @@ function clear() {
   root.value = '';
 }
 
-const ringingChord = ref(null);
-let ringTimer = null;
-
-function onChordPlay(symbol) {
-  ringingChord.value = symbol;
-  window.clearTimeout(ringTimer);
-  ringTimer = window.setTimeout(() => {
-    ringingChord.value = null;
-  }, 2200);
-}
-
-onBeforeUnmount(() => window.clearTimeout(ringTimer));
-
 const showTip = ref(false);
 
 onMounted(() => {
@@ -157,25 +147,21 @@ function dismissTip() {
 }
 
 useSeoMeta({
-  title: t('meta.chordsTitle'),
-  description: `Dijagrami hvatova za ${total.value} akorda na gitari. Durski i molski trozvuci, septakordi i sus akordi, u našoj notaciji sa H.`,
-  ogTitle: t('meta.chordsHeading'),
-  ogType: 'article'
+  title: () => t('page.chordsTitle'),
+  description: () => t('page.chordsMetaDesc')
 });
-
-// Canonical and hreflang come from useLocaleHead in app.vue. A hard-coded
-// canonical here pointed every English page at its Bosnian counterpart,
-// which tells a search engine to index that one instead.
 </script>
 
 <template>
-  <div class="space-y-6">
-    <!-- 1. Header Zone with Instrument Switcher on the Right -->
-    <header class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-      <div>
-        <div class="flex items-center gap-2.5">
-          <span class="flex size-9 items-center justify-center rounded-xl bg-accent-soft text-accent shadow-xs">
-            <Icon name="material-symbols:music-note-rounded" class="text-xl" />
+  <div class="mx-auto max-w-6xl space-y-6 pb-24">
+    <!-- 1. Header with Title & Instrument Switcher -->
+    <header class="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between border-b border-line-soft/80 pb-6">
+      <div class="space-y-1">
+        <div class="flex items-center gap-2">
+          <span class="flex size-7 items-center justify-center rounded-lg bg-accent-soft text-accent ring-1 ring-accent/20">
+            <GuitarIcon v-if="instrument === 'guitar'" size="1.25em" />
+            <BassIcon v-else-if="instrument === 'bass'" size="1.25em" />
+            <UkuleleIcon v-else-if="instrument === 'ukulele'" size="1.25em" />
           </span>
           <h1 class="text-2xl sm:text-3xl font-black tracking-tight text-ink">
             {{ $t('page.chordsTitle') }}
@@ -220,7 +206,7 @@ useSeoMeta({
     <!-- 2. Unified Studio Toolbar (Search + Note Roots in One Seamless Line) -->
     <div class="rounded-2xl border border-line bg-gradient-to-r from-panel/95 via-panel/85 to-surface/90 p-3 sm:p-3.5 backdrop-blur-xl shadow-xs ring-1 ring-white/5 flex flex-col lg:flex-row lg:items-center justify-between gap-3">
       
-      <!-- Search Input (Compact, appropriately proportioned) -->
+      <!-- Search Input -->
       <div class="relative w-full lg:w-72 xl:w-80 shrink-0">
         <Icon
           name="material-symbols:search-rounded"
@@ -245,14 +231,14 @@ useSeoMeta({
         </button>
       </div>
 
-      <!-- Root Note Selector Chips Strip -->
-      <div class="flex items-center gap-1 overflow-x-auto pb-1 lg:pb-0 scrollbar-none [mask-image:linear-gradient(to_right,transparent,black_8px,black_calc(100%-8px),transparent)]">
+      <!-- Root Note Selector Strip -->
+      <div class="flex items-center gap-1.5 overflow-x-auto pb-1 lg:pb-0 scrollbar-none [mask-image:linear-gradient(to_right,transparent,black_8px,black_calc(100%-8px),transparent)]">
         <button
           type="button"
-          class="shrink-0 rounded-lg px-2.5 py-1.5 font-mono text-xs font-bold transition-all shadow-2xs cursor-pointer outline-none"
+          class="shrink-0 rounded-xl px-3 py-1.5 font-mono text-xs font-bold transition-all shadow-2xs cursor-pointer outline-none select-none"
           :class="!root
-            ? 'bg-accent-soft border border-accent/40 text-accent font-black'
-            : 'border border-transparent text-muted hover:border-line hover:bg-surface hover:text-ink'"
+            ? 'bg-accent text-on-accent shadow-xs shadow-accent/25 ring-1 ring-accent/40 font-black'
+            : 'border border-line-soft/80 bg-surface/60 text-muted hover:border-accent/40 hover:bg-panel hover:text-ink'"
           @click="root = ''"
         >
           SVI
@@ -262,10 +248,10 @@ useSeoMeta({
           v-for="r in ROOTS"
           :key="r"
           type="button"
-          class="shrink-0 rounded-lg px-2.5 py-1.5 font-mono text-xs font-bold transition-all shadow-2xs cursor-pointer outline-none"
+          class="shrink-0 rounded-xl px-3 py-1.5 font-mono text-xs font-bold transition-all shadow-2xs cursor-pointer outline-none select-none"
           :class="root === r
-            ? 'bg-accent text-on-accent shadow-xs shadow-accent/25'
-            : 'border border-transparent text-muted hover:border-line hover:bg-surface hover:text-accent'"
+            ? 'bg-accent text-on-accent shadow-xs shadow-accent/25 ring-1 ring-accent/40 font-black'
+            : 'border border-line-soft/80 bg-surface/60 text-muted hover:border-accent/40 hover:bg-panel hover:text-accent'"
           @click="root = root === r ? '' : r"
         >
           {{ r }}
@@ -274,7 +260,7 @@ useSeoMeta({
         <button
           v-if="filtering"
           type="button"
-          class="shrink-0 ml-1.5 rounded-lg border border-line-soft bg-surface/70 px-2.5 py-1.5 text-xs font-medium text-faint hover:text-danger hover:border-danger/30 hover:bg-danger-soft transition shadow-2xs cursor-pointer"
+          class="shrink-0 ml-1.5 rounded-xl border border-line-soft bg-surface/70 px-3 py-1.5 text-xs font-medium text-faint hover:text-danger hover:border-danger/30 hover:bg-danger-soft transition shadow-2xs cursor-pointer"
           @click="clear"
         >
           {{ $t('page.chordSearchClear') }}
@@ -282,14 +268,14 @@ useSeoMeta({
       </div>
     </div>
 
-    <!-- Active Filtering Status Badge -->
+    <!-- 3. Active Search Indicator -->
     <div v-if="filtering" class="flex items-center justify-between text-xs text-muted px-1">
       <span class="font-mono font-medium">
         {{ $t('page.chordSearchCount', { n: visible.length }, visible.length) }}
       </span>
       <button
         type="button"
-        class="text-xs text-faint hover:text-accent font-semibold transition"
+        class="text-xs text-faint hover:text-accent font-semibold transition cursor-pointer"
         @click="clear"
       >
         Prikaži sve akorde ({{ total }})
@@ -309,14 +295,14 @@ useSeoMeta({
       </p>
       <button
         type="button"
-        class="inline-flex items-center gap-1.5 rounded-xl border border-line bg-surface hover:bg-panel px-4 py-2 text-xs font-bold text-accent transition shadow-2xs"
+        class="inline-flex items-center gap-1.5 rounded-xl border border-line bg-surface hover:bg-panel px-4 py-2 text-xs font-bold text-accent transition shadow-2xs cursor-pointer"
         @click="clear"
       >
         <span>Poništi pretragu</span>
       </button>
     </div>
 
-    <!-- Grouped Chords Sections -->
+    <!-- 4. Grouped Chords Sections -->
     <section
       v-for="(group, idx) in grouped"
       :key="group.root"
@@ -336,27 +322,17 @@ useSeoMeta({
       <div class="grid grid-cols-2 gap-3.5 sm:gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
         <div
           v-for="symbol in group.chords" :key="symbol"
-          class="group relative flex flex-col items-center justify-between rounded-2xl border bg-gradient-to-b from-panel/95 via-panel/60 to-surface/80 p-3.5 sm:p-4 backdrop-blur-md shadow-xs transition-all duration-300 hover:border-accent/60 hover:bg-panel hover:shadow-lg hover:shadow-accent/5 overflow-hidden cursor-pointer"
-          :class="ringingChord === symbol
-            ? 'border-accent ring-2 ring-accent/50 shadow-[0_0_24px_rgba(224,90,58,0.35)]'
-            : 'border-line/75'"
+          class="group relative flex flex-col items-center justify-between rounded-2xl border border-line/75 bg-gradient-to-b from-panel/95 via-panel/60 to-surface/80 p-3.5 sm:p-4 backdrop-blur-md shadow-xs transition-colors duration-150 hover:border-accent/50 hover:bg-panel hover:shadow-lg hover:shadow-accent/5 overflow-hidden cursor-pointer"
         >
           <div class="pointer-events-none absolute -right-8 -top-8 size-20 rounded-full bg-accent/5 blur-xl group-hover:bg-accent/15 transition-colors" />
-          <ChordDiagram :symbol="symbol" :instrument="instrument" @play="onChordPlay(symbol)" />
+          <ChordDiagram :symbol="symbol" :instrument="instrument" />
         </div>
       </div>
     </section>
 
     <!-- Floating Landing Popup Tip -->
     <Teleport to="body">
-      <Transition
-        enter-active-class="transition duration-300 ease-out"
-        enter-from-class="opacity-0 translate-y-6 scale-95"
-        enter-to-class="opacity-100 translate-y-0 scale-100"
-        leave-active-class="transition duration-200 ease-in"
-        leave-from-class="opacity-100 translate-y-0 scale-100"
-        leave-to-class="opacity-0 translate-y-6 scale-95"
-      >
+      <Transition name="popup">
         <div
           v-if="showTip"
           class="fixed bottom-5 right-5 sm:bottom-6 sm:right-6 z-50 max-w-sm w-[calc(100%-2.5rem)] rounded-2xl border border-line bg-panel/95 p-4 shadow-2xl backdrop-blur-xl ring-1 ring-white/5"
@@ -380,7 +356,7 @@ useSeoMeta({
 
             <button
               type="button"
-              class="absolute top-3 right-3 flex size-6 items-center justify-center rounded-lg text-faint hover:bg-surface hover:text-ink transition-colors outline-none"
+              class="absolute top-3 right-3 flex size-6 items-center justify-center rounded-lg text-faint hover:bg-surface hover:text-ink transition-colors outline-none cursor-pointer"
               title="Zatvori"
               @click="dismissTip"
             >
@@ -392,7 +368,7 @@ useSeoMeta({
           <div class="mt-3 flex justify-end">
             <button
               type="button"
-              class="rounded-lg bg-surface hover:bg-raised border border-line px-3 py-1 text-[11px] font-bold text-ink hover:text-accent transition-colors shadow-2xs outline-none"
+              class="rounded-lg bg-surface hover:bg-raised border border-line px-3 py-1 text-[11px] font-bold text-ink hover:text-accent transition-colors shadow-2xs outline-none cursor-pointer"
               @click="dismissTip"
             >
               U redu, shvatam

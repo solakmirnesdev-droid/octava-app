@@ -1,4 +1,5 @@
 import { defineStore } from 'pinia';
+import { writeToken, clearToken } from '~/utils/native';
 
 export const useAuthStore = defineStore('auth', () => {
   // Populated during SSR from the session cookie, so the first paint already
@@ -16,6 +17,9 @@ export const useAuthStore = defineStore('auth', () => {
     try {
       const data = await $api(path, { method: 'POST', body });
       user.value = data.user;
+      // The API has always returned this beside the cookie; only a native
+      // build has anywhere to put it. writeToken is a no-op on the web.
+      writeToken(data.token);
       return true;
     } catch (err) {
       // A 429 carries its own wait-and-retry message; anything else falls back.
@@ -56,6 +60,10 @@ export const useAuthStore = defineStore('auth', () => {
       await $api('/auth/logout', { method: 'POST' });
     } finally {
       user.value = null;
+      // AI-TRAP: the web logout works because the server clears the httpOnly
+      // cookie. A native build holds its own copy, which that response cannot
+      // touch — without this the app stays signed in after signing out.
+      clearToken();
       useNotice().say(message);
       await navigateTo('/');
     }
@@ -133,6 +141,7 @@ export const useAuthStore = defineStore('auth', () => {
   function adopt(data) {
     user.value = data?.user || null;
     error.value = null;
+    if (data?.token) writeToken(data.token);
   }
 
   return {

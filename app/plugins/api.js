@@ -6,6 +6,8 @@
  * request's cookie header is copied onto the outgoing API call — without it,
  * every page would server-render as signed out and then flip once hydrated.
  */
+import { readToken } from '~/utils/native';
+
 export default defineNuxtPlugin(() => {
   const config = useRuntimeConfig();
 
@@ -23,6 +25,17 @@ export default defineNuxtPlugin(() => {
       if (import.meta.server && requestCookie) {
         options.headers = new Headers(options.headers);
         options.headers.set('cookie', requestCookie);
+      }
+
+      /*
+       * A native shell has no usable session cookie, so it carries a token.
+       * readToken returns null everywhere else, which leaves the web build
+       * exactly as it was — cookie only, nothing in reach of a script.
+       */
+      const token = readToken();
+      if (token) {
+        options.headers = new Headers(options.headers);
+        options.headers.set('authorization', `Bearer ${token}`);
       }
     },
 

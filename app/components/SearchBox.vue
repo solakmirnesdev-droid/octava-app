@@ -110,23 +110,37 @@ async function run(term) {
   // Cancel whatever is still in flight. Without this a slow response for "J"
   // can land after the one for "Jos" and overwrite the newer, better results.
   controller?.abort();
-  controller = new AbortController();
+  // Held locally: by the time this call settles, `controller` may already be
+  // a newer one's.
+  const mine = new AbortController();
+  controller = mine;
 
   loading.value = true;
   try {
     const data = await $api('/songs/search', {
       params: { q: term, limit: SUGGEST_LIMIT },
-      signal: controller.signal
+      signal: mine.signal
     });
+    if (mine.signal.aborted) return;
     results.value = {
       songs: data.songs || [],
       artists: data.artists || [],
       genres: data.genres || []
     };
+    showingSuggestions.value = false;
     highlighted.value = -1;
   } catch (err) {
-    // An aborted request is the expected outcome of typing, not a failure.
-    if (err.name !== 'AbortError') results.value = { songs: [], artists: [], genres: [] };
+    /*
+     * An aborted request is the expected outcome of typing, not a failure.
+     *
+     * AI-TRAP: the name alone does not recognise one. $api wraps the abort in
+     * a FetchError, so `err.name === 'AbortError'` is false and this wiped
+     * results a newer call had already put there — the rejection lands after
+     * the replacement, so the reader watches a list appear and then empty
+     * itself. Ask the signal, which knows.
+     */
+    const aborted = mine.signal.aborted || err.name === 'AbortError';
+    if (!aborted) results.value = { songs: [], artists: [], genres: [] };
   } finally {
     loading.value = false;
   }
@@ -303,13 +317,15 @@ onBeforeUnmount(() => {
         </li>
       </ul>
 
+      <!-- Hidden while suggestions show: nothing was searched for, so this
+           would offer to see all results for an empty phrase. -->
       <button
-        v-if="hasResults"
+        v-if="hasResults && !showingSuggestions"
         type="button"
         class="w-full border-t border-line-soft px-4 py-2.5 text-left text-xs text-faint hover:text-accent"
         @click="submit"
       >
-        Prikaži sve rezultate za „{{ query.trim() }}"
+        {{ $t('nav.showAllFor', { q: query.trim() }) }}
       </button>
     </div>
   </div>

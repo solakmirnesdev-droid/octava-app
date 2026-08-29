@@ -28,7 +28,8 @@
     "loggedOut": "You are signed out.",
     "metronome": "Metronome",
     "suggestHeading": "Most looked up",
-    "suggestEmpty": "Start typing to search."
+    "suggestEmpty": "Start typing to search.",
+    "showAllFor": "Show all results for \"{q}\""
   },
   "song": {
     "key": "Key",
