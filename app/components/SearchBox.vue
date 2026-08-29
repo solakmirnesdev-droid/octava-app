@@ -18,6 +18,43 @@ const loading = ref(false);
 const results = ref({ songs: [], artists: [], genres: [] });
 const highlighted = ref(-1);
 
+/*
+ * What the panel shows before anything is typed.
+ *
+ * AI-DECISION: written into `results`, the same shape a search fills, so the
+ * existing list draws them with no new markup, no second code path and no
+ * second way for the keyboard handling to be wrong. A suggestion row and a
+ * result row are the same thing to somebody looking at them; making them the
+ * same thing in the code is what keeps them looking that way.
+ *
+ * Fetched once per page and kept: it is the most-viewed list, which does not
+ * change between two openings of a dropdown.
+ */
+const suggestions = ref(null);
+const showingSuggestions = ref(false);
+
+async function loadSuggestions() {
+  if (!suggestions.value) {
+    try {
+      const [songs, artists] = await Promise.all([
+        $api('/songs', { params: { sort: 'popular', limit: 5 } }),
+        $api('/artists', { params: { limit: 3 } })
+      ]);
+      suggestions.value = {
+        songs: songs.songs || [],
+        artists: artists.artists || [],
+        genres: []
+      };
+    } catch {
+      // The box still searches; only the head start is missing.
+      suggestions.value = { songs: [], artists: [], genres: [] };
+    }
+  }
+  results.value = suggestions.value;
+  showingSuggestions.value = true;
+  open.value = true;
+}
+
 const root = useTemplateRef('root');
 
 let timer = null;
@@ -101,11 +138,23 @@ watch(query, (value) => {
 
   if (term.length < MIN_QUERY) {
     controller?.abort();
+    /*
+     * Clearing the box goes back to the suggestions rather than to an empty
+     * panel. Somebody who deletes what they typed is starting over, not leaving
+     * — shutting the panel in their face makes them click the field again to get
+     * back where they already were.
+     */
+    if (!term && open.value) {
+      loadSuggestions();
+      return;
+    }
     results.value = { songs: [], artists: [], genres: [] };
+    showingSuggestions.value = false;
     open.value = false;
     return;
   }
 
+  showingSuggestions.value = false;
   open.value = true;
   // Wait for a pause in typing rather than firing per keystroke.
   timer = setTimeout(() => run(term), DEBOUNCE_MS);
@@ -116,6 +165,8 @@ function move(step) {
   const count = flat.value.length;
   highlighted.value = (highlighted.value + step + count) % count;
 }
+
+const route = useRoute();
 
 function submit() {
   const chosen = flat.value[highlighted.value];
@@ -130,7 +181,6 @@ function submit() {
 
 function go(to) {
   close();
-  query.value = '';
   router.push(to);
 }
 
@@ -145,7 +195,13 @@ function onDocumentClick(event) {
   if (root.value && !root.value.contains(event.target)) close();
 }
 
-onMounted(() => document.addEventListener('click', onDocumentClick));
+onMounted(() => {
+  if (route.query?.q && !query.value) {
+    query.value = String(route.query.q);
+  }
+  document.addEventListener('click', onDocumentClick);
+});
+
 onBeforeUnmount(() => {
   document.removeEventListener('click', onDocumentClick);
   clearTimeout(timer);
@@ -172,7 +228,7 @@ onBeforeUnmount(() => {
         :placeholder="$t('nav.search')"
         class="w-full rounded-full border border-line-strong bg-panel py-2 pl-9.5 pr-9 text-base sm:text-sm outline-none focus:border-accent"
         :aria-expanded="open"
-        @focus="query.trim().length >= MIN_QUERY && (open = true)"
+        @focus="query.trim().length >= MIN_QUERY ? (open = true) : loadSuggestions()"
         @keydown.down.prevent="move(1)"
         @keydown.up.prevent="move(-1)"
         @keydown.esc.prevent="close"
@@ -194,10 +250,26 @@ onBeforeUnmount(() => {
       v-if="open"
       class="absolute left-0 top-full z-30 mt-1.5 w-full min-w-[280px] sm:min-w-[340px] max-w-[90vw] overflow-hidden popover-surface"
     >
+      <!--
+        AI-TRAP: above the v-if chain, never inside it. Slipped between the
+        v-else-if and the v-else this breaks the chain — Vue needs those to be
+        immediate siblings — and the list silently stops rendering while the
+        heading above it goes on looking perfectly correct.
+
+        Same faint one-liner the states below use, so the panel gains a label
+        without gaining a new kind of element.
+      -->
+      <p
+        v-if="showingSuggestions && hasResults"
+        class="px-4 pt-3 pb-1 text-[11px] uppercase tracking-wider text-faint"
+      >{{ $t('nav.suggestHeading') }}</p>
+
       <p v-if="loading && !hasResults" class="px-4 py-3 text-sm text-faint">{{ $t('nav.searching') }}</p>
 
       <p v-else-if="!hasResults" class="px-4 py-3 text-sm text-faint">
-        {{ $t('nav.noResultsFor', { q: query.trim() }) }}
+        <!-- Nothing was searched for while suggestions are showing, so the
+             "no results for X" sentence would name an empty X. -->
+        {{ showingSuggestions ? $t('nav.suggestEmpty') : $t('nav.noResultsFor', { q: query.trim() }) }}
       </p>
 
       <ul v-else class="max-h-80 overflow-auto py-1">

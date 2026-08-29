@@ -67,7 +67,7 @@ function onPlay() {
   nextTick(() => {
     ringing.value = true;
     window.clearTimeout(ringTimer);
-    ringTimer = window.setTimeout(() => { ringing.value = false; }, 850);
+    ringTimer = window.setTimeout(() => { ringing.value = false; }, 2200);
   });
 }
 
@@ -94,8 +94,8 @@ watch(() => props.anchor, place);
     <div
       ref="el"
       :style="style"
-      class="relative z-30 rounded-2xl border bg-panel/95 p-2.5 shadow-2xl backdrop-blur-xl transition-[border-color,box-shadow,background-color] duration-300"
-      :class="ringing ? 'border-accent ring-2 ring-accent/50 shadow-[0_0_24px_rgba(224,90,58,0.35)]' : 'border-line ring-1 ring-white/10'"
+      class="relative z-30 rounded-2xl border bg-panel/95 p-2.5 shadow-2xl backdrop-blur-xl transition-[border-color,box-shadow,background-color] duration-300 overflow-hidden"
+      :class="ringing ? 'border-accent ring-2 ring-accent/60 shadow-[0_0_28px_rgba(224,90,58,0.45)]' : 'border-line ring-1 ring-white/10'"
       @mouseenter="emit('keep')"
       @mouseleave="emit('leave')"
     >

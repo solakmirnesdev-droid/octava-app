@@ -22,7 +22,15 @@ const STORE = 'prints';
 const DB_VERSION = 1;
 
 /** Long enough to identify, short enough that nobody waits twice. */
-export const DEFAULT_SECONDS = 8;
+/*
+ * How long the microphone runs.
+ *
+ * AI-NOTE: longer is not free — it is the time somebody stands still holding a
+ * phone at a speaker — but it is the one lever that helps a noisy room. Ten
+ * seconds gives the constellation roughly a quarter more peaks to align, which
+ * matters most where the recording is worst.
+ */
+export const DEFAULT_SECONDS = 10;
 
 function openDb() {
   return new Promise((resolve, reject) => {
@@ -82,6 +90,9 @@ export function useRecognizer() {
   const state = ref('idle');
   const error = ref(null);
   const result = ref(null);
+  /** Why there is no match: 'unsure' when nothing scored, 'empty' when the
+   *  index holds no songs at all. The two need different sentences. */
+  const reason = ref(null);
   const cachedCount = ref(0);
   const secondsLeft = ref(0);
 
@@ -168,6 +179,13 @@ export function useRecognizer() {
     };
   }
 
+  /**
+   * AI-TRAP: the server's `reason` has to survive this call. It used to return
+   * null for every miss, which collapsed two different answers into one — and
+   * the page then told somebody with an empty index to "try holding the phone
+   * closer", advice that cannot work no matter how closely they hold it. A
+   * feature that is merely unpopulated then reads as broken.
+   */
   async function matchOnServer(pairs) {
     const { $api } = useNuxtApp();
     const res = await $api('/recognize', {
@@ -175,7 +193,11 @@ export function useRecognizer() {
       body: packHashes(pairs),
       headers: { 'Content-Type': 'application/octet-stream' }
     });
-    return res.match ? { ...res.match, offline: false } : null;
+    if (!res.match) {
+      reason.value = res.reason || 'unsure';
+      return null;
+    }
+    return { ...res.match, offline: false };
   }
 
   async function listen(seconds = DEFAULT_SECONDS) {
@@ -183,6 +205,7 @@ export function useRecognizer() {
 
     error.value = null;
     result.value = null;
+    reason.value = null;
     state.value = 'listening';
     secondsLeft.value = seconds;
 
@@ -247,7 +270,7 @@ export function useRecognizer() {
   onMounted(refreshCached);
 
   return {
-    state, error, result, secondsLeft, cachedCount,
+    state, error, result, reason, secondsLeft, cachedCount,
     listen, reset, cacheOffline, clearCache, refreshCached,
     // Exposed so an indexing screen can fingerprint a file the same way.
     decodeTo8k, fingerprint, packHashes, unpackHashes

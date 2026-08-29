@@ -3,7 +3,7 @@ const { t } = useI18n();
 const localePath = useLocalePath();
 
 const {
-  state, error, result, secondsLeft, cachedCount, listen, reset, clearCache
+  state, error, result, secondsLeft, cachedCount, listen, reset, clearCache, reason
 } = useRecognizer();
 
 useSeoMeta({ title: t('meta.recognizeTitle'), description: t('recognize.lead') });
@@ -17,7 +17,7 @@ const busy = computed(() => state.value === 'listening' || state.value === 'work
     <header class="text-center space-y-2">
       <div class="inline-flex items-center gap-2 rounded-2xl border border-accent/30 bg-accent-soft px-3.5 py-1.5 text-xs font-bold text-accent shadow-2xs">
         <Icon name="material-symbols:graphic-eq-rounded" class="text-base animate-pulse" />
-        <span>Audio Prepoznavanje</span>
+        <span>{{ $t('recognize.eyebrow') }}</span>
       </div>
       <h1 class="text-3xl sm:text-4xl font-black tracking-tight text-ink">
         {{ $t('recognize.title') }}
@@ -41,51 +41,67 @@ const busy = computed(() => state.value === 'listening' || state.value === 'work
       <div class="relative z-10 flex flex-col items-center gap-6">
 
         <!-- Animated Listening Sphere / Button -->
-        <div class="relative flex items-center justify-center">
+        <div class="relative flex items-center justify-center py-4">
           
-          <!-- Concentric Radar Acoustic Shockwave Rings during Listening -->
+          <!-- Outer Concentric Radar Acoustic Shockwave Rings during Listening -->
           <template v-if="state === 'listening'">
-            <span class="pointer-events-none absolute size-52 sm:size-60 rounded-full border border-accent/40 animate-ping opacity-75" />
-            <span class="pointer-events-none absolute size-44 sm:size-52 rounded-full border-2 border-accent/60 animate-pulse" />
-            <span class="pointer-events-none absolute size-36 sm:size-44 rounded-full bg-accent/20 blur-xl" />
+            <span class="pointer-events-none absolute size-60 sm:size-72 rounded-full border border-accent/40 animate-ping opacity-60" />
+            <span class="pointer-events-none absolute size-52 sm:size-60 rounded-full border-2 border-accent/70 animate-pulse" />
+            <span class="pointer-events-none absolute size-44 sm:size-52 rounded-full bg-accent/25 blur-2xl" />
           </template>
 
+          <!-- Idle gentle ambient acoustic breathing ring -->
           <template v-else-if="state === 'idle'">
-            <span class="pointer-events-none absolute size-44 sm:size-52 rounded-full border border-accent/20 animate-pulse" />
+            <span class="pointer-events-none absolute size-48 sm:size-56 rounded-full border border-accent/25 bg-accent/5 blur-xs animate-pulse duration-1000" />
           </template>
 
           <!-- Core Microphone Button -->
           <button
             type="button"
             :disabled="busy"
-            class="relative flex size-32 sm:size-40 items-center justify-center rounded-full transition-all duration-300 outline-none cursor-pointer select-none shadow-2xl disabled:cursor-default"
+            class="group relative flex size-36 sm:size-44 items-center justify-center rounded-full transition-all duration-300 outline-none cursor-pointer select-none disabled:cursor-default overflow-hidden"
             :class="[
               state === 'listening'
-                ? 'bg-gradient-to-br from-accent via-accent to-[#d44d2d] text-on-accent scale-105 ring-8 ring-accent/30 shadow-[0_0_50px_rgba(224,90,58,0.5)]'
+                ? 'bg-accent text-on-accent scale-105 ring-8 ring-accent/30 shadow-[0_0_60px_rgba(224,90,58,0.6)]'
                 : state === 'working'
-                  ? 'bg-gradient-to-br from-accent to-[#d44d2d] text-on-accent ring-4 ring-accent/30 animate-pulse'
-                  : 'bg-gradient-to-br from-accent-soft via-panel to-surface border-2 border-accent/40 text-accent hover:border-accent hover:bg-accent hover:text-on-accent hover:scale-105 hover:shadow-[0_0_40px_rgba(224,90,58,0.35)]'
+                  ? 'bg-accent text-on-accent ring-6 ring-accent/30 animate-pulse shadow-[0_0_40px_rgba(224,90,58,0.45)]'
+                  : 'bg-surface border-2 border-accent/40 text-accent ring-4 ring-accent/10 shadow-[0_0_30px_rgba(224,90,58,0.2)] hover:border-accent hover:ring-8 hover:ring-accent/25 hover:shadow-[0_0_50px_rgba(224,90,58,0.45)] hover:scale-105 active:scale-95'
             ]"
             :aria-label="$t('recognize.listen')"
             @click="listen()"
           >
+            <!-- Inner ambient radial sheen & glass reflection -->
+            <span
+              class="pointer-events-none absolute inset-0 rounded-full bg-gradient-to-b from-white/15 via-transparent to-black/25 opacity-70 group-hover:opacity-100 transition-opacity duration-300"
+            />
+
             <!-- Spinning Icon when analyzing -->
-            <Icon
-              v-if="state === 'working'"
-              name="material-symbols:autorenew-rounded"
-              class="text-5xl sm:text-6xl animate-spin"
-            />
-            <!-- Equalizer / Countdown when listening -->
-            <div v-else-if="state === 'listening'" class="flex flex-col items-center justify-center gap-1">
-              <Icon name="material-symbols:mic-rounded" class="text-4xl sm:text-5xl animate-bounce" />
-              <span class="font-mono text-sm sm:text-base font-black tracking-wider">{{ secondsLeft }}s</span>
+            <div v-if="state === 'working'" class="relative z-10 flex flex-col items-center justify-center gap-1.5">
+              <Icon
+                name="material-symbols:autorenew-rounded"
+                class="text-4xl sm:text-5xl animate-spin text-on-accent"
+              />
+              <span class="text-[11px] font-mono font-bold uppercase tracking-wider text-on-accent/90">Analiza...</span>
             </div>
+
+            <!-- Equalizer / Countdown when listening -->
+            <div v-else-if="state === 'listening'" class="relative z-10 flex flex-col items-center justify-center gap-1">
+              <Icon name="material-symbols:mic-rounded" class="text-4xl sm:text-5xl animate-bounce text-on-accent" />
+              <div class="flex items-center gap-1">
+                <span class="font-mono text-base sm:text-lg font-black tracking-wider text-on-accent">{{ secondsLeft }}s</span>
+              </div>
+            </div>
+
             <!-- Standard Microphone when idle / ready -->
-            <Icon
-              v-else
-              name="material-symbols:mic-rounded"
-              class="text-5xl sm:text-6xl transition-transform group-hover:scale-110"
-            />
+            <div v-else class="relative z-10 flex flex-col items-center justify-center gap-1.5 transition-transform duration-300 group-hover:scale-105">
+              <div class="flex size-13 sm:size-15 items-center justify-center rounded-2xl bg-accent-soft text-accent shadow-xs group-hover:bg-accent group-hover:text-on-accent transition-all duration-300">
+                <Icon
+                  name="material-symbols:mic-rounded"
+                  class="text-3xl sm:text-4xl"
+                />
+              </div>
+              <span class="text-[11px] font-bold uppercase tracking-wider text-muted group-hover:text-accent transition-colors">Slušaj</span>
+            </div>
           </button>
         </div>
 
@@ -154,7 +170,7 @@ const busy = computed(() => state.value === 'listening' || state.value === 'work
                 :to="localePath(`/pjesma/${result.slug}`)"
                 class="inline-flex items-center gap-1.5 rounded-xl bg-accent hover:bg-accent-strong text-on-accent px-4 py-2 text-xs font-bold transition shadow-sm shadow-accent/25"
               >
-                <span>Otvori akorde</span>
+                <span>{{ $t('recognize.open') }}</span>
                 <Icon name="material-symbols:arrow-forward-rounded" class="text-sm" />
               </NuxtLink>
             </div>
@@ -170,8 +186,19 @@ const busy = computed(() => state.value === 'listening' || state.value === 'work
                 <Icon name="material-symbols:help-outline-rounded" class="text-xl" />
               </div>
               <div>
-                <h3 class="text-sm sm:text-base font-bold text-ink">{{ $t('recognize.unsure') }}</h3>
-                <p class="text-xs text-muted leading-relaxed mt-0.5">{{ $t('recognize.unsureHint') }}</p>
+                <!--
+                  AI-NOTE: an empty index and a poor recording are different
+                  answers and need different sentences. Telling somebody to move
+                  closer to the speaker when no song has ever been indexed is
+                  advice that cannot work, and it makes an unpopulated feature
+                  read as a broken one.
+                -->
+                <h3 class="text-sm sm:text-base font-bold text-ink">
+                  {{ reason === 'empty' ? $t('recognize.empty') : $t('recognize.unsure') }}
+                </h3>
+                <p class="text-xs text-muted leading-relaxed mt-0.5">
+                  {{ reason === 'empty' ? $t('recognize.emptyHint') : $t('recognize.unsureHint') }}
+                </p>
               </div>
             </div>
 
@@ -226,11 +253,11 @@ const busy = computed(() => state.value === 'listening' || state.value === 'work
     <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
       <div class="rounded-2xl border border-line bg-panel/75 p-4 backdrop-blur-md shadow-xs space-y-1.5">
         <div class="flex size-8 items-center justify-center rounded-lg bg-accent-soft text-accent">
-          <Icon name="material-symbols:timer-outline-rounded" class="text-lg" />
+          <Icon name="material-symbols:timer-rounded" class="text-lg" />
         </div>
-        <h4 class="text-xs font-bold text-ink">Brzo & Precizno</h4>
+        <h4 class="text-xs font-bold text-ink">{{ $t('recognize.card.fast.title') }}</h4>
         <p class="text-[11.5px] text-muted leading-relaxed">
-          Samo 8 sekundi slušanja dovoljno je za prepoznavanje audio frekvencija pjesme.
+          {{ $t('recognize.card.fast.body') }}
         </p>
       </div>
 
@@ -238,19 +265,19 @@ const busy = computed(() => state.value === 'listening' || state.value === 'work
         <div class="flex size-8 items-center justify-center rounded-lg bg-accent-soft text-accent">
           <Icon name="material-symbols:queue-music-rounded" class="text-lg" />
         </div>
-        <h4 class="text-xs font-bold text-ink">Akordi i Tekst</h4>
+        <h4 class="text-xs font-bold text-ink">{{ $t('recognize.card.chords.title') }}</h4>
         <p class="text-[11.5px] text-muted leading-relaxed">
-          Prepoznata pjesma se odmah otvara sa tačnim akordima, kapom i transponovanjem.
+          {{ $t('recognize.card.chords.body') }}
         </p>
       </div>
 
       <div class="rounded-2xl border border-line bg-panel/75 p-4 backdrop-blur-md shadow-xs space-y-1.5">
         <div class="flex size-8 items-center justify-center rounded-lg bg-accent-soft text-accent">
-          <Icon name="material-symbols:wifi-off-rounded" class="text-lg" />
+          <Icon name="material-symbols:cloud-off-rounded" class="text-lg" />
         </div>
-        <h4 class="text-xs font-bold text-ink">Offline Podrška</h4>
+        <h4 class="text-xs font-bold text-ink">{{ $t('recognize.card.offline.title') }}</h4>
         <p class="text-[11.5px] text-muted leading-relaxed">
-          Prepoznavanje radi i bez interneta za pjesme spremljene u vašoj lokalnoj bazi.
+          {{ $t('recognize.card.offline.body') }}
         </p>
       </div>
     </div>

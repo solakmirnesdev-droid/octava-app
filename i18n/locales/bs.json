@@ -26,7 +26,9 @@
     "logoutTitle": "Odjava",
     "logoutBody": "Odjavljujemo te s naloga {name}. Sačuvane pjesme ostaju i čekaju te kad se vratiš.",
     "loggedOut": "Odjavljen si.",
-    "metronome": "Metronom"
+    "metronome": "Metronom",
+    "suggestHeading": "Najtraženije",
+    "suggestEmpty": "Počni kucati da pretražiš."
   },
   "song": {
     "key": "Tonalitet",
@@ -556,7 +558,7 @@
     "listening": "Slušam",
     "working": "Tražim…",
     "tapToListen": "Dodirni pa pusti pjesmu",
-    "hint": "Osam sekundi je dovoljno. Prepoznaje snimke — živo sviranje ne može.",
+    "hint": "Deset sekundi je dovoljno. Prepoznaje snimke — živo sviranje ne može.",
     "resultTitle": "Rezultat",
     "idle": "Rezultat se pojavi ovdje.",
     "unsure": "Nisam siguran",
@@ -569,6 +571,24 @@
     "atSecond": "na {at}s",
     "fromCache": "bez interneta",
     "cached": "ništa nije spremljeno za offline | {n} pjesma spremljena za offline | {n} pjesme spremljene za offline | {n} pjesama spremljeno za offline",
-    "clearCache": "Obriši spremljeno"
+    "clearCache": "Obriši spremljeno",
+    "empty": "Još nema indeksiranih pjesama",
+    "emptyHint": "Prepoznavanje traži po bazi otisaka, a ona je za sada prazna. Nije do tvog snimka.",
+    "eyebrow": "Audio prepoznavanje",
+    "open": "Otvori akorde",
+    "card": {
+      "fast": {
+        "title": "Brzo i precizno",
+        "body": "Deset sekundi slušanja dovoljno je da se pjesma prepozna po zvuku."
+      },
+      "chords": {
+        "title": "Akordi i tekst",
+        "body": "Prepoznata pjesma se odmah otvara s akordima, kapodasterom i transponovanjem."
+      },
+      "offline": {
+        "title": "Radi i bez interneta",
+        "body": "Pjesme spremljene u lokalnu bazu prepoznaju se i kad veze nema."
+      }
+    }
   }
 }

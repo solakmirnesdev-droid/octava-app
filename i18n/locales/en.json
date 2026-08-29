@@ -26,7 +26,9 @@
     "logoutTitle": "Sign out",
     "logoutBody": "You'll be signed out of {name}. Your saved songs stay where they are.",
     "loggedOut": "You are signed out.",
-    "metronome": "Metronome"
+    "metronome": "Metronome",
+    "suggestHeading": "Most looked up",
+    "suggestEmpty": "Start typing to search."
   },
   "song": {
     "key": "Key",
@@ -556,7 +558,7 @@
     "listening": "Listening",
     "working": "Searching…",
     "tapToListen": "Tap, then play the song",
-    "hint": "Eight seconds is enough. It recognises recordings — live playing it cannot.",
+    "hint": "Ten seconds is enough. It recognises recordings — live playing it cannot.",
     "resultTitle": "Result",
     "idle": "The result appears here.",
     "unsure": "Not sure",
@@ -569,6 +571,24 @@
     "atSecond": "at {at}s",
     "fromCache": "offline",
     "cached": "nothing saved for offline | {n} song saved for offline | {n} songs saved for offline",
-    "clearCache": "Clear saved"
+    "clearCache": "Clear saved",
+    "empty": "No songs are indexed yet",
+    "emptyHint": "Recognition searches a library of fingerprints, and it is empty for now. Nothing to do with your recording.",
+    "eyebrow": "Audio recognition",
+    "open": "Open the chords",
+    "card": {
+      "fast": {
+        "title": "Fast and precise",
+        "body": "Ten seconds of listening is enough to recognise a song by its sound."
+      },
+      "chords": {
+        "title": "Chords and words",
+        "body": "A recognised song opens straight away with its chords, capo and transposition."
+      },
+      "offline": {
+        "title": "Works offline",
+        "body": "Songs saved to the local library are recognised with no connection at all."
+      }
+    }
   }
 }

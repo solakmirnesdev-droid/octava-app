@@ -136,7 +136,7 @@ function onChordPlay(symbol) {
   window.clearTimeout(ringTimer);
   ringTimer = window.setTimeout(() => {
     ringingChord.value = null;
-  }, 850);
+  }, 2200);
 }
 
 onBeforeUnmount(() => window.clearTimeout(ringTimer));
@@ -187,19 +187,32 @@ useSeoMeta({
       </div>
 
       <!-- Instrument Segmented Control -->
-      <div class="flex items-center gap-1 self-start sm:self-auto rounded-2xl border border-line-soft bg-surface/85 p-1 shadow-2xs backdrop-blur-md" data-print="hide">
+      <div class="inline-flex items-center gap-1.5 self-start sm:self-auto rounded-2xl border border-line bg-surface/90 p-1.5 shadow-xs backdrop-blur-xl ring-1 ring-white/5" data-print="hide">
         <button
           v-for="i in INSTRUMENT_LIST"
           :key="i.key"
           type="button"
-          class="flex items-center gap-1.5 rounded-xl px-3 py-1.5 text-xs font-semibold transition-all duration-150 outline-none cursor-pointer"
+          class="group flex items-center gap-2 rounded-xl px-3 py-1.5 text-xs font-bold transition-all duration-200 outline-none cursor-pointer select-none"
           :class="instrument === i.key
-            ? 'bg-accent text-on-accent shadow-xs shadow-accent/25'
+            ? 'bg-accent text-on-accent shadow-md shadow-accent/25 scale-[1.02]'
             : 'text-muted hover:bg-panel hover:text-ink'"
           @click="instrument = i.key"
         >
+          <GuitarIcon v-if="i.key === 'guitar'" size="1.25em" class="transition-transform group-hover:scale-110" />
+          <BassIcon v-else-if="i.key === 'bass'" size="1.25em" class="transition-transform group-hover:scale-110" />
+          <UkuleleIcon v-else-if="i.key === 'ukulele'" size="1.25em" class="transition-transform group-hover:scale-110" />
+
           <span>{{ $t(i.labelKey) }}</span>
-          <span class="font-mono text-[10px] opacity-70 hidden md:inline">{{ i.tuning }}</span>
+
+          <!-- Tuning Tag -->
+          <span
+            class="font-mono text-[10.5px] tracking-wider rounded-md px-1.5 py-0.5 transition-colors hidden sm:inline"
+            :class="instrument === i.key
+              ? 'bg-black/20 text-on-accent font-black'
+              : 'bg-panel/80 border border-line-soft text-faint group-hover:text-muted'"
+          >
+            {{ i.tuning }}
+          </span>
         </button>
       </div>
     </header>

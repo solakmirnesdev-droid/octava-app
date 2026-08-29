@@ -273,19 +273,6 @@ useSeoMeta({
         <p class="line-clamp-4 text-faint font-sans">{{ artist.bio }}</p>
       </div>
 
-      <!-- Photo Attribution -->
-      <p
-        v-if="artist.hasImage && artist.imageAuthor"
-        class="w-full border-t border-line-soft/60 pt-2.5 text-[10px] leading-relaxed text-dim"
-      >
-        {{ $t('artist.photoBy') }} {{ artist.imageAuthor }}
-        <a
-          v-if="artist.imageSource"
-          :href="artist.imageSource" target="_blank" rel="noopener nofollow"
-          class="text-faint hover:text-accent hover:underline"
-        >· {{ artist.imageLicense }}</a>
-        <span v-else class="text-faint">· {{ artist.imageLicense }}</span>
-      </p>
     </aside>
 
     <!-- Main Content: SongList with Search, Filters and Grid/List view -->

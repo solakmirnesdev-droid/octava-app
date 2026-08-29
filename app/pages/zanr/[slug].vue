@@ -207,7 +207,6 @@ useSeoMeta({
         <!-- Songs View (Grid / List) -->
         <SongList
           :songs="filteredSongs"
-          :allow-view-toggle="true"
           :show-artist="true"
           :default-view="viewMode"
         />

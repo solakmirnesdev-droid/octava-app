@@ -43,7 +43,7 @@ function play() {
   nextTick(() => {
     ringing.value = true;
     window.clearTimeout(timer);
-    timer = window.setTimeout(() => { ringing.value = false; }, 850);
+    timer = window.setTimeout(() => { ringing.value = false; }, 2200);
   });
 }
 
@@ -106,13 +106,18 @@ const step = (by) => {
     :title="audible ? $t('chord.hear', { name: shape.name }) : ''"
     @click="play"
   >
-    <!-- Central Acoustic Resonance Glow / Pulse on Play -->
+    <!-- Full-Card Acoustic Resonance Glow / Pulse on Play -->
     <div
       v-if="ringing"
-      class="pointer-events-none absolute inset-0 z-0 flex items-center justify-center overflow-hidden rounded-2xl"
+      class="pointer-events-none absolute -inset-6 sm:-inset-8 z-0 flex items-center justify-center overflow-hidden"
     >
-      <span class="absolute size-28 rounded-full bg-accent/20 blur-xl animate-pulse" />
-      <span class="absolute size-20 rounded-full border border-accent/35 chord-pulse-ring" />
+      <!-- Full card ambient wash -->
+      <span class="absolute inset-0 bg-gradient-to-b from-accent/15 via-accent/6 to-accent/15 chord-ambient-wash" />
+      <!-- Central blooming radial aura -->
+      <span class="absolute size-56 sm:size-72 rounded-full bg-accent/20 blur-3xl chord-ambient-wash" />
+      <!-- Expansive concentric acoustic shockwaves extending across full card -->
+      <span class="absolute size-40 sm:size-48 rounded-full border border-accent/35 chord-pulse-ring-1" />
+      <span class="absolute size-56 sm:size-64 rounded-full border border-accent/20 chord-pulse-ring-2" />
     </div>
 
     <!-- Top-Right Audio Icon Badge -->
@@ -165,7 +170,11 @@ const step = (by) => {
         <template v-for="(fret, i) in shape.frets" :key="'m' + i">
           <text
             :x="x(i)" :y="TOP - (compact ? 4 : 7)" text-anchor="middle"
-            class="fill-faint font-mono font-bold" :style="{ fontSize: compact ? '9px' : '11px' }"
+            class="font-mono font-bold transition-all duration-150"
+            :class="[
+              ringing && fret === 0 ? 'fill-accent scale-110' : 'fill-faint'
+            ]"
+            :style="{ fontSize: compact ? '9px' : '11px' }"
           >{{ fret === null ? '×' : (fret === 0 ? '○' : '') }}</text>
         </template>
 
@@ -181,10 +190,20 @@ const step = (by) => {
           stroke="currentColor" stroke-width="1.1" class="text-dim"
         />
 
+        <!-- Vertical Strings (Strings being played vibrate on sound) -->
         <line
           v-for="s in STRINGS" :key="'s' + s"
           :x1="x(s - 1)" :y1="TOP" :x2="x(s - 1)" :y2="TOP + FRETS * STEP_Y"
-          stroke="currentColor" stroke-width="1.1" class="text-dim"
+          stroke="currentColor" stroke-width="1.1"
+          class="transition-colors duration-150"
+          :class="[
+            ringing && shape.frets[s - 1] !== null
+              ? 'string-vibrating text-accent'
+              : 'text-dim'
+          ]"
+          :style="{
+            animationDelay: ringing && shape.frets[s - 1] !== null ? `${(s - 1) * 35}ms` : '0ms'
+          }"
         />
 
         <!-- Position marker for shapes that start further down the neck. -->
@@ -194,22 +213,34 @@ const step = (by) => {
           class="fill-muted font-mono font-bold" :style="{ fontSize: compact ? '9px' : '11px' }"
         >{{ shape.baseFret }}</text>
 
-        <rect
+        <!-- Barre Chord Shape (Shakes with Barre String) -->
+        <g
           v-if="shape.barre"
-          :x="x(shape.barre.from) - (compact ? 4.5 : 6)"
-          :y="y(relative(shape.barre.fret)) - (compact ? 4.5 : 6)"
-          :width="(shape.barre.to - shape.barre.from) * STEP_X + (compact ? 9 : 12)"
-          :height="compact ? 9 : 12" :rx="compact ? 4.5 : 6"
-          class="fill-accent transition-all duration-200"
-          :class="ringing ? 'filter drop-shadow-[0_0_6px_var(--color-accent)]' : 'shadow-xs'"
-        />
-        <text
-          v-if="shape.barre"
-          :x="x(shape.barre.from)" :y="y(relative(shape.barre.fret)) + (compact ? 2.5 : 3.5)"
-          text-anchor="middle" class="fill-on-accent font-mono font-bold" :style="{ fontSize: compact ? '7.5px' : '9px' }"
-        >1</text>
+          class="transition-all duration-200"
+          :class="ringing ? 'string-vibrating' : ''"
+          :style="{ animationDelay: ringing ? `${shape.barre.from * 35}ms` : '0ms' }"
+        >
+          <rect
+            :x="x(shape.barre.from) - (compact ? 4.5 : 6)"
+            :y="y(relative(shape.barre.fret)) - (compact ? 4.5 : 6)"
+            :width="(shape.barre.to - shape.barre.from) * STEP_X + (compact ? 9 : 12)"
+            :height="compact ? 9 : 12" :rx="compact ? 4.5 : 6"
+            class="fill-accent transition-all duration-200"
+            :class="ringing ? 'filter drop-shadow-[0_0_6px_var(--color-accent)]' : 'shadow-xs'"
+          />
+          <text
+            :x="x(shape.barre.from)" :y="y(relative(shape.barre.fret)) + (compact ? 2.5 : 3.5)"
+            text-anchor="middle" class="fill-on-accent font-mono font-bold" :style="{ fontSize: compact ? '7.5px' : '9px' }"
+          >1</text>
+        </g>
 
-        <template v-for="d in dots" :key="'d' + d.i">
+        <!-- Finger Position Dots (Each dot shakes synchronized to its string) -->
+        <g
+          v-for="d in dots" :key="'d' + d.i"
+          class="transition-all duration-200"
+          :class="ringing ? 'string-vibrating' : ''"
+          :style="{ animationDelay: ringing ? `${d.i * 35}ms` : '0ms' }"
+        >
           <circle
             :cx="x(d.i)" :cy="y(relative(d.fret))" :r="compact ? 4.2 : 5.8"
             class="fill-accent transition-all duration-200"
@@ -220,7 +251,7 @@ const step = (by) => {
             :x="x(d.i)" :y="y(relative(d.fret)) + (compact ? 2.5 : 3.5)" text-anchor="middle"
             class="fill-on-accent font-mono font-bold" :style="{ fontSize: compact ? '7.5px' : '9px' }"
           >{{ d.finger }}</text>
-        </template>
+        </g>
       </svg>
     </div>
 
@@ -256,18 +287,90 @@ const step = (by) => {
 </template>
 
 <style scoped>
-@keyframes chord-pulse {
+@keyframes chord-ambient-wash {
   0% {
-    transform: scale(0.5);
-    opacity: 0.75;
+    opacity: 0;
+  }
+  15% {
+    opacity: 1;
   }
   100% {
-    transform: scale(1.3);
     opacity: 0;
   }
 }
 
-.chord-pulse-ring {
-  animation: chord-pulse 0.75s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+.chord-ambient-wash {
+  animation: chord-ambient-wash 2.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes chord-pulse-1 {
+  0% {
+    transform: scale(0.3);
+    opacity: 0.45;
+  }
+  35% {
+    opacity: 0.25;
+  }
+  100% {
+    transform: scale(3.6);
+    opacity: 0;
+  }
+}
+
+@keyframes chord-pulse-2 {
+  0% {
+    transform: scale(0.45);
+    opacity: 0.35;
+  }
+  45% {
+    opacity: 0.15;
+  }
+  100% {
+    transform: scale(4.2);
+    opacity: 0;
+  }
+}
+
+.chord-pulse-ring-1 {
+  animation: chord-pulse-1 2.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.chord-pulse-ring-2 {
+  animation: chord-pulse-2 2.2s cubic-bezier(0.16, 1, 0.3, 1) 0.15s forwards;
+}
+
+@keyframes string-vibrate {
+  0% {
+    transform: translateX(0);
+    stroke-width: 1.8px;
+  }
+  15% {
+    transform: translateX(-1.4px);
+  }
+  30% {
+    transform: translateX(1.4px);
+  }
+  45% {
+    transform: translateX(-1px);
+  }
+  60% {
+    transform: translateX(1px);
+  }
+  75% {
+    transform: translateX(-0.5px);
+  }
+  90% {
+    transform: translateX(0.5px);
+  }
+  100% {
+    transform: translateX(0);
+    stroke-width: 1.1px;
+  }
+}
+
+.string-vibrating {
+  animation: string-vibrate 0.8s ease-out forwards;
+  transform-box: fill-box;
+  transform-origin: center;
 }
 </style>

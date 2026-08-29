@@ -480,15 +480,20 @@ word (it is a translation key — see §6), or add a locale key to one catalogue
 - **Why:** `onMounted(load)` initialized `rating` as `null` during server rendering, causing `<StarRating>` to be absent in the initial SSR HTML. Once mounted on the client, the card popped into existence after hydration, pushing the controls toolbar and chord sheet down by ~75px (Cumulative Layout Shift). With SSR prefetching, the complete card is embedded in the initial server HTML with 0 layout shift.
 - **Affects:** `app/components/StarRating.vue`, `app/pages/pjesma/[slug].vue`.
 
-### 2026-08-29 — Linear Transposition Key Ordering (-5 to +6)
-- **What:** Replaced modulo-based key ordering in `TransposeControls.vue` with a linear ascending progression from the lowest pitch reduction to the highest shift: `[-5, -4, -3, -2, -1, 0 (orig), +1, +2, +3, +4, +5, +6]`.
-- **Why:** Previous order jumped discontinuously between +6 and -5. The linear order follows natural pitch progression from lowest to highest.
+### 2026-08-29 — Linear Transposition Ribbon ("Lenta") (-5 to +6)
+- **What:** Replaced the multi-row grid dropdown in `TransposeControls.vue` with a single-row horizontal ribbon ("lenta") ordered linearly from `-5` to `+6`. On open, it automatically smooth-scrolls to center the currently active key with edge swipe affordances.
+- **Why:** Delivers a continuous, tape-like scrubber ("lenta") matching musical pitch intuition without multi-row grid fragmentation.
 - **Affects:** `app/components/TransposeControls.vue`.
 
-### 2026-08-29 — Clean Static Sound Icon with Card Acoustic Pulse Resonance
-- **What:** Removed `animate-ping` from the tiny top-right speaker badge while retaining the subtle central acoustic resonance pulse and card border halo in `ChordDiagram.vue` and `ChordTooltip.vue`.
-- **Why:** Delivers smooth acoustic feedback on playback without cluttering or vibrating the speaker icon.
-- **Affects:** `app/components/ChordDiagram.vue`, `app/components/ChordTooltip.vue`.
+### 2026-08-29 — Enhanced Multi-layered Acoustic Resonance Ripple
+- **What:** Increased the scale, glow radius, and concentric ring structure of the playback ripple in `ChordDiagram.vue` (`size-40`/`size-48` glow wave, dual staggered expanding ripple rings with up to `2.6x` scale expansion).
+- **Why:** Produces an expressive acoustic visual response across the entire chord card when strumming.
+- **Affects:** `app/components/ChordDiagram.vue`.
+
+### 2026-08-29 — Chord Catalogue Instrument Switcher Redesign
+- **What:** Redesigned the instrument switcher segmented control in `akordi/index.vue`: integrated dedicated fretboard icons (`<GuitarIcon>`, `<BassIcon>`, `<UkuleleIcon>`), separated tuning letters into dedicated inner tag pills (`bg-black/20 font-black` when selected, `bg-panel/80` when unselected), and improved container glassmorphic padding.
+- **Why:** Replaces plain squished text with a polished, distinct studio instrument selector.
+- **Affects:** `app/pages/akordi/index.vue`.
 
 ---
 

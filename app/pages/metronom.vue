@@ -264,11 +264,11 @@ useSeoMeta({
 
                   <!-- Subtle glow outline on hover/active drag -->
                   <rect
-                    x="170" y="-21"
-                    width="60" height="42"
+                    x="168" y="-22"
+                    width="64" height="44"
                     rx="10"
                     class="transition-all duration-150"
-                    :class="isDragging ? 'fill-accent/20 stroke-accent' : 'fill-transparent group-hover:fill-accent/10'"
+                    :class="isDragging ? 'fill-accent/25 stroke-accent' : 'fill-transparent group-hover:fill-accent/15 group-hover:stroke-accent/40'"
                     stroke-width="1.5"
                   />
 
@@ -278,8 +278,7 @@ useSeoMeta({
                     width="56" height="38"
                     rx="8"
                     fill="currentColor"
-                    class="text-accent shadow-xl transition-transform duration-100"
-                    :class="isDragging ? 'scale-105' : 'group-hover:scale-102'"
+                    class="text-accent shadow-xl transition-all duration-150 group-hover:brightness-110"
                   />
 
                   <!-- Inner reflective stripe & center notch -->

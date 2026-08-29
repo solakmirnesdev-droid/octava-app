@@ -146,7 +146,19 @@ async function submit(value) {
       </div>
 
       <!-- 2. Right: Interactive Rating Stars & Actions -->
-      <div class="flex items-center justify-between sm:justify-end gap-2 shrink-0 w-full sm:w-auto border-t sm:border-t-0 border-line-soft/60 pt-2 sm:pt-0">
+      <div class="flex items-center justify-between sm:justify-end gap-1.5 sm:gap-2 shrink-0 w-full sm:w-auto border-t sm:border-t-0 border-line-soft/60 pt-2 sm:pt-0">
+        <!-- Withdraw / Retract Action if voted (Icon only, placed on left) -->
+        <button
+          v-if="isMine"
+          type="button"
+          class="flex size-7 sm:size-8 items-center justify-center rounded-xl border border-line-soft bg-surface/80 text-faint hover:border-danger/40 hover:text-danger hover:bg-surface transition-colors shadow-2xs cursor-pointer"
+          :title="$t('rating.remove')"
+          :aria-label="$t('rating.remove')"
+          @click="submit(rating.mine)"
+        >
+          <Icon name="material-symbols:restart-alt-rounded" class="text-sm sm:text-base" />
+        </button>
+
         <!-- 5 Interactive Star Rating Buttons -->
         <div
           class="flex items-center gap-0.5 rounded-xl border border-line bg-surface/90 p-1 shadow-2xs"
@@ -175,21 +187,9 @@ async function submit(value) {
           </button>
         </div>
 
-        <!-- Withdraw / Retract Action if voted -->
-        <button
-          v-if="isMine"
-          type="button"
-          class="inline-flex items-center gap-1 rounded-xl border border-line-soft bg-surface/60 px-2.5 py-1.5 text-xs text-faint hover:border-danger/40 hover:text-danger hover:bg-surface transition-colors font-medium shadow-2xs cursor-pointer"
-          :title="$t('rating.remove')"
-          @click="submit(rating.mine)"
-        >
-          <Icon name="material-symbols:restart-alt-rounded" class="text-xs" />
-          <span class="hidden sm:inline">{{ $t('rating.remove') }}</span>
-        </button>
-
         <!-- Sign-in prompt if visitor -->
         <NuxtLink
-          v-else-if="!auth.isAuthenticated"
+          v-if="!auth.isAuthenticated"
           :to="localePath({ path: '/prijava', query: { redirect: route.fullPath } })"
           class="inline-flex items-center gap-1.5 rounded-xl border border-accent/30 bg-accent-soft px-3 py-1.5 text-xs font-semibold text-accent hover:bg-accent hover:text-on-accent transition-all shadow-2xs"
         >
