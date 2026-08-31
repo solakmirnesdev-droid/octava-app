@@ -3,6 +3,10 @@ node_modules/
 .output/
 .data/
 dist/
+# The Capacitor prep left `dist` as a symlink to .output/public, and a trailing
+# slash matches directories only — so git kept offering to commit a link
+# pointing at an absolute path on one machine.
+dist
 .env
 .env.local
 .DS_Store
