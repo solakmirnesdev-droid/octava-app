@@ -104,10 +104,6 @@ onMounted(async () => {
     });
     resizeObserver.observe(el.value);
   }
-
-  if (props.playTrigger > 0) {
-    triggerRinging();
-  }
 });
 
 onBeforeUnmount(() => {
@@ -126,7 +122,7 @@ watch(() => props.anchor, async () => {
 });
 
 watch(() => props.playTrigger, (newVal, oldVal) => {
-  if (newVal > 0 && newVal !== oldVal) {
+  if (newVal > (oldVal ?? 0)) {
     triggerRinging();
   }
 });

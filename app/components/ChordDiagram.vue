@@ -31,9 +31,6 @@ const variant = ref(0);
 const audible = ref(false);
 onMounted(() => {
   audible.value = canPlay();
-  if (props.playTrigger > 0) {
-    triggerRinging();
-  }
 });
 
 const ringing = ref(false);
