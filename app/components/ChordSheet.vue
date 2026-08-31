@@ -19,6 +19,42 @@ const sheet = computed(() => normalizeNotation(
 
 const lines = computed(() => parseSong(sheet.value));
 
+/**
+ * The lines, grouped so a section cannot be split across columns.
+ *
+ * AI-DECISION: grouping, not `break-after-avoid` on the heading. That property
+ * is what the sheet used and browsers barely honour it in a multi-column
+ * layout — the result was "STROFA 2" stranded alone at the foot of one column
+ * with its verse at the head of the next. `break-inside-avoid` on a wrapper is
+ * widely supported and says the thing that is actually meant: these lines are
+ * one unit.
+ *
+ * AI-TRAP: each line keeps its ORIGINAL index as `at`. The tooltip anchors are
+ * keyed by position in `lines`, so renumbering per block would open a chord
+ * diagram against the wrong element — visible only once two sections both have
+ * a chord in the same slot.
+ *
+ * A block taller than the column still breaks: browsers ignore the request
+ * rather than overflow, which is the right failure.
+ */
+const blocks = computed(() => {
+  const out = [];
+  let current = null;
+
+  lines.value.forEach((line, at) => {
+    const entry = { ...line, at };
+    // A heading opens a block; anything before the first heading gets its own.
+    if (line.label || !current) {
+      current = { lines: [entry] };
+      out.push(current);
+    } else {
+      current.lines.push(entry);
+    }
+  });
+
+  return out;
+});
+
 /** The distinct symbols on screen, which is what the prefetch warms. */
 const shown = computed(() => extractChords(sheet.value));
 
@@ -149,7 +185,8 @@ function onChordClick(key, symbol, event) {
     ]"
     :style="{ fontSize: fontSize + 'px' }"
   >
-    <template v-for="(line, i) in lines" :key="i">
+    <div v-for="(block, b) in blocks" :key="b" class="mt-4 first:mt-0 break-inside-avoid">
+    <template v-for="line in block.lines" :key="line.at">
       <!-- Empty lines: keep a non-breaking space so multi-column layouts do not
            collapse the vertical rhythm between verses. -->
       <div v-if="!line.label && !line.segments" class="h-[1.5em] break-inside-avoid">
@@ -159,10 +196,14 @@ function onChordClick(key, symbol, event) {
       <!-- Section headers (e.g. [Strofa 1], [Refren]) -->
       <h2
         v-else-if="line.label"
-        class="mt-4 mb-2 first:mt-0 font-sans text-xs font-black uppercase tracking-wider text-accent inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-accent-soft/70 border border-accent/25 select-none shadow-2xs
+        class="mb-2 font-sans text-xs font-black uppercase tracking-wider text-accent inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-accent-soft/70 border border-accent/25 select-none shadow-2xs
                break-after-avoid break-inside-avoid"
       >
         {{ line.label }}
+        <!-- "(2x)" is an instruction to whoever is playing, not decoration. -->
+        <span v-if="line.note" class="font-mono font-bold normal-case tracking-normal text-accent/70">
+          {{ line.note }}
+        </span>
       </h2>
 
       <!-- Instrumental run: spaced evenly, since there are no words to sit over
@@ -171,7 +212,7 @@ function onChordClick(key, symbol, event) {
         <span
           v-for="(seg, j) in line.segments.filter((s) => s.chord)" :key="j"
           class="relative"
-          @mouseenter="show(`inst-${i}-${j}`, $event)" @mouseleave="hide"
+          @mouseenter="show(`inst-${line.at}-${j}`, $event)" @mouseleave="hide"
         >
           <!-- Locked: a span, not a button. The symbol arrived as dots, so there
                is nothing to play and nothing to look up. -->
@@ -183,17 +224,17 @@ function onChordClick(key, symbol, event) {
           <button
             v-else
             class="relative inline-flex items-center justify-center font-semibold text-accent underline decoration-dotted decoration-accent/30 underline-offset-4 transition-all duration-150 py-0.5 px-1 -my-0.5 -mx-1 rounded cursor-pointer before:absolute before:-inset-x-2 before:-inset-y-2 before:content-[''] hover:scale-105 active:scale-95"
-            :class="isActive(`inst-${i}-${j}`) ? 'text-accent' : ''"
+            :class="isActive(`inst-${line.at}-${j}`) ? 'text-accent' : ''"
             :title="$t('song.chordHear')"
-            @click="onChordClick(`inst-${i}-${j}`, seg.chord, $event)"
+            @click="onChordClick(`inst-${line.at}-${j}`, seg.chord, $event)"
           >{{ seg.chord }}</button>
 
           <ChordTooltip
-            v-if="!locked && isActive(`inst-${i}-${j}`)"
+            v-if="!locked && isActive(`inst-${line.at}-${j}`)"
             :symbol="seg.chord"
             :anchor="anchor"
             :play-trigger="playCount"
-            @keep="keep(`inst-${i}-${j}`)"
+            @keep="keep(`inst-${line.at}-${j}`)"
             @leave="hide"
           />
         </span>
@@ -212,19 +253,19 @@ function onChordClick(key, symbol, event) {
             <button
               v-else-if="seg.chord"
               class="relative inline-flex items-center justify-center font-semibold text-accent underline decoration-dotted decoration-accent/30 underline-offset-2 transition-all duration-150 py-0.5 px-1 -my-0.5 -mx-1 rounded cursor-pointer before:absolute before:-inset-x-2.5 before:-inset-y-2 before:content-[''] hover:scale-105 active:scale-95"
-              :class="isActive(`${i}-${j}`) ? 'text-accent' : ''"
+              :class="isActive(`${line.at}-${j}`) ? 'text-accent' : ''"
               :title="$t('song.chordHear')"
-              @mouseenter="show(`${i}-${j}`, $event)"
+              @mouseenter="show(`${line.at}-${j}`, $event)"
               @mouseleave="hide"
-              @click="onChordClick(`${i}-${j}`, seg.chord, $event)"
+              @click="onChordClick(`${line.at}-${j}`, seg.chord, $event)"
             >{{ seg.chord }}</button>
 
             <ChordTooltip
-              v-if="!locked && seg.chord && isActive(`${i}-${j}`)"
+              v-if="!locked && seg.chord && isActive(`${line.at}-${j}`)"
               :symbol="seg.chord"
               :anchor="anchor"
               :play-trigger="playCount"
-              @keep="keep(`${i}-${j}`)"
+              @keep="keep(`${line.at}-${j}`)"
               @leave="hide"
             />
           </span>
@@ -232,5 +273,6 @@ function onChordClick(key, symbol, event) {
         </span>
       </div>
     </template>
+    </div>
   </div>
 </template>

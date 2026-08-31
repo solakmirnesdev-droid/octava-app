@@ -44,21 +44,7 @@ const playable = computed(() => {
   return out;
 });
 
-// Notify global state whether this floating button is visible
-const { hasFloatingChords } = useFloatingChords();
-watch(
-  () => playable.value.length > 0,
-  (val) => {
-    hasFloatingChords.value = val;
-  },
-  { immediate: true }
-);
-
 const missing = computed(() => (props.locked ? [] : chords.value.filter((c) => !findFingering(c, 0, instrument.value))));
-
-onBeforeUnmount(() => {
-  hasFloatingChords.value = false;
-});
 
 // Close popover when clicking outside
 function onClickOutside(e) {
@@ -83,15 +69,14 @@ onBeforeUnmount(() => {
 <template>
   <div
     v-if="playable.length"
-    class="fixed right-4 sm:right-6 bottom-4 sm:bottom-6 z-40 flex flex-col items-end"
+    class="relative flex flex-col items-end"
     data-dancing-chords
-    data-print="hide"
   >
     <!-- Popover Mini Chords Sheet / Companion (Positioned to the left of floating buttons) -->
     <Transition name="popup">
       <div
         v-if="isOpen"
-        class="fixed right-3 sm:right-20 bottom-18 sm:bottom-6 z-40 w-72 sm:w-80 max-w-[calc(100vw-1.5rem)] max-h-[calc(100dvh-5.5rem)] sm:max-h-[calc(100dvh-6.5rem)] flex flex-col rounded-3xl border border-line bg-panel/95 shadow-2xl backdrop-blur-xl ring-1 ring-white/10 overflow-hidden"
+        class="fixed right-3 sm:right-20 bottom-18 sm:bottom-6 z-50 w-72 sm:w-80 max-w-[calc(100vw-1.5rem)] max-h-[calc(100dvh-5.5rem)] sm:max-h-[calc(100dvh-6.5rem)] flex flex-col rounded-3xl border border-line bg-panel/95 shadow-2xl backdrop-blur-xl ring-1 ring-white/10 overflow-hidden pointer-events-auto"
         role="dialog"
         aria-label="Akordi pjesme"
       >
@@ -200,8 +185,7 @@ onBeforeUnmount(() => {
         isOpen
           ? 'border-accent bg-accent-soft text-accent ring-2 ring-accent/40 shadow-accent/20 scale-105'
           : 'border-line/80 bg-panel/90 text-accent hover:border-accent hover:bg-panel hover:scale-105'
-      ]
-"
+      ]"
       :title="isOpen ? 'Zatvori akorde' : 'Prikaži akorde pjesme'"
       @click="isOpen = !isOpen"
     >

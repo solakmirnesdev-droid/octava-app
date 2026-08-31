@@ -84,6 +84,12 @@ fret numbers, formulas. `font-sans` for prose. Sizes bottom out at
 
 ## 5. Decision log
 
+### 2026-08-30 — Unified floating tools dock (eliminated button overlapping)
+
+- **What:** Wrapped `DancingMetronome` and `DancingChords` inside a unified flex column container (`fixed right-4 sm:right-6 bottom-4 sm:bottom-6 flex flex-col items-end gap-2.5 sm:gap-3`) in `pages/pjesma/[slug].vue`.
+- **Why:** Previously, both components used independent `fixed` viewports and relied on a fragile global composable state `hasFloatingChords` with hardcoded pixel bottom offsets (`bottom-[4.5rem]`). Hydration timing and state mismatches caused the Metronome button to render directly on top of the Chords button, partially obscuring the chord count badge. Flex stacking provides a deterministic, zero-overlap layout.
+- **Affects:** `app/pages/pjesma/[slug].vue`, `app/components/DancingChords.vue`, `app/components/DancingMetronome.vue`.
+
 ### 2026-08-30 — Fixed popup overlap and added vibrating subtle shadow on play
 
 - **What:**
@@ -102,9 +108,3 @@ fret numbers, formulas. `font-sans` for prose. Sizes bottom out at
 - **What:** Removed `-inset-6 sm:-inset-8` acoustic pulse/wash overlay layers and shockwave rings from `ChordDiagram.vue`.
 - **Why:** The pulse overlay was bleeding outside the card boundaries, creating a huge tinted rectangular box artifact around tooltips and popup cards on click.
 - **Affects:** `app/components/ChordDiagram.vue`.
-
-### 2026-08-30 — Fixed ChordSheet hover popup positioning and lifecycle
-
-- **What:** Restored per-chord instance mounting for `<ChordTooltip>` with fixed coordinate calculation, `z-index: 9999`, initial offscreen bounds (`top: -9999px`), invisible hit-bridge (`before:-inset-3`), and smooth `<Transition name="popup" appear>`.
-- **Why:** The single global instance at the sheet root suffered from coordinate calculation bugs and layout shifts when moving rapidly between chord buttons.
-- **Affects:** `app/components/ChordSheet.vue`, `app/components/ChordTooltip.vue`.

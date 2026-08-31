@@ -1,9 +1,7 @@
 <script setup>
 import { useMetronome, MIN_BPM, MAX_BPM } from '~/composables/useMetronome';
-import { useFloatingChords } from '~/composables/useFloatingChords';
 
 const { running, bpm, beatsPerBar, beat, toggle, setBpm, tap } = useMetronome();
-const { hasFloatingChords } = useFloatingChords();
 const isOpen = ref(false);
 const localePath = useLocalePath();
 
@@ -36,10 +34,8 @@ onBeforeUnmount(() => {
 
 <template>
   <div
-    class="fixed right-4 sm:right-6 z-40 flex flex-col items-end transition-all duration-300 ease-in-out"
-    :class="hasFloatingChords ? 'bottom-[4.5rem] sm:bottom-[5.25rem]' : 'bottom-4 sm:bottom-6'"
+    class="relative flex flex-col items-end"
     data-dancing-metronome
-    data-print="hide"
   >
     <!-- Popover Mini Metronome Player (Positioned to the left of floating buttons) -->
     <Transition
@@ -52,7 +48,7 @@ onBeforeUnmount(() => {
     >
       <div
         v-if="isOpen"
-        class="fixed right-3 sm:right-20 bottom-18 sm:bottom-6 z-40 w-72 sm:w-80 max-h-[calc(100dvh-5.5rem)] sm:max-h-[calc(100dvh-6.5rem)] overflow-y-auto rounded-3xl border border-line bg-panel/95 p-4 sm:p-5 shadow-2xl backdrop-blur-xl ring-1 ring-white/10 space-y-4"
+        class="fixed right-3 sm:right-20 bottom-18 sm:bottom-6 z-50 w-72 sm:w-80 max-h-[calc(100dvh-5.5rem)] sm:max-h-[calc(100dvh-6.5rem)] overflow-y-auto rounded-3xl border border-line bg-panel/95 p-4 sm:p-5 shadow-2xl backdrop-blur-xl ring-1 ring-white/10 space-y-4 pointer-events-auto"
         role="dialog"
         aria-label="Mini metronom"
       >
@@ -70,7 +66,7 @@ onBeforeUnmount(() => {
 
           <button
             type="button"
-            class="flex size-6 items-center justify-center rounded-lg text-faint hover:bg-surface hover:text-ink transition-colors outline-none"
+            class="flex size-6 items-center justify-center rounded-lg text-faint hover:bg-surface hover:text-ink transition-colors outline-none cursor-pointer"
             @click="isOpen = false"
           >
             <Icon name="material-symbols:close-rounded" class="text-base" />
@@ -96,7 +92,7 @@ onBeforeUnmount(() => {
           <div class="flex items-center gap-1">
             <button
               type="button"
-              class="flex size-8 items-center justify-center rounded-xl bg-raised hover:bg-line text-ink font-bold text-xs transition-colors shadow-2xs outline-none"
+              class="flex size-8 items-center justify-center rounded-xl bg-raised hover:bg-line text-ink font-bold text-xs transition-colors shadow-2xs outline-none cursor-pointer"
               title="-5 BPM"
               @click="setBpm(bpm - 5)"
             >
@@ -104,7 +100,7 @@ onBeforeUnmount(() => {
             </button>
             <button
               type="button"
-              class="flex size-8 items-center justify-center rounded-xl bg-raised hover:bg-line text-ink font-bold text-xs transition-colors shadow-2xs outline-none"
+              class="flex size-8 items-center justify-center rounded-xl bg-raised hover:bg-line text-ink font-bold text-xs transition-colors shadow-2xs outline-none cursor-pointer"
               title="-1 BPM"
               @click="setBpm(bpm - 1)"
             >
@@ -121,7 +117,7 @@ onBeforeUnmount(() => {
           <div class="flex items-center gap-1">
             <button
               type="button"
-              class="flex size-8 items-center justify-center rounded-xl bg-raised hover:bg-line text-ink font-bold text-xs transition-colors shadow-2xs outline-none"
+              class="flex size-8 items-center justify-center rounded-xl bg-raised hover:bg-line text-ink font-bold text-xs transition-colors shadow-2xs outline-none cursor-pointer"
               title="+1 BPM"
               @click="setBpm(bpm + 1)"
             >
@@ -129,7 +125,7 @@ onBeforeUnmount(() => {
             </button>
             <button
               type="button"
-              class="flex size-8 items-center justify-center rounded-xl bg-raised hover:bg-line text-ink font-bold text-xs transition-colors shadow-2xs outline-none"
+              class="flex size-8 items-center justify-center rounded-xl bg-raised hover:bg-line text-ink font-bold text-xs transition-colors shadow-2xs outline-none cursor-pointer"
               title="+5 BPM"
               @click="setBpm(bpm + 5)"
             >
@@ -248,7 +244,7 @@ onBeforeUnmount(() => {
     opacity: 0.9;
   }
   100% {
-    transform: scale(2.4);
+    transform: scale(2.2);
     opacity: 0;
   }
 }

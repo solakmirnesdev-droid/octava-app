@@ -149,14 +149,6 @@ useSeoMeta({
 
 /**
  * The picture that appears when the link is pasted into a chat. Built from the
- * song itself rather than one shared site image, because the whole point is
- * that the recipient sees which song it is before opening anything.
- */
-// Plain values, not a computed: these props are serialised into the image URL,
-// and a reactive ref serialises as a circular structure — a 500 on the page
-// itself, not a broken picture.
-/**
- * The picture that appears when the link is pasted into a chat. Built from the
  * song itself rather than one shared site image, because the point is that the
  * recipient sees which song it is before opening anything.
  *
@@ -281,17 +273,13 @@ useHead(computed(() => (song.value ? {
     </header>
 
     <VersionSwitcher
-
       data-print="hide"
-
       :arrangements="song.arrangements || []"
-
       :current="song.arrangementId"
-
     />
 
-
-    <StarRating data-print="hide"
+    <StarRating
+      data-print="hide"
       class="mb-5"
       :slug="song.slug"
       :arrangement-id="song.arrangementId"
@@ -412,7 +400,6 @@ useHead(computed(() => (song.value ? {
       <span>{{ $t('song.chordHear') }}</span>
     </div>
 
-
     <!--
       One sheet, and for a signed-out visitor every chord in it is already [X]
       and every word already x — the server sent nothing else. The wrapper is
@@ -440,7 +427,6 @@ useHead(computed(() => (song.value ? {
       :reason="auth.isAuthenticated ? 'subscription_required' : 'login_required'"
     />
 
-
     <!-- Below the chords: the chart is what the page is for, and a player at
          the top would push it off the first screen. -->
     <SongVideo
@@ -450,13 +436,11 @@ useHead(computed(() => (song.value ? {
       :title="song.title"
     />
 
-
     <!-- Under the chords and set small: the reader who needs this is a
          minority, and a form for them would sit in front of everyone else. -->
     <div data-print="hide" class="mt-4 flex justify-end">
       <ReportProblem :slug="song.slug" :arrangement-id="song.arrangementId" />
     </div>
-
 
     <!-- Below the chords, deliberately: someone opening this page came to
          play, and what other people thought is worth reading after that. -->
@@ -468,17 +452,21 @@ useHead(computed(() => (song.value ? {
 
     <RelatedSongs data-print="hide" :slug="song.slug" />
 
-    <!-- Floating Interactive Dancing Chords Companion (Above Metronome) -->
-    <DancingChords
-      v-model="showChords"
-      :content="song.content"
-      :semitones="semitones"
-      :capo="capo"
-      :original-key="song.originalKey"
-      :locked="song.locked"
-    />
-
-    <!-- Floating Interactive Dancing Metronome Companion (Right Side) -->
-    <DancingMetronome />
+    <!-- Floating Interactive Tools Dock (Right Side: Clean Flex Column Stack) -->
+    <div
+      data-print="hide"
+      class="fixed right-4 sm:right-6 bottom-4 sm:bottom-6 z-40 flex flex-col items-end gap-2.5 sm:gap-3 pointer-events-none"
+    >
+      <DancingMetronome class="pointer-events-auto" />
+      <DancingChords
+        v-model="showChords"
+        :content="song.content"
+        :semitones="semitones"
+        :capo="capo"
+        :original-key="song.originalKey"
+        :locked="song.locked"
+        class="pointer-events-auto"
+      />
+    </div>
   </article>
 </template>
