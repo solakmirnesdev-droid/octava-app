@@ -43,24 +43,35 @@ const style = ref({
   visibility: 'hidden'
 });
 
-const GAP = 10;
-const MARGIN = 10;
+const GAP = 6;
+const MARGIN = 12;
+const HEADER_CLEARANCE = 64;
 
 function place() {
   if (!props.anchor || !el.value) return;
   const a = props.anchor.getBoundingClientRect();
-  const box = el.value.getBoundingClientRect();
 
-  const width = box.width > 0 ? box.width : el.value.offsetWidth || 150;
-  const height = box.height > 0 ? box.height : el.value.offsetHeight || 230;
+  // Accurately measure the exact rendered height and width
+  const height = el.value.offsetHeight || el.value.scrollHeight || 225;
+  const width = el.value.offsetWidth || el.value.scrollWidth || 140;
 
-  // Above by default; below when there is no room, which is the case for the
-  // first line of the sheet and for anything under the sticky header.
-  const fitsAbove = a.top - height - GAP >= MARGIN;
-  const top = fitsAbove ? a.top - height - GAP : a.bottom + GAP;
+  // Position strictly ABOVE the chord with tight clearance
+  const spaceAbove = a.top - GAP - height;
+  const fitsAbove = spaceAbove >= HEADER_CLEARANCE || a.top >= (height + GAP);
 
-  // Centred on the chord, then pulled back inside the viewport rather than
-  // hanging off the edge.
+  let top;
+  let transformOrigin = 'bottom center';
+
+  if (fitsAbove) {
+    top = a.top - height - GAP;
+    transformOrigin = 'bottom center';
+  } else {
+    // Only if at the absolute top under sticky header
+    top = a.bottom + GAP;
+    transformOrigin = 'top center';
+  }
+
+  // Centred on the chord, then constrained within viewport margins
   const wanted = a.left + a.width / 2 - width / 2;
   const left = Math.min(Math.max(wanted, MARGIN), window.innerWidth - width - MARGIN);
 
@@ -68,6 +79,7 @@ function place() {
     position: 'fixed',
     top: `${Math.round(top)}px`,
     left: `${Math.round(left)}px`,
+    transformOrigin,
     zIndex: 9999,
     visibility: 'visible'
   };
@@ -77,13 +89,13 @@ let resizeObserver = null;
 
 onMounted(async () => {
   await nextTick();
-  place();
+  requestAnimationFrame(place);
   window.addEventListener('scroll', place, { passive: true });
   window.addEventListener('resize', place);
 
   if (typeof ResizeObserver !== 'undefined' && el.value) {
     resizeObserver = new ResizeObserver(() => {
-      place();
+      requestAnimationFrame(place);
     });
     resizeObserver.observe(el.value);
   }
@@ -117,23 +129,21 @@ watch(() => props.playTrigger, (newVal, oldVal) => {
 
 <template>
   <Teleport to="body">
-    <Transition name="popup" appear>
-      <div
-        ref="el"
-        :style="style"
-        class="rounded-2xl border border-line bg-panel/95 p-2.5 shadow-2xl backdrop-blur-xl ring-1 ring-white/10 before:absolute before:-inset-3 before:content-[''] transition-[box-shadow] duration-200"
-        :class="ringing ? 'popup-shadow-ringing' : ''"
-        @mouseenter="emit('keep')"
-        @mouseleave="emit('leave')"
-      >
-        <ChordDiagram
-          :symbol="symbol"
-          :compact="true"
-          :play-trigger="playTrigger"
-          @play="triggerRinging"
-        />
-      </div>
-    </Transition>
+    <div
+      ref="el"
+      :style="style"
+      class="rounded-2xl border border-line bg-panel/95 p-2.5 shadow-2xl backdrop-blur-xl ring-1 ring-white/10"
+      :class="ringing ? 'popup-shadow-ringing' : ''"
+      @mouseenter="emit('keep')"
+      @mouseleave="emit('leave')"
+    >
+      <ChordDiagram
+        :symbol="symbol"
+        :compact="true"
+        :play-trigger="playTrigger"
+        @play="triggerRinging"
+      />
+    </div>
   </Teleport>
 </template>
 

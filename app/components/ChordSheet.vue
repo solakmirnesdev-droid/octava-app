@@ -142,7 +142,7 @@ function onChordClick(key, symbol, event) {
     copying, and a screen reader announcing scrambled letters is just noise.
   -->
   <div
-    class="font-mono leading-tight transition-all"
+    class="font-mono leading-tight"
     :class="[
       columns ? 'columns-1 md:columns-2 xl:columns-3 max-w-full gap-8 md:gap-10 xl:gap-12 [column-rule:1px_solid_var(--color-line-soft)]' : 'max-w-2xl',
       locked ? 'select-none pointer-events-none' : ''
@@ -182,7 +182,7 @@ function onChordClick(key, symbol, event) {
           >{{ seg.chord }}</span>
           <button
             v-else
-            class="relative inline-flex items-center justify-center font-semibold text-accent underline decoration-dotted decoration-accent/30 underline-offset-4 transition-all duration-150 py-0.5 px-1 -my-0.5 -mx-1 rounded cursor-pointer before:absolute before:-inset-x-2 before:-inset-y-2 before:content-[''] hover:scale-105 active:scale-95"
+            class="font-semibold text-accent underline decoration-dotted decoration-accent/30 underline-offset-4 cursor-pointer"
             :class="isActive(`inst-${i}-${j}`) ? 'text-accent' : ''"
             :title="$t('song.chordHear')"
             @click="onChordClick(`inst-${i}-${j}`, seg.chord, $event)"
@@ -211,7 +211,7 @@ function onChordClick(key, symbol, event) {
             >{{ seg.chord }}</span>
             <button
               v-else-if="seg.chord"
-              class="relative inline-flex items-center justify-center font-semibold text-accent underline decoration-dotted decoration-accent/30 underline-offset-2 transition-all duration-150 py-0.5 px-1 -my-0.5 -mx-1 rounded cursor-pointer before:absolute before:-inset-x-2.5 before:-inset-y-2 before:content-[''] hover:scale-105 active:scale-95"
+              class="font-semibold text-accent underline decoration-dotted decoration-accent/30 underline-offset-2 cursor-pointer"
               :class="isActive(`${i}-${j}`) ? 'text-accent' : ''"
               :title="$t('song.chordHear')"
               @mouseenter="show(`${i}-${j}`, $event)"
