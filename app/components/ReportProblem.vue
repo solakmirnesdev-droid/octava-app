@@ -11,7 +11,18 @@
  */
 const props = defineProps({
   slug: { type: String, required: true },
-  arrangementId: { type: String, default: null }
+  arrangementId: { type: String, default: null },
+
+  /**
+   * What the catalogue already knows is missing from this song, from
+   * `song.missing` — e.g. `['sekcija-bez-akorda']`.
+   *
+   * The form used to open on "wrong chords" for everybody, including the 1,208
+   * published songs where the catalogue has already measured that a verse has
+   * no chords over it at all. Asking a blank question about a gap we can name
+   * wastes the one moment somebody was willing to help.
+   */
+  missing: { type: Array, default: () => [] }
 });
 
 const { $api } = useNuxtApp();
@@ -23,6 +34,21 @@ const { t } = useI18n();
 const KINDS = ['chords', 'lyrics', 'key', 'duplicate', 'other'];
 const labelFor = (k) => `song.kind${k.charAt(0).toUpperCase()}${k.slice(1)}`;
 
+/** Which category a known gap belongs to. */
+const ZA_KATEGORIJU = {
+  'sekcija-bez-akorda': 'chords',
+  'prazna-pjesma': 'lyrics',
+  'kratak-tekst': 'lyrics',
+  'bez-sekcija': 'lyrics',
+  'kvar-u-oznaci': 'lyrics'
+};
+
+/** The gap worth naming, if the catalogue knows of one. */
+const rupa = computed(() => props.missing.find((f) => ZA_KATEGORIJU[f]) || null);
+
+/** The category the form should open on. */
+const pocetna = computed(() => (rupa.value ? ZA_KATEGORIJU[rupa.value] : 'chords'));
+
 const open = ref(false);
 const kind = ref('chords');
 const note = ref('');
@@ -32,7 +58,7 @@ const error = ref('');
 
 function start() {
   open.value = true;
-  kind.value = 'chords';
+  kind.value = pocetna.value;
   note.value = '';
   done.value = false;
   error.value = '';
@@ -87,6 +113,13 @@ async function send() {
       :dismissible="!sending"
     >
       <template v-if="!done">
+        <!-- When the catalogue already knows what is missing, say so instead of
+             opening with a blank question. The category below is preselected to
+             match, so the usual answer is one click. -->
+        <p v-if="rupa" class="mb-3 rounded border border-line bg-raised px-3 py-2 text-xs text-muted">
+          {{ $t(`song.gap.${rupa}`) }}
+        </p>
+
         <div class="space-y-1.5">
           <label
             v-for="k in KINDS" :key="k"

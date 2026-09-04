@@ -71,6 +71,19 @@ async function toggleFavorite() {
 const DIFFICULTY_KEY = { easy: 'difficultyEasy', medium: 'difficultyMedium', hard: 'difficultyHard' };
 const difficultyKey = computed(() => DIFFICULTY_KEY[song.value?.difficulty] || null);
 
+/**
+ * The one gap worth naming on the page, out of `song.missing`.
+ *
+ * The API sends only the reader-facing flags — a verse with no chords, lyrics
+ * that stop short — never the editorial tidiness ones, so anything here is
+ * something a person would actually run into. Showing the first is enough: a
+ * song that is missing two things is not twice as worth apologising for.
+ */
+const REDOSLIJED = ['prazna-pjesma', 'kratak-tekst', 'sekcija-bez-akorda', 'bez-sekcija', 'kvar-u-oznaci'];
+const nedostaje = computed(
+  () => REDOSLIJED.find((f) => (song.value?.missing || []).includes(f)) || null
+);
+
 const DIFFICULTY_CLASS = {
   easy:   'border-ok/25 bg-ok-soft text-ok',
   medium: 'border-warn/25 bg-warn-soft text-warn',
@@ -270,6 +283,24 @@ useHead(computed(() => (song.value ? {
           <span v-if="viewsLabel">{{ $t('song.views', { n: viewsLabel.formatted }, viewsLabel.n) }}</span>
         </p>
       </div>
+
+      <!--
+        The catalogue measured that something is missing here — no chords over a
+        verse, or lyrics that stop halfway. Saying so is kinder than letting a
+        reader work it out at the second chorus with a guitar in their hands.
+
+        AI-DECISION: `warn`, not `danger`, and it sits with the metadata rather
+        than above the song. The song is still worth reading; this is a footnote,
+        not a warning label. It appears on 1,208 of 11,904 published songs, so a
+        loud treatment would make the catalogue look broken when it is not.
+      -->
+      <p
+        v-if="nedostaje"
+        data-print="hide"
+        class="mt-3 flex items-center gap-2 text-xs text-muted"
+      >
+        <AppBadge variant="warn" dot>{{ $t(`song.gapShort.${nedostaje}`) }}</AppBadge>
+      </p>
     </header>
 
     <VersionSwitcher
@@ -439,7 +470,11 @@ useHead(computed(() => (song.value ? {
     <!-- Under the chords and set small: the reader who needs this is a
          minority, and a form for them would sit in front of everyone else. -->
     <div data-print="hide" class="mt-4 flex justify-end">
-      <ReportProblem :slug="song.slug" :arrangement-id="song.arrangementId" />
+      <ReportProblem
+        :slug="song.slug"
+        :arrangement-id="song.arrangementId"
+        :missing="song.missing || []"
+      />
     </div>
 
     <!-- Below the chords, deliberately: someone opening this page came to

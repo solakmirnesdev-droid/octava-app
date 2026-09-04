@@ -79,6 +79,20 @@
     "kindKey": "Pogrešan tonalitet",
     "kindDuplicate": "Duplikat pjesme",
     "kindOther": "Nešto drugo",
+    "gap": {
+      "sekcija-bez-akorda": "Znamo da ovoj pjesmi nedostaju akordi iznad barem jedne strofe. Ako ih znaš, upiši ih ispod — pomažeš svima poslije sebe.",
+      "prazna-pjesma": "Ova pjesma još nema upisan tekst ni akorde. Ako ih imaš, upiši ih ispod.",
+      "kratak-tekst": "Izgleda da je tekst ove pjesme nepotpun. Ako znaš kako ide dalje, dopiši ispod.",
+      "bez-sekcija": "Ova pjesma nema označene strofe ni refren. Ako znaš gdje idu, javi nam ispod.",
+      "kvar-u-oznaci": "Oznake strofa u ovoj pjesmi se ne prikazuju ispravno. Ako vidiš gdje je greška, javi nam."
+    },
+    "gapShort": {
+      "sekcija-bez-akorda": "Nedostaju akordi",
+      "prazna-pjesma": "Bez teksta",
+      "kratak-tekst": "Nepotpun tekst",
+      "bez-sekcija": "Bez strofa",
+      "kvar-u-oznaci": "Oznake u kvaru"
+    },
     "reportNote": "Opis",
     "reportNoteHint": "npr. u refrenu je Am, ne A",
     "reportNoteRequired": "Uz „nešto drugo\" opis je obavezan.",

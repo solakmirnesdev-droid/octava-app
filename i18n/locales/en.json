@@ -79,6 +79,20 @@
     "kindKey": "Wrong key",
     "kindDuplicate": "Duplicate song",
     "kindOther": "Something else",
+    "gap": {
+      "sekcija-bez-akorda": "We know at least one verse in this song has no chords over it. If you know them, write them below — it helps everyone after you.",
+      "prazna-pjesma": "This song has no lyrics or chords yet. If you have them, write them below.",
+      "kratak-tekst": "The lyrics for this song look incomplete. If you know how it goes on, add it below.",
+      "bez-sekcija": "This song has no verse or chorus labels. If you know where they go, tell us below.",
+      "kvar-u-oznaci": "The verse labels in this song are not rendering correctly. If you can see what is wrong, tell us."
+    },
+    "gapShort": {
+      "sekcija-bez-akorda": "Chords missing",
+      "prazna-pjesma": "No lyrics",
+      "kratak-tekst": "Incomplete lyrics",
+      "bez-sekcija": "No verses marked",
+      "kvar-u-oznaci": "Broken labels"
+    },
     "reportNote": "Details",
     "reportNoteHint": "e.g. the chorus is Am, not A",
     "reportNoteRequired": "Details are required for “something else”.",
